@@ -1,7 +1,7 @@
 # instant-question-notes
 
 疑問や調べたことを、メモる速度で静的 HTML の記事として蓄積する個人用ノートです。
-
+（https://zenn.dev/ttaniguchi/articles/instant-question-html-notes を参考に作成しました。）
 ## 使い方
 
 1. 質問を Claude Code / Codex に渡す
