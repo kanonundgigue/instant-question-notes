@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Google グループを入れ子にしたメーリングリストの配信管理 | instant-question-notes</title>
+    <meta name="description" content="Google グループのメーリングリスト内に別の Google グループを登録した場合の、親子グループ、直接メンバーと間接メンバー、配信可否、配信状況確認の考え方。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>Google グループを入れ子にしたメーリングリストの配信管理</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-06-12">2026-06-12</time></p>
+          <p>カテゴリ: google-workspace</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>Google groupのメーリングリストの中にGoogle groupのメーリングリストを登録した場合の、配信状況の管理方法は？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>Google Workspace の Google グループでは、あるグループを別のグループのメンバーとして追加できます。Google の用語では、追加先が親グループ、追加される側が子グループ、またはネストされたグループです。配信管理は「親グループに子グループを直接メンバーとして登録する」「子グループ側で実際のユーザーを管理する」「個別メッセージの到達確認は Email Log Search で追う」と分けて考えるのが基本です。</p>
+
+          <h3>管理単位は親グループの直接メンバーと子グループのメンバーに分かれる</h3>
+          <p>親グループに登録されるのは、子グループのメールアドレスです。子グループに所属する各ユーザーは、親グループの直接メンバーにはなりません。そのため、子グループのユーザーは親グループから自分で退会したり、親グループ上の自分のメンバー設定を変更したりできません。</p>
+          <p>運用上は、親グループでは「どの子グループを含めるか」を管理し、子グループでは「誰を含めるか」を管理します。複数の親グループに同じ子グループを入れている場合、子グループのメンバーを更新すれば、それらの親グループに間接的に反映されます。</p>
+
+          <h3>子グループのメンバーが親グループの投稿を受け取る条件</h3>
+          <p>Google の説明では、子グループのメンバーが親グループに投稿されたメッセージを受け取るには、子グループ側の「投稿できるユーザー」設定が関係します。子グループの <code>Who can post</code> を「組織内のすべてのユーザー」以上、たとえば「ウェブ上のすべてのユーザー」まで広げる必要がある場合があります。これが狭いと、親グループから子グループへの投稿として扱われたメッセージが子グループで受け付けられず、子グループのメンバーに届かないことがあります。</p>
+          <p>つまり、親グループに子グループを追加しただけでは十分ではありません。親グループ側のメンバー追加、子グループ側の投稿許可、子グループ側のメンバー配信設定をあわせて確認します。</p>
+
+          <h3>管理画面で確認する場所</h3>
+          <p>Google 管理コンソールでは、<code>Directory</code> の <code>Groups</code> から親グループを開き、メンバー一覧で直接メンバーを確認します。対応エディションでは、<code>Direct and indirect members</code> を開くことで、親グループの直接メンバーと、子グループ経由の間接メンバーを同じ一覧で確認できます。</p>
+          <p>ただし、間接メンバーのロールや禁止状態など、詳細なメンバー属性を確認したい場合は、実際にそのユーザーが所属している子グループを Google Groups 側で開いて確認します。</p>
+
+          <h3>API で棚卸しする場合</h3>
+          <p>Admin SDK Directory API の <code>Member</code> リソースでは、メンバーの種類として <code>USER</code> と <code>GROUP</code> が区別されます。子グループは親グループのメンバーとして <code>GROUP</code> 型になります。メンバー単位のメール配信設定は <code>delivery_settings</code> で表され、<code>ALL_MAIL</code>、<code>DAILY</code>、<code>DIGEST</code>、<code>NONE</code>、<code>DISABLED</code> などの値があります。</p>
+          <p>API や管理スクリプトで棚卸しする場合は、親グループのメンバー一覧から <code>GROUP</code> 型の子グループを抽出し、その子グループをさらに展開して、最終的な受信候補ユーザーの一覧を作るのが現実的です。循環した入れ子は API 上もエラーになるため、双方向に入れ子にする構成は避けます。</p>
+
+          <h3>実際に届いたかは Email Log Search で見る</h3>
+          <p>「このメッセージが誰に届いたか」「なぜ届かなかったか」を確認する用途では、Google 管理コンソールの Email Log Search を使います。Email Log Search は、組織内で送受信されたメールの詳細や配送ステップを確認でき、Google グループや組織内メーリングリスト宛のメッセージも検索対象にできます。</p>
+          <p>注意点として、Email Log Search でグループアドレスを受信者として検索した結果は、個々のグループメンバーへの配送情報を含まない場合があります。個別の到達状況まで追う場合は、メッセージ ID と特定の受信者アドレスで検索条件を絞ります。大きなグループではログ件数が多くなるため、対象メッセージと対象ユーザーを絞って調べる運用にします。</p>
+
+          <h3>運用ルールの例</h3>
+          <ul>
+            <li>親グループは配信先グループの束ね役として扱い、個人ユーザーをできるだけ直接入れない。</li>
+            <li>子グループはチームや部門など、実際にメンバーを管理する単位にする。</li>
+            <li>親グループに投稿したメールを子グループへ流したい場合は、子グループ側の投稿許可を確認する。</li>
+            <li>配信対象者の棚卸しでは、親グループの直接メンバーと、子グループ経由の間接メンバーを分けて見る。</li>
+            <li>個別の不達調査では、Email Log Search でメッセージ ID と受信者を指定して確認する。</li>
+            <li>入れ子が深くなると説明責任と不達調査が難しくなるため、親子関係は浅く保つ。</li>
+          </ul>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ul>
+            <li><a href="https://support.google.com/a/answer/167100?hl=en">Add a group to another group - Google Workspace Help</a></li>
+            <li><a href="https://knowledge.workspace.google.com/admin/groups/view-a-groups-members">View a group's members - Google Workspace Help</a></li>
+            <li><a href="https://support.google.com/a/answer/2618874?hl=en">Find messages with Email Log Search - Google Workspace Help</a></li>
+            <li><a href="https://developers.google.com/workspace/admin/directory/reference/rest/v1/members">REST Resource: members - Admin SDK Directory API</a></li>
+            <li><a href="https://developers.google.com/workspace/admin/groups-settings/v1/reference/groups">Groups Settings API: Groups - Google for Developers</a></li>
+          </ul>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>
