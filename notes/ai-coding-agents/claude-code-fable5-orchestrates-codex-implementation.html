@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Claude Code Fable 5 で設計を統括し、Codex に実装させる方法 | instant-question-notes</title>
+    <meta name="description" content="Claude Code Fable 5 をオーケストレーター、Codex を実装担当として使い分けるための具体的な分担、設定、プロンプト、検証フロー。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>Claude Code Fable 5 で設計を統括し、Codex に実装させる方法</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-06-13">2026-06-13</time></p>
+          <p>カテゴリ: ai-coding-agents</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>claude code Fable5でオーケストレーションして実装をcodexでする方法を具体的に教えて</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>実用上は、Claude Code Fable 5 を「リードエージェント」、Codex を「実装エージェント」として分けます。Claude Code は要求の分解、設計判断、タスク順序、レビュー観点の整理を担当し、Codex はリポジトリ内で実際にファイルを編集し、テストや lint を回して差分を作ります。</p>
+          <p>最重要のルールは 1 つだけです。<strong>同じファイルを Claude Code と Codex の両方に編集させない</strong>こと。最初は「Claude が計画を作る → 人間が承認する → Codex が実装する → Claude が差分をレビューする」という直列ループにするのが安全で、慣れてから並列化を検討します。</p>
+
+          <h3>前提</h3>
+          <p>Anthropic のモデル一覧では、Claude Fable 5 はモデル ID <code>claude-fable-5</code> で提供される最上位モデル（Opus より上位の新ティア）で、1M トークンのコンテキストを持ち、長い自律作業や高度な推論向けと説明されています。Claude Code の subagent 設定でも <code>model: fable</code> を指定できます。設計判断とレビューという「考える側」をここに置く理由です。</p>
+          <p>Codex 側は、リポジトリの <code>AGENTS.md</code> を自動で読み、sandbox（<code>read-only</code> / <code>workspace-write</code> / <code>danger-full-access</code>）と approval ポリシーで権限を制御しながらファイル編集とテスト実行を進められるため、「手を動かす側」に向きます。</p>
+
+          <h3>おすすめの役割分担</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>役割</th>
+                <th>担当</th>
+                <th>やらせないこと</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Claude Code Fable 5</td>
+                <td>要件整理、設計分解、タスク発行、Codex の出力レビュー、次の指示作成</td>
+                <td>Codex が編集中のファイルを横から編集しない</td>
+              </tr>
+              <tr>
+                <td>Codex</td>
+                <td>コード編集、テスト追加、テスト実行、lint、差分説明</td>
+                <td>要求範囲を超えた設計変更や大規模リファクタを勝手に広げない</td>
+              </tr>
+              <tr>
+                <td>人間</td>
+                <td>計画承認、権限承認、最終差分確認、commit / push 判断</td>
+                <td>承認前に大きい自動実装を走らせない</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>最小フロー</h3>
+          <ol>
+            <li>Claude Code を Fable 5 または Fable 相当のモデルで開きます。</li>
+            <li>Claude Code に「実装は Codex に渡す。あなたは計画とレビューだけを担当」と明示します。</li>
+            <li>Claude Code に実装タスクを 1 つずつ <code>codex exec</code> 用プロンプトへ変換させます。</li>
+            <li>Codex を <code>workspace-write</code> sandbox で実行し、必要な編集と検証だけをさせます。</li>
+            <li>Codex の差分を Claude Code にレビューさせます。</li>
+            <li>問題があれば Claude Code が修正指示を作り、もう一度 Codex に渡します。</li>
+          </ol>
+
+          <h3>Claude Code への最初のプロンプト</h3>
+          <p>まず Claude Code 側に、オーケストレーターとしての境界を固定します。</p>
+          <p>プロンプト例（言語名: text）:</p>
+          <pre><code>あなたは Claude Code Fable 5 のリードエージェントです。
+このリポジトリでは、あなたは設計、分解、レビュー、Codex への実装指示作成だけを担当してください。
+
+実装のファイル編集は Codex に任せます。
+あなた自身は、Codex が編集する対象ファイルを直接編集しないでください。
+
+進め方:
+1. まずリポジトリのルールと関連ファイルを読んでください。
+2. 実装計画を小さなタスクに分割してください。
+3. 各タスクについて、Codex に渡す `codex exec` 用の具体的なプロンプトを作ってください。
+4. Codex 実行後は、差分、テスト結果、残リスクをレビューしてください。
+5. 追加修正が必要なら、次の Codex 用プロンプトを作ってください。</code></pre>
+
+          <h3>Codex に渡す実装プロンプトの型</h3>
+          <p>Codex には「目的、対象ファイル、禁止事項、完了条件」を明確に渡します。Claude Code には、この型で毎回プロンプトを生成させると安定します。</p>
+          <p>プロンプト例（言語名: text）:</p>
+          <pre><code>目的:
+&lt;実装したい変更を 1 つだけ書く&gt;
+
+対象:
+- &lt;主に触ってよいファイルやディレクトリ&gt;
+
+制約:
+- リポジトリの AGENTS.md に従う
+- 関係ないリファクタはしない
+- 既存の公開 API や UI 文言を変える場合は理由を説明する
+- テストを追加または更新できる場合は行う
+
+完了条件:
+- 変更内容を実装する
+- 関連するテスト / lint / 型チェックを実行する
+- 実行できなかった検証があれば理由を明記する
+- 最後に変更ファイル、検証結果、残リスクを短くまとめる</code></pre>
+
+          <h3>Claude Code から Codex CLI を呼ぶ例</h3>
+          <p>Claude Code がシェル実行できる環境なら、Claude Code に次のようなコマンドを実行させます。<code>codex exec</code> は非対話実行のため、途中で人間の承認を待つ運用には向きません。sandbox を <code>workspace-write</code> に固定し、サンドボックスの境界内で完結するタスクだけを渡します。<code>danger-full-access</code> は自動化フローでは渡しません。</p>
+          <p>コマンド例（言語名: shell）:</p>
+          <pre><code>codex exec --sandbox workspace-write "目的:
+ログインフォームのバリデーションエラー表示を改善する。
+
+対象:
+- src/features/auth/
+- src/components/form/
+
+制約:
+- AGENTS.md に従う
+- 関係ないリファクタはしない
+- 既存テストがあれば更新する
+
+完了条件:
+- 実装する
+- 関連テストを実行する
+- 変更内容と検証結果を報告する"</code></pre>
+
+          <p>Codex 実行後、Claude Code には次を渡します。</p>
+          <p>プロンプト例（言語名: text）:</p>
+          <pre><code>Codex が実装しました。
+git diff とテスト結果を読んで、以下をレビューしてください。
+
+- 要件を満たしているか
+- 余計な変更がないか
+- テスト不足がないか
+- セキュリティやデータ損失のリスクがないか
+- Codex に追加修正を依頼すべき具体的なプロンプト</code></pre>
+
+          <h3>subagent を使う場合</h3>
+          <p>Claude Code 側に「Codex 実装指示を作る専門 subagent」を置くと、リードの会話を汚さずに実装依頼文を作れます。これは Codex を直接内包するものではなく、Codex に渡す指示を作るための Claude Code subagent です。</p>
+          <p>設定例（言語名: markdown）:</p>
+          <pre><code>---
+name: codex-task-writer
+description: Codex に実装を渡すための、範囲の狭い実装プロンプトを作る
+tools: Read, Glob, Grep
+model: fable
+---
+あなたは Codex 実装タスクの設計者です。
+リポジトリのルール、対象ファイル、完了条件を読み、Codex に渡す 1 タスク分のプロンプトだけを作ってください。
+
+必ず含める項目:
+- 目的
+- 対象
+- 制約
+- 完了条件
+- 実行すべき検証
+
+禁止:
+- あなた自身でファイルを編集しない
+- 複数の独立した実装を 1 つのタスクに詰め込まない
+- 未確認の前提を断定しない</code></pre>
+
+          <p>このファイルは、プロジェクト単位なら <code>.claude/agents/codex-task-writer.md</code>、個人共通なら <code>~/.claude/agents/codex-task-writer.md</code> に置きます。ファイルを直接編集して変更が反映されない場合は、Claude Code のセッションを再起動します。</p>
+
+          <h3>並列化したい場合</h3>
+          <p>Claude Code の agent teams は、リードと複数の teammate がタスク一覧とメッセージで協調する仕組みです。調査、レビュー、独立した新規モジュールには向きますが、同じファイルを複数エージェントが触る実装には向きません。</p>
+          <p>並列化するなら、Claude Code では「調査担当」「テスト観点担当」「レビュー担当」を並列にし、Codex の実装は 1 つの作業単位ずつ直列に流すのが安全です。どうしても複数 Codex 実装を並列にする場合は、Git worktree や別ブランチでファイル競合を分離します。</p>
+
+          <h3>失敗しやすいパターン</h3>
+          <ul>
+            <li>Claude Code と Codex の両方に同じ実装ファイルを編集させる。</li>
+            <li>「全部いい感じに実装して」と渡し、Codex の変更範囲が広がる。</li>
+            <li>Claude Code の計画承認なしに、長時間の自動実装を始める。</li>
+            <li>テスト実行や diff レビューを Codex の自己申告だけで終える。</li>
+            <li>権限を広げすぎ、不要なネットワークアクセスやリポジトリ外書き込みを許す。</li>
+          </ul>
+
+          <h3>この形にするときの実務ルール</h3>
+          <ul>
+            <li>共通ルールは <code>AGENTS.md</code> に置き、Codex が必ず読む状態にする。</li>
+            <li>Claude Code 用には <code>CLAUDE.md</code> を置き、<code>AGENTS.md</code> を正本として参照させる。</li>
+            <li>Claude Code は計画とレビュー、Codex は編集と検証、という境界を毎回プロンプトに入れる。</li>
+            <li>Codex には 1 回 1 タスクで渡す。大きい機能は「調査」「最小実装」「テスト追加」「仕上げ」に分ける。</li>
+            <li>最後は Claude Code ではなく、人間が diff と検証結果を見て commit / push を判断する。</li>
+          </ul>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ul>
+            <li><a href="https://platform.claude.com/docs/en/about-claude/models/overview">Models overview - Claude API Docs</a></li>
+            <li><a href="https://code.claude.com/docs/en/overview">Overview - Claude Code Docs</a></li>
+            <li><a href="https://code.claude.com/docs/en/sub-agents">Create custom subagents - Claude Code Docs</a></li>
+            <li><a href="https://code.claude.com/docs/en/agent-teams">Orchestrate teams of Claude Code sessions - Claude Code Docs</a></li>
+            <li><a href="https://code.claude.com/docs/en/hooks">Hooks reference - Claude Code Docs</a></li>
+            <li><a href="https://developers.openai.com/codex/codex-manual.md">Codex manual - OpenAI Developers</a></li>
+          </ul>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>
