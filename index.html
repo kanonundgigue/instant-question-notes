@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>instant-question-notes</title>
+    <meta name="description" content="技術的な疑問を、メモる速度で記事化して蓄積する静的 HTML ノート。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <p class="site-kicker">Technical question notes</p>
+        <h1>instant-question-notes</h1>
+        <p class="site-lead">疑問をメモる速度で記事化する。</p>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="section" aria-labelledby="notes-heading">
+        <div class="section__header">
+          <h2 id="notes-heading">記事一覧</h2>
+          <p>新しい記事ほど上に表示します。</p>
+        </div>
+
+        <!-- 最初の記事を追加するとき、この .empty-state ブロックは削除する -->
+        <div class="empty-state">
+          <p>まだ記事はありません。</p>
+          <p>質問を投げると、ここに記事カードが追加されます。</p>
+        </div>
+
+        <div class="note-grid">
+          <!--
+          <article class="note-card">
+            <p class="note-card__category">python</p>
+            <h3><a href="notes/python/example.html">記事タイトル</a></h3>
+            <time datetime="2026-06-12">2026-06-12</time>
+          </article>
+          -->
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <p>このノートの仕組みは <a href="https://zenn.dev/ttaniguchi/articles/instant-question-html-notes">「メモる速度で記事化する技術ノート」（ttaniguchi 氏 / Zenn）</a> を参考にしています。</p>
+      </div>
+    </footer>
+  </body>
+</html>

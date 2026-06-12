@@ -1,0 +1,43 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Stage public files
+        run: |
+          # 公開対象のみ _site に集める（運用ドキュメント類は配信しない）
+          mkdir -p _site
+          cp index.html _site/
+          cp -r styles _site/
+          cp -r images _site/
+          # notes は雛形（_template）を除いて公開する
+          rsync -a --exclude='_template/' notes/ _site/notes/
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
+
