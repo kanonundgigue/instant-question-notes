@@ -4,7 +4,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>instant-question-notes</title>
-    <meta name="description" content="技術的な疑問を、メモる速度で記事化して蓄積する静的 HTML ノート。">
+    <meta name="description" content="疑問や調べたことを、メモる速度で記事化して蓄積する静的 HTML ノート。">
+    <meta name="theme-color" content="#faf6ee">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="instant-question-notes">
+    <meta property="og:description" content="疑問や調べたことを、メモる速度で記事化して蓄積する静的 HTML ノート。">
+    <meta property="og:url" content="https://kanonundgigue.github.io/instant-question-notes/">
+    <meta property="og:locale" content="ja_JP">
+    <link rel="canonical" href="https://kanonundgigue.github.io/instant-question-notes/">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%9D%3C/text%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
@@ -13,13 +21,19 @@
   <body>
     <header class="site-header">
       <div class="site-header__inner">
-        <p class="site-kicker">Technical question notes</p>
+        <p class="site-kicker">Instant question notes</p>
         <h1>instant-question-notes</h1>
         <p class="site-lead">疑問をメモる速度で記事化する。</p>
       </div>
     </header>
 
     <main class="page">
+      <section class="notice" aria-labelledby="about-heading">
+        <h2 id="about-heading">このサイトについて</h2
+        <p>日々の疑問や調べたことを、1 ページ 1 テーマの記事としてためていく個人のノートです。</p>
+        <p class="notice__disclaimer">内容の正確性や最新性、記事を参考にした結果について保証はしません。重要な判断をする場合は、必ず一次情報や専門家の確認をあわせて行ってください。</p>
+      </section>
+
       <section class="section" aria-labelledby="notes-heading">
         <div class="section__header">
           <h2 id="notes-heading">記事一覧</h2>
@@ -38,6 +52,7 @@
 
     <footer class="site-footer">
       <div class="site-footer__inner">
+        <p>ソースコードは <a href="https://github.com/kanonundgigue/instant-question-notes">GitHub リポジトリ</a> で公開しています。</p>
         <p>このノートの仕組みは <a href="https://zenn.dev/ttaniguchi/articles/instant-question-html-notes">「メモる速度で記事化する技術ノート」（ttaniguchi 氏 / Zenn）</a> を参考にしています。</p>
       </div>
     </footer>
