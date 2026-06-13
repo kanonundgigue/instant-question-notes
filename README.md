@@ -6,8 +6,8 @@
 
 1. 質問を Claude Code / Codex に渡す
 2. エージェントが必要に応じて一次情報を確認し、`notes/<category>/<slug>.html` を作成する
-3. `notes/<category>/index.html` のカテゴリ別記事一覧を更新する
-4. `index.html` のカテゴリ一覧と記事カードを、更新日がある記事は更新日、更新日がない記事は作成日を基準に日付降順で更新する
+3. `index.html` の新着セクション、カテゴリ導線、カテゴリ別セクションを更新する
+4. 記事カードは、更新日がある記事は更新日、更新日がない記事は作成日を基準に日付降順で更新する
 5. エージェントは差分を提示して止まり、人間が確認する。`commitして` と指示するとコミットする
 6. 公開する場合は `pushして` / `公開して` と指示し、`main` ブランチへ直接 push する
 
@@ -42,7 +42,7 @@ instant-question-notes/
 │   ├── _template/
 │   │   └── article.html
 │   └── <category>/
-│       ├── index.html
+│       ├── index.html（既存 URL 互換用に残る場合あり）
 │       └── <slug>.html
 ├── .github/
 │   └── workflows/
@@ -62,4 +62,5 @@ instant-question-notes/
 - 調査した場合は、記事末尾に一次情報の参照 URL を置く
 - 記事固有 CSS は原則書かず、`styles/main.css` を使う
 - 既存記事を後日修正し、本文や結論など読者の理解に影響する内容を変えた場合は、記事ページと `index.html` の記事カードに更新日を追加または更新する
-- 記事追加や既存記事更新時は、トップページだけでなく `notes/<category>/index.html` のカテゴリ別記事一覧も更新する
+- 記事追加や既存記事更新時は、トップページの新着セクションとカテゴリ別セクションを更新する
+- 既存の `notes/<category>/index.html` は過去の URL 互換のため残してよいが、新規作成や更新は必須ではない

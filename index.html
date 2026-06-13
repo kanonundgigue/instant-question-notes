@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>instant-question-notes</title>
     <meta name="description" content="疑問や調べたことを、メモる速度で記事化して蓄積する静的 HTML ノート。">
-    <meta name="theme-color" content="#faf6ee">
+    <meta name="theme-color" content="#f6f7f4">
     <meta property="og:type" content="website">
     <meta property="og:title" content="instant-question-notes">
     <meta property="og:description" content="疑問や調べたことを、メモる速度で記事化して蓄積する静的 HTML ノート。">
@@ -24,36 +24,51 @@
         <p class="site-kicker">Instant question notes</p>
         <h1>instant-question-notes</h1>
         <p class="site-lead">疑問をメモる速度で記事化する。</p>
+        <nav class="site-nav" aria-label="ページ内カテゴリ">
+          <a href="#recent">新着</a>
+          <a href="#ai-coding-agents">AI コーディングエージェント</a>
+          <a href="#project">プロジェクト運用</a>
+          <a href="#google-workspace">Google Workspace</a>
+        </nav>
       </div>
     </header>
 
     <main class="page">
-      <section class="notice" aria-labelledby="about-heading">
-        <h2 id="about-heading">このサイトについて</h2>
-        <p>日々の疑問や調べたことを、1 ページ 1 テーマの記事としてためていく個人のノートです。</p>
+      <section class="notice notice--lead" aria-labelledby="about-heading">
+        <div>
+          <h2 id="about-heading">このサイトについて</h2>
+          <p>日々の疑問や調べたことを、1 ページ 1 テーマの記事としてためていく個人のノートです。</p>
+        </div>
         <p class="notice__disclaimer">内容の正確性や最新性、記事を参考にした結果について保証はしません。重要な判断をする場合は、必ず一次情報や専門家の確認をあわせて行ってください。</p>
       </section>
 
       <section class="section section--spaced" aria-labelledby="categories-heading">
         <div class="section__header">
-          <h2 id="categories-heading">カテゴリ</h2>
-          <p>テーマごとの一覧ページから記事を探せます。</p>
+          <p class="site-kicker">Categories</p>
+          <h2 id="categories-heading">カテゴリから探す</h2>
+          <p>このページ内で、カテゴリ別の記事まで一気に見渡せます。</p>
         </div>
 
         <nav class="category-grid" aria-label="カテゴリ一覧">
-          <a class="category-card" href="notes/ai-coding-agents/index.html">
+          <a class="category-card" href="#recent">
+            <span class="category-card__label">new</span>
+            <span class="category-card__title">新着</span>
+            <span class="category-card__meta">最近追加・更新した 3 件</span>
+          </a>
+
+          <a class="category-card" href="#ai-coding-agents">
             <span class="category-card__label">ai-coding-agents</span>
             <span class="category-card__title">AI コーディングエージェント</span>
             <span class="category-card__meta">1 件の記事</span>
           </a>
 
-          <a class="category-card" href="notes/project/index.html">
+          <a class="category-card" href="#project">
             <span class="category-card__label">project</span>
             <span class="category-card__title">プロジェクト運用</span>
             <span class="category-card__meta">1 件の記事</span>
           </a>
 
-          <a class="category-card" href="notes/google-workspace/index.html">
+          <a class="category-card" href="#google-workspace">
             <span class="category-card__label">google-workspace</span>
             <span class="category-card__title">Google Workspace</span>
             <span class="category-card__meta">1 件の記事</span>
@@ -61,22 +76,27 @@
         </nav>
       </section>
 
-      <section class="section" aria-labelledby="notes-heading">
-        <div class="section__header">
-          <h2 id="notes-heading">記事一覧</h2>
-          <p>新しい記事、または最近更新した記事ほど上に表示します。</p>
+      <section class="topic-section" id="recent" aria-labelledby="recent-heading">
+        <div class="section__header section__header--split">
+          <div>
+            <p class="site-kicker">New</p>
+            <h2 id="recent-heading">最近追加・更新した記事</h2>
+          </div>
+          <p>更新日がある記事は更新日、更新日がない記事は作成日を基準に並べます。</p>
         </div>
 
         <div class="note-grid">
           <article class="note-card">
             <p class="note-card__category">ai-coding-agents</p>
             <h3><a href="notes/ai-coding-agents/claude-code-fable5-orchestrates-codex-implementation.html">Claude Code Fable 5 で設計を統括し、Codex に実装させる方法</a></h3>
+            <p class="note-card__summary">Claude Code を設計・レビュー担当、Codex を実装担当として分けるための具体的な分担、設定、プロンプト、検証フロー。</p>
             <p class="note-card__date">作成日: <time datetime="2026-06-13">2026-06-13</time></p>
           </article>
 
           <article class="note-card">
             <p class="note-card__category">project</p>
             <h3><a href="notes/project/project-usage.html">このプロジェクトの使い方</a></h3>
+            <p class="note-card__summary">質問を静的 HTML 記事として蓄積し、差分確認後にコミットや main への直接 push で公開する基本の流れ。</p>
             <p class="note-card__date">作成日: <time datetime="2026-06-12">2026-06-12</time></p>
             <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-06-13">2026-06-13</time></p>
           </article>
@@ -84,6 +104,65 @@
           <article class="note-card">
             <p class="note-card__category">google-workspace</p>
             <h3><a href="notes/google-workspace/google-groups-nested-mailing-list-delivery-management.html">Google グループを入れ子にしたメーリングリストの配信管理</a></h3>
+            <p class="note-card__summary">親子グループ、直接メンバーと間接メンバー、配信可否、Email Log Search での配信状況確認を整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-12">2026-06-12</time></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="topic-section" id="ai-coding-agents" aria-labelledby="ai-coding-agents-heading">
+        <div class="section__header section__header--split">
+          <div>
+            <p class="site-kicker">ai-coding-agents</p>
+            <h2 id="ai-coding-agents-heading">AI コーディングエージェント</h2>
+          </div>
+          <p>Claude Code、Codex など、AI コーディングエージェントの使い分けや運用に関する記事。</p>
+        </div>
+
+        <div class="note-grid note-grid--compact">
+          <article class="note-card">
+            <p class="note-card__category">Claude Code / Codex</p>
+            <h3><a href="notes/ai-coding-agents/claude-code-fable5-orchestrates-codex-implementation.html">Claude Code Fable 5 で設計を統括し、Codex に実装させる方法</a></h3>
+            <p class="note-card__summary">リードエージェントと実装エージェントを分け、安全に直列ループで進めるための運用メモ。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-13">2026-06-13</time></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="topic-section" id="project" aria-labelledby="project-heading">
+        <div class="section__header section__header--split">
+          <div>
+            <p class="site-kicker">project</p>
+            <h2 id="project-heading">プロジェクト運用</h2>
+          </div>
+          <p>instant-question-notes の使い方、公開方法、エージェント運用など、このプロジェクト自身に関する記事。</p>
+        </div>
+
+        <div class="note-grid note-grid--compact">
+          <article class="note-card">
+            <p class="note-card__category">運用ルール</p>
+            <h3><a href="notes/project/project-usage.html">このプロジェクトの使い方</a></h3>
+            <p class="note-card__summary">質問から記事を作り、確認、コミット、公開まで進めるときの基本ルール。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-12">2026-06-12</time></p>
+            <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-06-13">2026-06-13</time></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="topic-section" id="google-workspace" aria-labelledby="google-workspace-heading">
+        <div class="section__header section__header--split">
+          <div>
+            <p class="site-kicker">google-workspace</p>
+            <h2 id="google-workspace-heading">Google Workspace</h2>
+          </div>
+          <p>Google Workspace の管理、Google グループ、メール配信などに関する記事。</p>
+        </div>
+
+        <div class="note-grid note-grid--compact">
+          <article class="note-card">
+            <p class="note-card__category">Google Groups / メール配信</p>
+            <h3><a href="notes/google-workspace/google-groups-nested-mailing-list-delivery-management.html">Google グループを入れ子にしたメーリングリストの配信管理</a></h3>
+            <p class="note-card__summary">親グループと子グループを分けて、棚卸しと個別の不達調査を行う考え方。</p>
             <p class="note-card__date">作成日: <time datetime="2026-06-12">2026-06-12</time></p>
           </article>
         </div>
