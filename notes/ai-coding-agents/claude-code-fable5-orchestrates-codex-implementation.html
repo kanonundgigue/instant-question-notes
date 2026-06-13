@@ -36,7 +36,7 @@
           <p>Codex 側は、リポジトリの <code>AGENTS.md</code> を自動で読み、sandbox（<code>read-only</code> / <code>workspace-write</code> / <code>danger-full-access</code>）と approval ポリシーで権限を制御しながらファイル編集とテスト実行を進められるため、「手を動かす側」に向きます。</p>
 
           <h3>おすすめの役割分担</h3>
-          <table>
+          <table class="mobile-table">
             <thead>
               <tr>
                 <th>役割</th>
@@ -46,19 +46,19 @@
             </thead>
             <tbody>
               <tr>
-                <td>Claude Code Fable 5</td>
-                <td>要件整理、設計分解、タスク発行、Codex の出力レビュー、次の指示作成</td>
-                <td>Codex が編集中のファイルを横から編集しない</td>
+                <td data-label="役割">Claude Code Fable 5</td>
+                <td data-label="担当">要件整理、設計分解、タスク発行、Codex の出力レビュー、次の指示作成</td>
+                <td data-label="やらせないこと">Codex が編集中のファイルを横から編集しない</td>
               </tr>
               <tr>
-                <td>Codex</td>
-                <td>コード編集、テスト追加、テスト実行、lint、差分説明</td>
-                <td>要求範囲を超えた設計変更や大規模リファクタを勝手に広げない</td>
+                <td data-label="役割">Codex</td>
+                <td data-label="担当">コード編集、テスト追加、テスト実行、lint、差分説明</td>
+                <td data-label="やらせないこと">要求範囲を超えた設計変更や大規模リファクタを勝手に広げない</td>
               </tr>
               <tr>
-                <td>人間</td>
-                <td>計画承認、権限承認、最終差分確認、commit / push 判断</td>
-                <td>承認前に大きい自動実装を走らせない</td>
+                <td data-label="役割">人間</td>
+                <td data-label="担当">計画承認、権限承認、最終差分確認、commit / push 判断</td>
+                <td data-label="やらせないこと">承認前に大きい自動実装を走らせない</td>
               </tr>
             </tbody>
           </table>
