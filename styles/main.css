@@ -107,7 +107,7 @@ h3 {
 .section__header p,
 .empty-state,
 .article-meta,
-.note-card time {
+.note-card__date {
   color: var(--color-muted);
 }
 
@@ -222,9 +222,15 @@ h3 {
   text-decoration: underline;
 }
 
-.note-card time {
-  display: block;
+.note-card__date {
   font-size: 0.9rem;
+  margin-bottom: 0;
+}
+
+.note-card__date--updated {
+  color: var(--color-accent);
+  font-weight: 700;
+  margin-top: 2px;
 }
 
 .article {
