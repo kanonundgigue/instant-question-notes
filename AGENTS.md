@@ -41,6 +41,8 @@ instant-question-notes/
 ├── index.html
 ├── styles/
 │   └── main.css
+├── scripts/
+│   └── code-copy.js
 ├── images/
 ├── notes/
 │   ├── _template/
@@ -142,6 +144,7 @@ GitHub Pages で公開されるのは以下だけです（`.github/workflows/pag
 
 - `index.html`
 - `styles/`
+- `scripts/`
 - `images/`
 - `notes/`（ただし `notes/_template/` は除外）
 

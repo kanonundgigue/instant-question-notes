@@ -32,6 +32,7 @@ jobs:
           mkdir -p _site
           cp index.html _site/
           cp -r styles _site/
+          cp -r scripts _site/
           cp -r images _site/
           # notes は雛形（_template）を除いて公開する
           rsync -a --exclude='_template/' notes/ _site/notes/
@@ -40,4 +41,3 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
-

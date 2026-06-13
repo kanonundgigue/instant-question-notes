@@ -35,6 +35,8 @@ instant-question-notes/
 ├── index.html
 ├── styles/
 │   └── main.css
+├── scripts/
+│   └── code-copy.js
 ├── images/
 ├── notes/
 │   ├── _template/
