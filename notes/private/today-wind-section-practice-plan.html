@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🔒 今日の管分奏練習計画 | k-notes</title>
+    <meta name="description" content="パスワードで保護された記事です。">
+    <meta name="robots" content="noindex">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <div id="note-lock" class="note-lock">
+          <h1 class="note-lock__title">🔒 保護された記事</h1>
+          <p class="note-lock__desc">この記事はパスワードで保護されています。パスワードを入力すると本文を表示します。</p>
+          <form id="note-lock-form" class="note-lock__form">
+            <label class="note-lock__label" for="note-pass">パスワード</label>
+            <input id="note-pass" class="note-lock__input" type="password" autocomplete="current-password" autofocus required>
+            <button class="note-lock__button" type="submit">解錠</button>
+            <p id="note-lock-error" class="note-lock__error" role="alert" hidden></p>
+          </form>
+        </div>
+
+        <div id="note-content" class="note-content" hidden></div>
+      </article>
+    </main>
+
+    <script type="application/json" id="note-payload">{"v":1,"alg":"AES-GCM","kdf":"PBKDF2-SHA256","iter":250000,"salt":"Q2kzfRkbDrFkp2ODLC8I5Q==","iv":"I4UdZv5oQuHeR3oP","ct":"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"}</script>
+    <script src="../../scripts/crypto-core.js" defer></script>
+    <script src="../../scripts/decrypt.js" defer></script>
+  </body>
+</html>
