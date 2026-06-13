@@ -26,6 +26,7 @@
         <p class="site-lead">疑問をメモる速度で記事化する。</p>
         <nav class="site-nav" aria-label="ページ内カテゴリ">
           <a href="#recent">新着</a>
+          <a href="#music">音楽</a>
           <a href="#ai-coding-agents">AI コーディングエージェント</a>
           <a href="#project">プロジェクト運用</a>
           <a href="#google-workspace">Google Workspace</a>
@@ -60,6 +61,12 @@
             </li>
 
             <li class="category-card">
+              <span class="category-card__label">music</span>
+              <a class="category-card__title" href="#music">音楽</a>
+              <span class="category-card__meta">1 件の記事</span>
+            </li>
+
+            <li class="category-card">
               <span class="category-card__label">ai-coding-agents</span>
               <a class="category-card__title" href="#ai-coding-agents">AI コーディングエージェント</a>
               <span class="category-card__meta">1 件の記事</span>
@@ -91,6 +98,13 @@
 
         <div class="note-grid">
           <article class="note-card">
+            <p class="note-card__category">music</p>
+            <h3><a href="notes/music/h-moll-temperament.html">クラシック音楽で h-moll が避けられがちに見える理由</a></h3>
+            <p class="note-card__summary">ロ短調が古い鍵盤音律で扱いにくく見える理由を、五度連鎖、セント、Ais と B-flat のずれから整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-13">2026-06-13</time></p>
+          </article>
+
+          <article class="note-card">
             <p class="note-card__category">ai-coding-agents</p>
             <h3><a href="notes/ai-coding-agents/claude-code-fable5-orchestrates-codex-implementation.html">Claude Code Fable 5 で設計を統括し、Codex に実装させる方法</a></h3>
             <p class="note-card__summary">Claude Code を設計・レビュー担当、Codex を実装担当として分けるための具体的な分担、設定、プロンプト、検証フロー。</p>
@@ -104,12 +118,24 @@
             <p class="note-card__date">作成日: <time datetime="2026-06-12">2026-06-12</time></p>
             <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-06-13">2026-06-13</time></p>
           </article>
+        </div>
+      </section>
 
+      <section class="topic-section" id="music" aria-labelledby="music-heading">
+        <div class="section__header section__header--split">
+          <div>
+            <p class="site-kicker">music</p>
+            <h2 id="music-heading">音楽</h2>
+          </div>
+          <p>クラシック音楽、音律、楽器、楽曲理解に関する記事。</p>
+        </div>
+
+        <div class="note-grid note-grid--compact">
           <article class="note-card">
-            <p class="note-card__category">google-workspace</p>
-            <h3><a href="notes/google-workspace/google-groups-nested-mailing-list-delivery-management.html">Google グループを入れ子にしたメーリングリストの配信管理</a></h3>
-            <p class="note-card__summary">親子グループ、直接メンバーと間接メンバー、配信可否、Email Log Search での配信状況確認を整理します。</p>
-            <p class="note-card__date">作成日: <time datetime="2026-06-12">2026-06-12</time></p>
+            <p class="note-card__category">音律 / クラシック音楽</p>
+            <h3><a href="notes/music/h-moll-temperament.html">クラシック音楽で h-moll が避けられがちに見える理由</a></h3>
+            <p class="note-card__summary">h-moll の属和音に必要な Ais が、古い鍵盤音律でなぜ扱いにくいのかを整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-13">2026-06-13</time></p>
           </article>
         </div>
       </section>

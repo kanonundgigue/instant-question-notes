@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>クラシック音楽で h-moll が避けられがちに見える理由 | k-notes</title>
+    <meta name="description" content="h-moll、つまりロ短調が古い鍵盤音律で扱いにくく見える理由を、五度連鎖、セント、Ais と B-flat のずれから整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>クラシック音楽で h-moll が避けられがちに見える理由</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-06-13">2026-06-13</time></p>
+          <p>カテゴリ: music</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>クラシック音楽でh-mollが避けられがちな理由は？音律に絡めて教えて</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>まず用語をそろえると、ドイツ語圏の <code>h-moll</code> は英語圏の <code>B minor</code>、日本語のロ短調です。ドイツ語では <code>H</code> がナチュラルの B、<code>B</code> が B-flat を指します。</p>
+          <p>結論は単純で、h-moll がクラシック音楽全体で避けられたわけではありません。バッハの《ロ短調ミサ》、バッハ《平均律クラヴィーア曲集》第 1 巻・第 2 巻の最後の前奏曲とフーガ、シューベルト《未完成交響曲》、リスト《ピアノ・ソナタ ロ短調》、ドヴォルザーク《チェロ協奏曲 ロ短調》、チャイコフスキー《悲愴》など、重要作は多くあります。</p>
+          <p>ただし、古い 12 鍵の鍵盤をミーントーン系で調律した場合、h-moll は数理的に扱いにくい場所を踏みます。原因は主音 H ではなく、属和音に必要な Ais（A#）です。現代ピアノの 12 平均律では A# と B-flat は同じ周波数ですが、ミーントーンでは同じではありません。</p>
+
+          <h3>短調の終止は Ais を要求する</h3>
+          <p>h-moll の調号は Fis（F#）と Cis（C#）の 2 つです。調号だけなら、極端に遠い調ではありません。しかし短調の終止では、自然短音階の 7 度 A を半音上げて Ais（A#）にし、属和音を長三和音にします。</p>
+          <p>したがって、h-moll で強い V-i 終止を作るには次の和音が必要です。</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>機能</th>
+                <th>ドイツ音名</th>
+                <th>英語音名</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>主和音</td>
+                <td>H-D-Fis</td>
+                <td>B-D-F#</td>
+              </tr>
+              <tr>
+                <td>属和音</td>
+                <td>Fis-Ais-Cis</td>
+                <td>F#-A#-C#</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>ここで必要な <code>Fis-Ais</code> は長三度です。h-moll の属和音がきれいに機能するには、F# から A# までの長三度が適切な幅でなければなりません。</p>
+
+          <h3>ミーントーン系とは何か</h3>
+          <p>ミーントーン系は、ざっくり言えば「よく使う長三度をできるだけ純正な 5:4 に近づけるため、五度を少し狭くしていく」調律法の総称です。現代の 12 平均律のように、すべての半音を同じ 100 セントに割る方式ではありません。</p>
+          <p>平均律では、どの半音も同じ倍率 <code>2^(1/12)</code> で、どの長三度も 400 セントです。一方、純正な長三度 5:4 は約 386.3 セントなので、平均律の長三度は約 13.7 セント広い。ミーントーン系は、この長三度のずれを小さくする方向に設計されています。</p>
+          <p>「系」と呼ぶのは、五度をどれだけ狭くするかに複数のバリエーションがあるからです。代表例が 1/4 コンマ・ミーントーンで、ほかにも 1/5 コンマ、1/6 コンマなどがあります。狭め方が強いほど主要な長三度はきれいになりますが、遠い調や異名同音の扱いに無理が出やすくなります。</p>
+          <p>この設計思想は、「全部の調を同じように少しずつ妥協する」のではなく、「よく使う調の和音をかなり良くし、あまり使わない領域に誤差を押し出す」というものです。その押し出された誤差が、h-moll では Ais（A#）まわりに現れます。</p>
+
+          <h3>ミーントーンは長三度を優先する最適化</h3>
+          <p>1/4 コンマ・ミーントーンを数式で言うと、「純正長三度 5:4 をよくするために、完全五度を少しずつ狭くする」調律です。音程の幅はセントで表せます。</p>
+          <pre><code>音程のセント値 = 1200 log2(周波数比)
+
+純正完全五度 3:2      = 701.955 cent
+シントニックコンマ   = 21.506 cent
+1/4 コンマ狭い五度   = 701.955 - 21.506 / 4
+                     = 696.578 cent
+
+4 個の五度 - 2 オクターブ
+  = 4 * 696.578 - 2 * 1200
+  = 386.313 cent
+
+純正長三度 5:4
+  = 1200 log2(5/4)
+  = 386.314 cent</code></pre>
+          <p>つまり、C-G-D-A-E のように五度を 4 回積むと、C-E がほぼ純正長三度になります。ここまでは非常に合理的です。</p>
+
+          <h3>12 鍵に押し込むと Ais と B-flat が衝突する</h3>
+          <p>問題は、五度を積んで作る音名のネットワークが 12 鍵では完全に閉じないことです。12 平均律では A# と B-flat は同じ鍵ですが、1/4 コンマ・ミーントーンでは約 41.06 セント違います。この差は小さな表記差ではなく、可聴なピッチ差です。</p>
+          <pre><code>A# と B-flat のずれ
+  = 128:125
+  = 1200 log2(128/125)
+  = 41.059 cent</code></pre>
+          <p>標準的な 12 鍵鍵盤では、黒鍵を A# 用にするか B-flat 用にするかを選ばなければなりません。歴史的には、頻出する調のために B-flat 側へ割り当てられることが多く、A# 専用の鍵はありません。その状態で h-moll の属和音 <code>Fis-Ais-Cis</code> を弾くと、Ais の代わりに同じ鍵の B-flat を使うことになります。</p>
+
+          <h3>誤差は属和音の長三度に直接乗る</h3>
+          <p>理想的には、Fis-Ais はミーントーンが得意な 386.3 セント付近の長三度です。しかし Ais の代わりに B-flat を押すと、同じ鍵盤上では約 41 セント広い音程になります。</p>
+          <table>
+            <thead>
+              <tr>
+                <th>音程</th>
+                <th>意味</th>
+                <th>幅の目安</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Fis-Ais</td>
+                <td>h-moll の属和音に必要な長三度</td>
+                <td>約 386.3 cent</td>
+              </tr>
+              <tr>
+                <td>Fis-B-flat</td>
+                <td>Ais の代わりに B-flat 鍵を使った場合</td>
+                <td>約 427.4 cent</td>
+              </tr>
+              <tr>
+                <td>差</td>
+                <td>異名同音を同一視したことによる誤差</td>
+                <td>約 41.1 cent</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>12 平均律の長三度は 400 セントなので、427 セント級の長三度はかなり広い。和声的には、属和音の中心になる三度が濁るため、h-moll の終止感そのものが悪くなります。h-moll が避けられがちに見える理由は、「h-moll の主和音が悪い」からではなく、「V の Fis-Ais-Cis が 12 鍵ミーントーンで壊れやすい」からです。</p>
+
+          <h3>調号の数だけでは危険度を予測できない</h3>
+          <p>h-moll は調号だけならシャープ 2 つです。五度圏で極端に遠いわけではありません。それでも問題になるのは、短調の導音 Ais が調号外の臨時記号として現れるからです。</p>
+          <p>同じシャープ 2 つでも D major なら、主和音 D-F#-A、属和音 A-C#-E で済みます。これらはミーントーンで比較的扱いやすい。一方 h-moll は、終止のたびに A# 側へ 1 段余分に踏み込みます。音律上の難しさは、調号の個数ではなく、必要な音が五度連鎖上のどこにあるかで決まります。</p>
+
+          <h3>well temperament と 12 平均律で制約は弱まる</h3>
+          <p>バッハの《平均律クラヴィーア曲集》が象徴的なのは、全 24 の長短調を鍵盤で扱うという発想を前面に出した点です。ここでいう「平均律」は、現代の 12 平均律だけを指すとは限らず、当時の文脈では「すべての調が使えるように調整された音律」、つまり well temperament を含みます。</p>
+          <p>well temperament は、ミーントーンのように一部の長三度を非常に純正に寄せる代わりに他を破綻させるのではなく、誤差を複数の五度へ分配します。その結果、h-moll のように A# を必要とする調も演奏可能になります。ただし各調の長三度や五度の幅は均一ではないため、調ごとの色合いは残ります。</p>
+          <p>現代ピアノの 12 平均律では、A# と B-flat は定義上同じ周波数です。すべての半音を 100 セントに固定するので、h-moll だけが音律上とくに不利になる理由はほぼ消えます。近代以降に h-moll が特別に避けられるとすれば、音律よりも、楽器の鳴り、記譜の読みやすさ、作品の慣習、作曲家の調性イメージの問題です。</p>
+
+          <h3>固定ピッチ楽器の問題として見る</h3>
+          <p>この議論は主に、1 鍵 1 ピッチに固定される鍵盤楽器で強く現れます。弦楽器、声楽、柔軟にピッチを作れる管楽器では、奏者が A# と B-flat を文脈に応じて弾き分けられます。したがって、h-moll の音律上の扱いにくさは「クラシック音楽一般」ではなく、「古い固定ピッチ鍵盤と特定の調律法」の問題として見るのが正確です。</p>
+
+          <h3>まとめ</h3>
+          <ul>
+            <li>h-moll は、クラシック音楽全体で避けられた調ではない。</li>
+            <li>古い 12 鍵ミーントーン鍵盤では、h-moll の属和音に必要な Ais（A#）が問題になる。</li>
+            <li>1/4 コンマ・ミーントーンでは A# と B-flat が約 41 セントずれ、同じ鍵として扱うと Fis-Ais の長三度が広くなりすぎる。</li>
+            <li>この誤差は、短調の終止を支える V の三度に直接乗るため、h-moll の終止感を損ないやすい。</li>
+            <li>well temperament や 12 平均律の普及で、この制約は大きく弱まった。</li>
+          </ul>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ul>
+            <li><a href="https://en.wikipedia.org/wiki/Meantone_temperament">Meantone temperament - Wikipedia</a></li>
+            <li><a href="https://en.wikipedia.org/wiki/Quarter-comma_meantone">Quarter-comma meantone - Wikipedia</a></li>
+            <li><a href="https://en.wikipedia.org/wiki/The_Well-Tempered_Clavier">The Well-Tempered Clavier - Wikipedia</a></li>
+            <li><a href="https://en.wikipedia.org/wiki/Mass_in_B_minor">Mass in B minor - Wikipedia</a></li>
+            <li><a href="https://en.wikipedia.org/wiki/Piano_Sonata_in_B_minor_(Liszt)">Piano Sonata in B minor (Liszt) - Wikipedia</a></li>
+            <li><a href="https://en.wikipedia.org/wiki/Symphony_No._6_(Tchaikovsky)">Symphony No. 6 (Tchaikovsky) - Wikipedia</a></li>
+          </ul>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
