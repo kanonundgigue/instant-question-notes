@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>保護記事の暗号化ツール | k-notes</title>
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+      .tool { max-width: 880px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+      .tool h1 { margin-bottom: 0.5rem; }
+      .tool__note { background: var(--color-accent-soft); border: 1px solid var(--color-border); border-radius: 10px; padding: 0.9rem 1.1rem; margin: 1rem 0 1.5rem; font-size: 0.92rem; }
+      .tool__field { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.25rem; }
+      .tool__field label { font-weight: 700; }
+      .tool textarea, .tool input { font-family: var(--font-mono); font-size: 0.95rem; padding: 0.7rem 0.8rem; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-card); color: var(--color-text); }
+      .tool textarea { min-height: 200px; resize: vertical; line-height: 1.6; }
+      .tool__row { display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap; }
+      .tool__row .tool__field { flex: 1; min-width: 220px; margin-bottom: 0; }
+      .tool__button { background: var(--color-accent); color: #fff; border: none; border-radius: 8px; padding: 0.75rem 1.4rem; font-size: 1rem; font-weight: 700; cursor: pointer; }
+      .tool__button:hover { filter: brightness(0.95); }
+      .tool__button--ghost { background: var(--color-card); color: var(--color-text); border: 1px solid var(--color-border); }
+      .tool__status { margin: 1rem 0; font-weight: 700; min-height: 1.5em; }
+      .tool__status--error { color: var(--color-accent); }
+      .tool__output { margin-top: 1.5rem; }
+      .tool__output[hidden] { display: none; }
+      .tool__meta { font-size: 0.85rem; color: var(--color-muted); }
+    </style>
+  </head>
+  <body>
+    <main class="tool">
+      <h1>保護記事の暗号化ツール</h1>
+      <p class="tool__meta">ローカル専用。生成された HTML だけをリポジトリに保存します。平文とパスワードはこのページから外に出ません。</p>
+
+      <div class="tool__note">
+        <strong>必ず localhost 経由で開いてください。</strong>
+        Web Crypto はセキュアコンテキスト（https または localhost）でしか動きません。
+        プレビューサーバの <code>/tools/encrypt.html</code> を開いてください。<code>file://</code> で直接開くと暗号化できません。
+      </div>
+
+      <div class="tool__field">
+        <label for="title">公開してよいタイトル（一覧やページタブに出ます／中身は書かない）</label>
+        <input id="title" type="text" placeholder="例: 限定メモ">
+      </div>
+
+      <div class="tool__field">
+        <label for="body">記事本文の HTML（復号後に表示される中身。<code>&lt;h1&gt;</code> から書く）</label>
+        <textarea id="body" placeholder="&lt;h1&gt;タイトル&lt;/h1&gt;
+&lt;div class=&quot;article-meta&quot;&gt;
+  &lt;p&gt;作成日: &lt;time datetime=&quot;2026-06-13&quot;&gt;2026-06-13&lt;/time&gt;&lt;/p&gt;
+  &lt;p&gt;カテゴリ: private&lt;/p&gt;
+&lt;/div&gt;
+&lt;section&gt;
+  &lt;h2&gt;本文&lt;/h2&gt;
+  &lt;p&gt;ここに秘密の内容&lt;/p&gt;
+&lt;/section&gt;"></textarea>
+      </div>
+
+      <div class="tool__row">
+        <div class="tool__field">
+          <label for="pass">パスワード（長いパスフレーズ推奨）</label>
+          <input id="pass" type="text" autocomplete="off" placeholder="長く推測されにくい文字列">
+        </div>
+        <button id="run" class="tool__button" type="button">暗号化して HTML を生成</button>
+      </div>
+
+      <p id="status" class="tool__status" role="status"></p>
+
+      <div id="output" class="tool__output" hidden>
+        <div class="tool__field">
+          <label for="result">保存用 HTML（全文をコピーして <code>notes/&lt;category&gt;/&lt;slug&gt;.html</code> に保存）</label>
+          <textarea id="result" readonly></textarea>
+        </div>
+        <button id="copy" class="tool__button tool__button--ghost" type="button">全文をコピー</button>
+      </div>
+    </main>
+
+    <script src="../scripts/crypto-core.js"></script>
+    <script src="./encrypt.js" defer></script>
+  </body>
+</html>

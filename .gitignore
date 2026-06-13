@@ -8,3 +8,9 @@ build/
 .cache/
 .tmp/
 
+# 保護記事の平文下書き（公開リポジトリに絶対に入れない）
+_drafts/
+notes/**/*.draft.html
+
+# 保護記事の共通パスワードと運用メモ（ローカル専用・公開しない）
+PROTECTED_NOTES.local.md
