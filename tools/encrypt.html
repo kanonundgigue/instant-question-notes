@@ -21,6 +21,7 @@
       .tool__button--ghost { background: var(--color-card); color: var(--color-text); border: 1px solid var(--color-border); }
       .tool__status { margin: 1rem 0; font-weight: 700; min-height: 1.5em; }
       .tool__status--error { color: var(--color-accent); }
+      .tool__hint { margin: 0.2rem 0 0; font-size: 0.85rem; color: var(--color-muted); }
       .tool__output { margin-top: 1.5rem; }
       .tool__output[hidden] { display: none; }
       .tool__meta { font-size: 0.85rem; color: var(--color-muted); }
@@ -57,8 +58,9 @@
 
       <div class="tool__row">
         <div class="tool__field">
-          <label for="pass">パスワード（長いパスフレーズ推奨）</label>
-          <input id="pass" type="text" autocomplete="off" placeholder="長く推測されにくい文字列">
+          <label for="pass">パスワード（<code>PROTECTED_NOTES.local.md</code> から自動読込）</label>
+          <input id="pass" type="password" autocomplete="off" placeholder="自動読込できない場合だけ手入力">
+          <p id="pass-source" class="tool__hint">パスワードを読み込んでいます。</p>
         </div>
         <button id="run" class="tool__button" type="button">暗号化して HTML を生成</button>
       </div>

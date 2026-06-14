@@ -2,6 +2,8 @@
 // インライン script に置くと、生成テンプレート内の <script> 文字列で HTML パースが
 // 途中終了してしまうため、外部ファイルに分離している。
 (() => {
+  const LOCAL_PASSWORD_PATH = "../PROTECTED_NOTES.local.md";
+
   // 保護記事テンプレート（notes/_template/article-protected.html と同じ構造）。
   const buildFile = (title, payloadJson) => {
     const safeTitle = title
@@ -51,6 +53,7 @@
 
   const $ = (id) => document.getElementById(id);
   const statusEl = $("status");
+  const passSourceEl = $("pass-source");
   const outputWrap = $("output");
   const resultEl = $("result");
 
@@ -59,11 +62,78 @@
     statusEl.classList.toggle("tool__status--error", isError);
   };
 
+  const stripPasswordValue = (value) => value
+    .trim()
+    .replace(/^["'`]+|["'`]+$/g, "")
+    .trim();
+
+  const extractPasswordFromLocalNote = (text) => {
+    const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/);
+    const labelPattern = /^\s*(?:[-*]\s*)?(?:\*\*)?(?:共通)?(?:パスワード|パスフレーズ|password|passphrase)(?:\*\*)?\s*(?:[:：=]|-)\s*(.+?)\s*$/i;
+
+    for (const line of lines) {
+      const match = line.match(labelPattern);
+      if (match) {
+        const password = stripPasswordValue(match[1]);
+        if (password) return password;
+      }
+    }
+
+    let fencedValue = "";
+    let inFence = false;
+    for (const line of lines) {
+      if (/^\s*```/.test(line)) {
+        if (inFence && fencedValue.trim()) {
+          return stripPasswordValue(fencedValue);
+        }
+        inFence = !inFence;
+        continue;
+      }
+      if (inFence) {
+        fencedValue += fencedValue ? `\n${line}` : line;
+      }
+    }
+
+    for (const line of lines) {
+      const candidate = line.trim();
+      if (!candidate) continue;
+      if (/^(#|>|<!--|\||```)/.test(candidate)) continue;
+      if (/^(password|passphrase|パスワード|パスフレーズ)\s*$/i.test(candidate)) continue;
+      return stripPasswordValue(candidate.replace(/^[-*]\s+/, ""));
+    }
+
+    return "";
+  };
+
+  const loadLocalPassword = async () => {
+    try {
+      const response = await fetch(LOCAL_PASSWORD_PATH, { cache: "no-store" });
+      if (!response.ok) {
+        passSourceEl.textContent = "PROTECTED_NOTES.local.md が見つかりません。必要なら手入力してください。";
+        return;
+      }
+
+      const text = await response.text();
+      const password = extractPasswordFromLocalNote(text);
+      if (!password) {
+        passSourceEl.textContent = "PROTECTED_NOTES.local.md からパスワードを抽出できません。必要なら手入力してください。";
+        return;
+      }
+
+      $("pass").value = password;
+      passSourceEl.textContent = "PROTECTED_NOTES.local.md から自動読込済みです。";
+    } catch {
+      passSourceEl.textContent = "PROTECTED_NOTES.local.md を読み込めません。localhost 経由で開いているか確認してください。";
+    }
+  };
+
   if (!window.crypto || !window.crypto.subtle || !window.NoteCrypto) {
     setStatus("Web Crypto が使えません。https または localhost でこのページを開いてください。", true);
     $("run").disabled = true;
     return;
   }
+
+  loadLocalPassword();
 
   $("run").addEventListener("click", async () => {
     const title = $("title").value.trim();
