@@ -27,6 +27,7 @@
         <p class="site-lead">疑問をメモる速度で記事化する。</p>
         <nav class="site-nav" aria-label="ページ内カテゴリ">
           <a href="#recent">新着</a>
+          <a href="#climate-data">気候データ</a>
           <a href="#music">音楽</a>
           <a href="#ai-coding-agents">AI コーディングエージェント</a>
           <a href="#project">プロジェクト運用</a>
@@ -59,6 +60,12 @@
               <span class="category-card__label">new</span>
               <a class="category-card__title" href="#recent">新着</a>
               <span class="category-card__meta">最近追加・更新した 3 件</span>
+            </li>
+
+            <li class="category-card">
+              <span class="category-card__label">climate-data</span>
+              <a class="category-card__title" href="#climate-data">気候データ</a>
+              <span class="category-card__meta">1 件の記事</span>
             </li>
 
             <li class="category-card">
@@ -99,6 +106,13 @@
 
         <div class="note-grid">
           <article class="note-card">
+            <p class="note-card__category">climate-data</p>
+            <h3><a href="notes/climate-data/wakasa-bay-climate-normal.html">若狭湾の雨温図と冬季積雪量の気候値</a></h3>
+            <p class="note-card__summary">小浜を主図に、敦賀・舞鶴も含めて気象庁2020年平年値の気温、降水量、積雪深、降雪相当量を整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-16">2026-06-16</time></p>
+          </article>
+
+          <article class="note-card">
             <p class="note-card__category">music</p>
             <h3><a href="notes/music/h-moll-temperament.html">クラシック音楽で h-moll が避けられがちに見える理由</a></h3>
             <p class="note-card__summary">ロ短調そのものではなく、12鍵ミーントーンで属和音 Fis-Ais-Cis が壊れやすい理由を整理します。</p>
@@ -113,13 +127,25 @@
             <p class="note-card__date">作成日: <time datetime="2026-06-13">2026-06-13</time></p>
           </article>
 
-          <article class="note-card">
-            <p class="note-card__category">ai-coding-agents</p>
-            <h3><a href="notes/ai-coding-agents/claude-code-fable5-orchestrates-codex-implementation.html">Claude Code Fable 5 で設計を統括し、Codex に実装させる方法</a></h3>
-            <p class="note-card__summary">Claude Code を設計・レビュー担当、Codex を実装担当として分けるための具体的な分担、設定、プロンプト、検証フロー。</p>
-            <p class="note-card__date">作成日: <time datetime="2026-06-13">2026-06-13</time></p>
-          </article>
+        </div>
+      </section>
 
+      <section class="topic-section" id="climate-data" aria-labelledby="climate-data-heading">
+        <div class="section__header section__header--split">
+          <div>
+            <p class="site-kicker">climate-data</p>
+            <h2 id="climate-data-heading">気候データ</h2>
+          </div>
+          <p>気象庁などの一次データを使った、気温・降水量・雪・気候値に関する記事。</p>
+        </div>
+
+        <div class="note-grid note-grid--compact">
+          <article class="note-card">
+            <p class="note-card__category">気候値 / 雨温図 / 積雪</p>
+            <h3><a href="notes/climate-data/wakasa-bay-climate-normal.html">若狭湾の雨温図と冬季積雪量の気候値</a></h3>
+            <p class="note-card__summary">小浜・敦賀・舞鶴の1991-2020年平年値から、若狭湾沿岸の雨温図と冬季積雪を読む。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-16">2026-06-16</time></p>
+          </article>
         </div>
       </section>
 
