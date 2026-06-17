@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Codex に Mac の操作を許可する方法 | k-notes</title>
+    <meta name="description" content="Codex app の Computer Use で Mac アプリを操作させるために必要な設定、macOS 権限、Codex 内のアプリ承認、安全上の注意点を整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>Codex に Mac の操作を許可する方法</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-06-17">2026-06-17</time></p>
+          <p>カテゴリ: ai-coding-agents</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>codexにMacの操作を許可する方法は？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>Codex に Mac の画面を見せたり、クリック・入力・アプリ操作をさせたりするには、Codex app の <strong>Computer Use</strong> を使います。通常のファイル編集やシェル実行の権限とは別で、macOS 側の権限と Codex 側のアプリ承認を両方設定します。</p>
+          <p>結論だけ書くと、<strong>Codex の Settings で Computer Use をインストールし、macOS の「画面収録」と「アクセシビリティ」を Codex に許可し、実行時に対象アプリの使用を承認する</strong>、という流れです。</p>
+
+          <h3>設定手順</h3>
+          <ol>
+            <li>Codex app を開きます。</li>
+            <li><strong>Settings</strong> を開きます。通常はアプリメニュー、または <kbd>Command</kbd> + <kbd>,</kbd> から開けます。</li>
+            <li><strong>Computer Use</strong> を開き、未インストールなら <strong>Install</strong> します。</li>
+            <li>macOS の権限ダイアログが出たら、<strong>Screen Recording（画面収録）</strong> と <strong>Accessibility（アクセシビリティ）</strong> を許可します。</li>
+            <li>ダイアログが出ない、または後で確認する場合は、macOS の <strong>システム設定 &gt; プライバシーとセキュリティ</strong> を開きます。</li>
+            <li><strong>画面収録</strong> で Codex をオンにします。これは Codex が対象アプリの画面を見るために必要です。</li>
+            <li><strong>アクセシビリティ</strong> で Codex をオンにします。これは Codex がクリック、入力、メニュー操作を行うために必要です。</li>
+            <li>macOS に再起動やアプリの再起動を求められた場合は、Codex app を終了して開き直します。</li>
+          </ol>
+
+          <h3>Codex に操作を依頼する書き方</h3>
+          <p>設定後は、プロンプトで Computer Use を使うことと、操作対象を明示します。OpenAI の Codex ドキュメントでは、<code>@Computer</code> や <code>@AppName</code> を指定する方法が案内されています。</p>
+          <p>プロンプト例（言語名: text）:</p>
+          <pre><code>@Computer を使って Safari を開き、このローカルページの表示崩れを確認してください。
+対象は http://localhost:3000/ だけです。
+フォーム送信やアカウント設定変更はしないでください。
+確認後、見つけた問題とスクリーンショット上の位置を報告してください。</code></pre>
+
+          <p>Chrome を使うなら、次のように対象アプリを狭く指定します。</p>
+          <p>プロンプト例（言語名: text）:</p>
+          <pre><code>@Chrome を使って、ログイン後の設定画面を開き、表示だけ確認してください。
+設定変更、削除、送信、購入、認証情報の表示はしないでください。
+確認が必要な操作が出たら、実行前に止まってください。</code></pre>
+
+          <h3>macOS 権限と Codex の承認は別</h3>
+          <p>macOS の「画面収録」と「アクセシビリティ」を許可しても、Codex がすべてのアプリを勝手に操作できる状態になるわけではありません。Codex 側でも、タスク中に対象アプリを使う前に承認を求めます。</p>
+          <p>よく使うアプリなら <strong>Always allow</strong> を選べます。ただし、自動で使わせてもよいアプリだけに限定するのが安全です。後から取り消したい場合は、Codex の <strong>Settings &gt; Computer Use</strong> で許可済みアプリを管理し、macOS 側の権限は <strong>システム設定 &gt; プライバシーとセキュリティ</strong> から取り消します。</p>
+
+          <h3>サンドボックス権限とも別</h3>
+          <p>Computer Use は「画面を見る」「アプリを操作する」ための権限です。一方で、ファイル編集、シェルコマンド、ネットワークアクセスは Codex の sandbox と approval policy の管理下にあります。</p>
+          <p>たとえば Codex が Finder やブラウザを操作できても、リポジトリ外のファイル編集やネットワークを使うコマンドは、別途サンドボックスや承認設定に従います。Mac 操作を許可することと、<code>danger-full-access</code> のような広い実行権限を与えることは同じではありません。</p>
+
+          <h3>ロック中の Mac で使いたい場合</h3>
+          <p>macOS では、Codex app の <strong>Settings &gt; Computer Use</strong> から locked computer use を有効にできる場合があります。これは、Mac がロックされた後でも、信頼済みの実行中 Computer Use タスクに限って Codex が一時的に操作を継続できるようにする機能です。</p>
+          <p>汎用的なリモート解除機能ではありません。使う場合も、対象タスクを明確にし、アカウント、支払い、認証情報、セキュリティ設定のような操作は避けるのがよいです。</p>
+
+          <h3>できないこと・注意点</h3>
+          <ul>
+            <li>Codex は macOS の管理者認証や、セキュリティとプライバシーの許可ダイアログを代わりに承認できません。そこは人間が操作します。</li>
+            <li>Computer Use はターミナルアプリや Codex 自体の自動操作には使えません。セキュリティ境界を迂回する可能性があるためです。</li>
+            <li>ブラウザを操作させる場合、ログイン済みサイトでは自分のアカウントで操作したのと同じ扱いになります。送信、購入、削除、設定変更は明示的に止めるか、実行前承認にします。</li>
+            <li>パスワード、二要素認証コード、秘密鍵、個人情報が表示されるアプリは、必要なときだけ開き、Codex に見せる範囲を絞ります。</li>
+            <li>Web アプリのローカル確認だけなら、まず Codex の in-app browser を使う方が狭い権限で済む場合があります。</li>
+          </ul>
+
+          <h3>トラブルシュート</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>症状</th>
+                <th>確認する場所</th>
+                <th>対応</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="症状">Codex が画面を見られない</td>
+                <td data-label="確認する場所">システム設定 &gt; プライバシーとセキュリティ &gt; 画面収録</td>
+                <td data-label="対応">Codex をオンにし、必要なら Codex app を再起動します。</td>
+              </tr>
+              <tr>
+                <td data-label="症状">クリックや入力ができない</td>
+                <td data-label="確認する場所">システム設定 &gt; プライバシーとセキュリティ &gt; アクセシビリティ</td>
+                <td data-label="対応">Codex をオンにします。見つからない場合はリストに追加します。</td>
+              </tr>
+              <tr>
+                <td data-label="症状">毎回アプリ使用の確認が出る</td>
+                <td data-label="確認する場所">Codex の Settings &gt; Computer Use</td>
+                <td data-label="対応">信頼できるアプリだけ Always allow にします。</td>
+              </tr>
+              <tr>
+                <td data-label="症状">ファイル編集やコマンドが止まる</td>
+                <td data-label="確認する場所">Codex の permissions / sandbox 設定</td>
+                <td data-label="対応">Computer Use ではなく、sandbox と approval policy の問題として確認します。</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ul>
+            <li><a href="https://developers.openai.com/codex/app/computer-use">Computer Use - Codex app | OpenAI Developers</a></li>
+            <li><a href="https://developers.openai.com/codex/concepts/sandboxing">Sandbox - Codex | OpenAI Developers</a></li>
+            <li><a href="https://support.apple.com/guide/mac-help/allow-accessibility-apps-to-access-your-mac-mh43185/mac">Allow accessibility apps to access your Mac - Apple Support</a></li>
+          </ul>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
