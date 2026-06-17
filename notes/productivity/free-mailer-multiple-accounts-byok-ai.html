@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>複数メールアドレスと AI を使うメーラーの選び方 | k-notes</title>
+    <meta name="description" content="複数のメールアドレスを切り替えやすく、AI も使えるメーラーを、Spark +AI、Canary Mail、Thunderbird + ThunderAI、eM Client、Shortwave で比較する。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>複数メールアドレスと AI を使うメーラーの選び方</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-06-16">2026-06-16</time></p>
+          <p>カテゴリ: productivity</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>複数のメールアドレスを簡単に切り替えられるメーラーで、無料でAIが使える（すでに契約済みのOpenAIやAnthropicと接続できる）のは？ APIの課金が必要なんだったら、sparkのAIに課金するのでも変わらない？ AIが有料のサービスも視野に比較をしなおして。</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>2026-06-16 時点では、<strong>AI に課金してよいなら Spark +AI も十分に有力</strong>です。さらに、Apple デバイスを使っていて Apple Mail で足りるなら、<strong>Apple Mail + Apple Intelligence</strong> も英語メール添削の強い候補になります。最初の条件を「無料で AI も使いたい」と厳密に読むなら Thunderbird + ThunderAI が第一候補ですが、OpenAI API や Claude API の従量課金が別途必要になるなら、Spark の有料プランに払うのと費用面の意味はかなり近くなります。</p>
+          <p>違いは「どこに払うか」と「どの環境に寄せるか」です。Spark +AI や Canary Mail は、メーラー側の月額・年額に AI 利用枠が含まれるので設定が楽です。Apple Intelligence は対応 Apple デバイスと対応 OS があれば、Mail の中で Writing Tools、Smart Reply、要約、Priority Messages を使えます。Thunderbird + ThunderAI は、メーラー本体は無料で、AI だけ OpenAI API / Claude API / Gemini / Ollama などを自分で選びます。</p>
+
+          <h3>結論</h3>
+          <ul>
+            <li><strong>いちばん普通におすすめしやすい:</strong> Spark。無料プランでも複数アカウント管理はでき、Plus 以上で Spark +AI と AI Assistant が使えます。AI 課金込みでメール体験全体を買う選択です。</li>
+            <li><strong>Apple デバイスだけで英語添削したい:</strong> Apple Mail + Apple Intelligence。対応 Mac / iPhone / iPad を持っているなら、追加のメーラー課金なしで Writing Tools と Mail の AI 機能を試す価値があります。</li>
+            <li><strong>安い内蔵 AI を優先:</strong> Canary Mail。Free でも無制限メールアカウント、Growth は年額 36 ドル相当で AI Copilot が入ります。年額課金または買い切り前提です。</li>
+            <li><strong>OpenAI / Claude / ローカル LLM を自分で選びたい:</strong> Thunderbird + ThunderAI。月額メーラーを増やさず、API キーや Ollama を使って自分で構成します。</li>
+            <li><strong>AI 検索・ワークフローまで重視:</strong> Shortwave。強力ですが、個人の通常メーラーとしては価格帯が上がります。</li>
+          </ul>
+
+          <h3>候補比較</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th scope="col">候補</th>
+                <th scope="col">合う点</th>
+                <th scope="col">注意点</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="候補">Spark</td>
+                <td data-label="合う点">Free でも無制限メールアカウント、統合受信箱、Smart Inbox が使える。Plus は月額 10 ドル、年額なら月あたり 8.25 ドル相当で Spark +AI と AI Assistant が入る。</td>
+                <td data-label="注意点">AI は Spark 側の利用枠と仕様に乗る。OpenAI / Anthropic の API キーを自分で選んで使う BYOK 型ではない。</td>
+              </tr>
+              <tr>
+                <td data-label="候補">Canary Mail</td>
+                <td data-label="合う点">Free でも統合受信箱と無制限メールアカウント。Growth は年額 36 ドル相当で AI Copilot、作成・返信・要約・優先度付けが入る。</td>
+                <td data-label="注意点">月額払いではなく年額または買い切り。AI のモデル選択や API 持ち込みより、Canary の内蔵 AI を使う発想。</td>
+              </tr>
+              <tr>
+                <td data-label="候補">Apple Mail + Apple Intelligence</td>
+                <td data-label="合う点">対応 Apple デバイスなら Mail で Writing Tools、Smart Reply、要約、Priority Messages を使える。英語添削、丁寧化、短文化、返信草案に向く。</td>
+                <td data-label="注意点">Apple デバイス、対応 OS、対応言語・地域が前提。OpenAI / Anthropic API キーを持ち込む BYOK 型ではなく、Apple Intelligence と任意の ChatGPT 連携を使う。</td>
+              </tr>
+              <tr>
+                <td data-label="候補">Thunderbird + ThunderAI</td>
+                <td data-label="合う点">Thunderbird 本体は無料。複数アカウントを個別表示または統合受信箱で扱える。ThunderAI は ChatGPT Web、OpenAI API、Claude API、Gemini、Ollama などを明記している。</td>
+                <td data-label="注意点">標準機能ではなくアドオン構成。API 利用料、API キー、送信データ、モデル選択を自分で管理する。</td>
+              </tr>
+              <tr>
+                <td data-label="候補">eM Client</td>
+                <td data-label="合う点">メール、カレンダー、連絡先、タスクをまとめられる。AI は返信作成、本文生成、要約、言い換えなどに使える。</td>
+                <td data-label="注意点">無料版は個人・非商用利用でメールアカウント 2 個まで。AI の現在の provider は ChatGPT と説明されており、Claude 持ち込み用途ではない。</td>
+              </tr>
+              <tr>
+                <td data-label="候補">Shortwave</td>
+                <td data-label="合う点">AI 検索、AI フィルタ、添付分析、AI 返信、AI による受信箱整理などが強い。Claude 系モデルの intelligence level を明示している。</td>
+                <td data-label="注意点">Business は年額払いで月あたり 24 ドルから。普通の複数アカウントメーラーというより、AI ワークフロー込みの高機能メール環境。</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Spark に払うのと API に払うのは同じか</h3>
+          <p>費用面だけなら、かなり近いです。OpenAI の API は ChatGPT Plus / Business / Enterprise / Edu とは別課金で、Anthropic も Claude API のモデル別料金を公開しています。つまり「ChatGPT や Claude はすでに契約しているから、メール AI は無料で使える」とは限りません。外部メーラーから API 接続する場合は、別途 API 利用料が発生する前提で見ます。</p>
+          <p>そのため、日常的にメールを AI で要約・返信・整形するなら、Spark Plus のような固定月額のほうが分かりやすい場面があります。Spark は無料プランで複数アカウント管理を使い、AI が必要になったら Plus に上げる、という移行が自然です。Spark +AI はデフォルトでは無効で、設定から管理できるとも説明されています。</p>
+          <p>逆に、月に数十回だけ短い返信案を作る程度なら、Thunderbird + ThunderAI + 安い API モデルのほうが低コストになり得ます。さらに、Claude を使いたい、Ollama でローカルモデルを使いたい、メール本文をどの provider に送るか自分で決めたい、という要求があるなら BYOK 型の価値が出ます。</p>
+
+          <h3>用途別の選び方</h3>
+          <ul>
+            <li><strong>複数アドレスを気持ちよく扱い、AI も自然に使いたい:</strong> Spark Plus。固定費を許容できるなら、最も無難です。</li>
+            <li><strong>Mac / iPhone / iPad の標準 Mail で足りる:</strong> Apple Mail + Apple Intelligence。英語添削と返信補助が中心なら、まず追加課金なしで試す価値があります。</li>
+            <li><strong>できるだけ安く内蔵 AI を使いたい:</strong> Canary Mail Growth。年額 36 ドル相当で AI Copilot が入るため、価格だけならかなり強いです。</li>
+            <li><strong>Gmail / Outlook のメールを AI で検索・整理・自動化したい:</strong> Shortwave。価格は上がりますが、AI 検索やフィルタが目的なら候補になります。</li>
+            <li><strong>既存の OpenAI / Anthropic API、Gemini、Ollama を自分で使いたい:</strong> Thunderbird + ThunderAI。最も自由ですが、設定と運用の手間も最も大きいです。</li>
+            <li><strong>メールアカウントが 2 個までで、昔ながらのデスクトップ統合環境がよい:</strong> eM Client。AI もありますが、複数アカウントが多い人は無料版の 2 アカウント制限に当たりやすいです。</li>
+          </ul>
+
+          <h3>英語メールの添削が主目的なら</h3>
+          <p>英語メールの添削、言い換え、トーン調整が主目的なら、Apple デバイスを使っている人は <strong>Apple Mail + Apple Intelligence</strong> を先に試します。Apple の Writing Tools は、選択した文章の校正、Rewrite、Friendly / Professional / Concise へのトーン変更、要約に対応し、Mail では Smart Reply やスレッド要約も使えます。メール作成画面の中で「自然な英文に直す」「丁寧にする」「短くする」を行えるので、英語添削用途に合います。</p>
+          <p>Apple Mail 以外のメーラーを使いたい、Windows / Android も含めたい、または複数アカウントの処理体験をアプリ側で買いたいなら、次の候補は <strong>Spark Plus</strong> か <strong>Canary Mail Growth</strong> です。費用を抑えたいなら Canary Mail Growth が有力です。年額 36 ドル相当で AI Copilot が入り、作成・返信・要約系の用途に合います。月額で始めたい、複数アカウント管理も含めて全体の使いやすさを優先したいなら Spark Plus が無難です。</p>
+          <p>一方、添削の品質や文体を細かく制御したいなら Thunderbird + ThunderAI も残ります。OpenAI API、Claude API、Gemini、Ollama などを選べるため、「短く自然な英語」「査読者への丁寧な返信」「事務連絡として硬すぎない英語」などのカスタムプロンプトを自分で作れます。ただし、API キー設定とモデル課金の管理が必要なので、単に英語メールを直したいだけなら少し手間が重いです。</p>
+          <p>Apple Intelligence の ChatGPT 連携は、ChatGPT アカウントなしでも使え、既存の無料または有料アカウントを接続することもできます。ただし、これは Apple Intelligence の拡張として ChatGPT を使う仕組みであり、OpenAI API キーや Anthropic API キーをメーラーに直接持ち込む仕組みではありません。すでに ChatGPT や Claude の画面利用サブスクリプションを持っているなら、少量の添削は本文をコピーして直接直すだけでも足ります。</p>
+
+          <h3>プライバシーと運用の見方</h3>
+          <p>AI メーラーでは、要約・返信生成・検索のためにメール本文や添付情報が AI 処理に渡る可能性があります。Spark や Canary のような内蔵 AI は設定が簡単な一方で、どのモデル・経路で処理されるかはサービス側の仕様に従います。Apple Intelligence は対応デバイス・対応 OS 内の機能として使え、ChatGPT 連携を使う場合は、ChatGPT に送る内容をユーザーが選ぶ設計です。Thunderbird + ThunderAI は provider を選べる一方で、API キー管理やプロンプト送信範囲の責任が自分に寄ります。</p>
+          <p>会社・学校・顧客とのメールを扱うなら、送ってよい内容、送ってはいけない内容、AI provider のデータ保持、組織の規程を先に確認します。個人用途でも、全メールを自動で処理するのではなく、要約・校正・返信草案など明確な操作時だけ AI に渡す設定から始めるのが現実的です。</p>
+
+          <h3>実務上の判断</h3>
+          <p>質問の条件なら、比較し直した結論は <strong>Apple Mail で足りるなら Apple Intelligence、メーラー体験ごと買うなら Spark</strong> です。Apple デバイス中心で英語添削が主目的なら Apple Intelligence を先に試します。Apple Mail ではなく、複数アカウントの整理、通知、スマート受信箱まで含めて作業環境を整えたいなら Spark を第一候補に上げ直してよいです。</p>
+          <p>コストを強く見るなら Canary Mail Growth、AI 検索や自動整理まで見るなら Shortwave、モデル選択とローカル LLM まで含めて自分で組みたいなら Thunderbird + ThunderAI、という分岐で考えます。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ul>
+            <li><a href="https://www.thunderbird.net/en-US/">Thunderbird — Free Your Inbox</a></li>
+            <li><a href="https://support.mozilla.org/en-US/kb/unify-your-pop-email-accounts-global-inbox">Unify your POP email accounts with a global inbox | Thunderbird Help</a></li>
+            <li><a href="https://github.com/micz/ThunderAI">micz/ThunderAI - GitHub</a></li>
+            <li><a href="https://sparkmailapp.com/pricing">Spark Pricing</a></li>
+            <li><a href="https://canarymail.io/pricing">Canary Mail Pricing</a></li>
+            <li><a href="https://www.shortwave.com/pricing/">Shortwave Pricing</a></li>
+            <li><a href="https://www.emclient.com/pricing">Pricing | eM Client</a></li>
+            <li><a href="https://www.emclient.com/ai">eM Client’s AI Features</a></li>
+            <li><a href="https://support.apple.com/121115">How to get Apple Intelligence - Apple Support</a></li>
+            <li><a href="https://support.apple.com/guide/mac-help/find-the-right-words-with-writing-tools-mchldcd6c260/mac">Use Writing Tools with Apple Intelligence on Mac - Apple Support</a></li>
+            <li><a href="https://support.apple.com/guide/mac-help/use-apple-intelligence-in-mail-mchlb2dbea8f/mac">Use Apple Intelligence in Mail on Mac - Apple Support</a></li>
+            <li><a href="https://support.apple.com/guide/mac-help/use-chatgpt-with-apple-intelligence-mchlfc5cf131/mac">Use ChatGPT with Apple Intelligence on Mac - Apple Support</a></li>
+            <li><a href="https://openai.com/api/pricing/">OpenAI API Pricing</a></li>
+            <li><a href="https://platform.claude.com/docs/en/about-claude/pricing">Pricing - Claude API Docs</a></li>
+          </ul>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
