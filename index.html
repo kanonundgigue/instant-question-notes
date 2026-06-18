@@ -27,6 +27,7 @@
         <p class="site-lead">疑問をメモる速度で記事化する。</p>
         <nav class="site-nav" aria-label="ページ内カテゴリ">
           <a href="#recent">新着</a>
+          <a href="#statistics">統計・機械学習</a>
           <a href="#productivity">生産性ツール</a>
           <a href="#climate-data">気候データ</a>
           <a href="#music">音楽</a>
@@ -61,6 +62,12 @@
               <span class="category-card__label">new</span>
               <a class="category-card__title" href="#recent">新着</a>
               <span class="category-card__meta">最近追加・更新した 3 件</span>
+            </li>
+
+            <li class="category-card">
+              <span class="category-card__label">statistics</span>
+              <a class="category-card__title" href="#statistics">統計・機械学習</a>
+              <span class="category-card__meta">1 件の記事</span>
             </li>
 
             <li class="category-card">
@@ -113,6 +120,13 @@
 
         <div class="note-grid">
           <article class="note-card">
+            <p class="note-card__category">statistics</p>
+            <h3><a href="notes/statistics/elastic-net-regression.html">Elastic Net 回帰とは？</a></h3>
+            <p class="note-card__summary">Lasso と Ridge を混ぜた正則化回帰として、L1・L2 罰則、相関した説明変数、チューニングの考え方を整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-18">2026-06-18</time></p>
+          </article>
+
+          <article class="note-card">
             <p class="note-card__category">productivity</p>
             <h3><a href="notes/productivity/free-mailer-multiple-accounts-byok-ai.html">複数メールアドレスと AI を使うメーラーの選び方</a></h3>
             <p class="note-card__summary">Apple Intelligence、Spark +AI、Canary Mail、Thunderbird + ThunderAI などを、AI 課金込みで比較します。</p>
@@ -134,6 +148,25 @@
             <p class="note-card__date">作成日: <time datetime="2026-06-17">2026-06-17</time></p>
           </article>
 
+        </div>
+      </section>
+
+      <section class="topic-section" id="statistics" aria-labelledby="statistics-heading">
+        <div class="section__header section__header--split">
+          <div>
+            <p class="site-kicker">statistics</p>
+            <h2 id="statistics-heading">統計・機械学習</h2>
+          </div>
+          <p>統計モデル、機械学習、データ分析手法に関する記事。</p>
+        </div>
+
+        <div class="note-grid note-grid--compact">
+          <article class="note-card">
+            <p class="note-card__category">正則化回帰 / 機械学習</p>
+            <h3><a href="notes/statistics/elastic-net-regression.html">Elastic Net 回帰とは？</a></h3>
+            <p class="note-card__summary">Lasso の変数選択と Ridge の安定化を組み合わせ、相関した説明変数が多い回帰で使う考え方を整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-18">2026-06-18</time></p>
+          </article>
         </div>
       </section>
 

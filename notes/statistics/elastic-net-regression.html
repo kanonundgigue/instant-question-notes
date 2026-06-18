@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Elastic Net 回帰とは？ | k-notes</title>
+    <meta name="description" content="Elastic Net 回帰を、Lasso 回帰と Ridge 回帰の混合、L1・L2 正則化、相関した説明変数の扱い、チューニングパラメータの観点から整理する。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>Elastic Net 回帰とは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-06-18">2026-06-18</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>Elastic Net回帰とは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>Elastic Net 回帰は、線形回帰に <strong>L1 正則化</strong> と <strong>L2 正則化</strong> を同時に入れる回帰モデルです。L1 正則化を使う Lasso 回帰の「係数を 0 にして変数選択する」性質と、L2 正則化を使う Ridge 回帰の「係数をなめらかに縮めて安定化する」性質を混ぜたものです。</p>
+          <p>日本語では「エラスティックネット回帰」または「Elastic Net 回帰」と書かれます。</p>
+
+          <h3>何を最小化しているか</h3>
+          <p>普通の線形回帰は、予測値と実測値のずれが小さくなるように係数を決めます。Elastic Net はそこに、係数が大きくなりすぎることへの罰則を足します。scikit-learn の表記に寄せると、目的関数は概念的に次の形です。</p>
+
+          <pre><code>誤差の大きさ
++ alpha * l1_ratio * 係数の絶対値の和
++ alpha * (1 - l1_ratio) * 係数の二乗和 / 2</code></pre>
+
+          <p><code>alpha</code> は正則化全体の強さ、<code>l1_ratio</code> は L1 と L2 の混ぜ方です。<code>l1_ratio = 1</code> なら Lasso、<code>l1_ratio = 0</code> なら Ridge に近い形になり、<code>0 &lt; l1_ratio &lt; 1</code> が Elastic Net らしい中間領域です。</p>
+
+          <h3>Lasso と Ridge の中間にある</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>方法</th>
+                <th>罰則</th>
+                <th>係数の動き</th>
+                <th>向いている場面</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="方法">Ridge 回帰</td>
+                <td data-label="罰則">L2</td>
+                <td data-label="係数の動き">係数の大きさを全体に縮める。通常、係数は 0 ぴったりにはなりにくい。</td>
+                <td data-label="向いている場面">説明変数が多く、互いに相関していて、予測を安定させたい。</td>
+              </tr>
+              <tr>
+                <td data-label="方法">Lasso 回帰</td>
+                <td data-label="罰則">L1</td>
+                <td data-label="係数の動き">係数を 0 にできるため、変数選択として使いやすい。</td>
+                <td data-label="向いている場面">効く変数が少数だと考えられ、モデルを疎にしたい。</td>
+              </tr>
+              <tr>
+                <td data-label="方法">Elastic Net 回帰</td>
+                <td data-label="罰則">L1 + L2</td>
+                <td data-label="係数の動き">変数選択しつつ、相関した変数群をより安定して扱う。</td>
+                <td data-label="向いている場面">説明変数が多く、かつ相関した変数のグループがある。</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>なぜ Elastic Net が必要になるのか</h3>
+          <p>Lasso は、不要な変数の係数を 0 にできるので解釈しやすいモデルを作れます。しかし、強く相関した説明変数が複数あると、その中から 1 つだけを選び、残りを捨てるような動きになりやすいです。どれが選ばれるかがデータの揺れに敏感になることもあります。</p>
+          <p>Elastic Net は L2 成分を加えることで、この不安定さを和らげます。Zou と Hastie の論文では、Elastic Net は強く相関した予測変数が一緒にモデルへ入る、または一緒に外れるような grouping effect を促す方法として説明されています。</p>
+
+          <h3>パラメータの読み方</h3>
+          <p>実務では、正則化の強さと混合比を分けて考えます。ライブラリによって名前が違うので注意が必要です。</p>
+          <ul>
+            <li><strong>正則化の強さ:</strong> scikit-learn では <code>alpha</code>、glmnet では主に <code>lambda</code>。大きいほど係数が強く縮みます。</li>
+            <li><strong>L1 と L2 の混合比:</strong> scikit-learn では <code>l1_ratio</code>、glmnet では <code>alpha</code>。1 に近いほど Lasso、0 に近いほど Ridge です。</li>
+            <li><strong>標準化:</strong> 罰則は係数の大きさにかかるため、説明変数のスケールが違うと比較が歪みます。通常は学習前に説明変数を標準化します。</li>
+          </ul>
+
+          <h3>Python での最小例</h3>
+          <p>Python で scikit-learn を使う場合は、説明変数を標準化してから <code>ElasticNetCV</code> で <code>alpha</code> と <code>l1_ratio</code> を交差検証で選ぶのが基本形です。</p>
+
+          <pre><code>from sklearn.linear_model import ElasticNetCV
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+
+model = make_pipeline(
+    StandardScaler(),
+    ElasticNetCV(l1_ratio=[0.1, 0.5, 0.9, 1.0], cv=5, random_state=0),
+)
+
+model.fit(X_train, y_train)
+pred = model.predict(X_test)</code></pre>
+
+          <p><code>l1_ratio=[1.0]</code> だけを試すなら実質的に Lasso 寄りです。相関した説明変数があり、Lasso の選択が不安定に見える場合は、<code>0.1</code>、<code>0.5</code>、<code>0.9</code> のような中間値も候補に入れると比較しやすくなります。</p>
+
+          <h3>使うときの注意</h3>
+          <ul>
+            <li>係数が 0 になったからといって、その変数が因果的に不要だと決まるわけではありません。</li>
+            <li>相関した変数群では、どの変数が残るかだけでなく、予測性能と係数パターンの安定性を見ます。</li>
+            <li>目的が推論なら、正則化後の係数をそのまま通常の回帰係数のように検定・信頼区間解釈するのは危険です。</li>
+            <li>目的が予測なら、訓練データの当てはまりではなく、交差検証や検証データで比較します。</li>
+            <li>カテゴリ変数、外れ値、非線形性、交互作用の扱いは、Elastic Net だけでは解決しません。前処理と特徴量設計も必要です。</li>
+          </ul>
+
+          <h3>結論</h3>
+          <p>Elastic Net 回帰は、Lasso の疎な変数選択と Ridge の安定化を組み合わせた正則化回帰です。説明変数が多く、しかも互いに相関しているときに特に有用です。短く言えば、<strong>「Lasso だけだと不安定になりやすい高次元・相関ありの回帰で、変数選択と予測安定性を両立させたいときの選択肢」</strong>です。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ul>
+            <li><a href="https://web.stanford.edu/~hastie/Papers/elasticnet.pdf">Hui Zou and Trevor Hastie, Regularization and Variable Selection via the Elastic Net</a></li>
+            <li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.ElasticNet.html">sklearn.linear_model.ElasticNet - scikit-learn documentation</a></li>
+            <li><a href="https://scikit-learn.org/stable/modules/linear_model.html#elastic-net">Elastic-Net - scikit-learn User Guide</a></li>
+            <li><a href="https://glmnet.stanford.edu/articles/glmnet.html">An Introduction to glmnet - glmnet documentation</a></li>
+          </ul>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
