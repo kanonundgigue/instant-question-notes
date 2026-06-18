@@ -18,6 +18,7 @@
         <h1>複数メールアドレスと AI を使うメーラーの選び方</h1>
         <div class="article-meta">
           <p>作成日: <time datetime="2026-06-16">2026-06-16</time></p>
+          <p>更新日: <time datetime="2026-06-17">2026-06-17</time></p>
           <p>カテゴリ: productivity</p>
         </div>
 
@@ -103,6 +104,11 @@
           <p>Apple Mail 以外のメーラーを使いたい、Windows / Android も含めたい、または複数アカウントの処理体験をアプリ側で買いたいなら、次の候補は <strong>Spark Plus</strong> か <strong>Canary Mail Growth</strong> です。費用を抑えたいなら Canary Mail Growth が有力です。年額 36 ドル相当で AI Copilot が入り、作成・返信・要約系の用途に合います。月額で始めたい、複数アカウント管理も含めて全体の使いやすさを優先したいなら Spark Plus が無難です。</p>
           <p>一方、添削の品質や文体を細かく制御したいなら Thunderbird + ThunderAI も残ります。OpenAI API、Claude API、Gemini、Ollama などを選べるため、「短く自然な英語」「査読者への丁寧な返信」「事務連絡として硬すぎない英語」などのカスタムプロンプトを自分で作れます。ただし、API キー設定とモデル課金の管理が必要なので、単に英語メールを直したいだけなら少し手間が重いです。</p>
           <p>Apple Intelligence の ChatGPT 連携は、ChatGPT アカウントなしでも使え、既存の無料または有料アカウントを接続することもできます。ただし、これは Apple Intelligence の拡張として ChatGPT を使う仕組みであり、OpenAI API キーや Anthropic API キーをメーラーに直接持ち込む仕組みではありません。すでに ChatGPT や Claude の画面利用サブスクリプションを持っているなら、少量の添削は本文をコピーして直接直すだけでも足ります。</p>
+
+          <h3>Spark などを使いながら Apple Intelligence で添削できるか</h3>
+          <p>原理的には可能です。Apple の説明では、Apple Intelligence の Writing Tools は、Apple 純正アプリだけでなく、サードパーティアプリや Web サイトを含む「書く場所の多く」で利用できます。つまり、対応 Mac で Spark のメール作成欄に英文を書き、本文を選択して Control-click し、<code>Show Writing Tools</code> から Proofread、Rewrite、Professional、Concise などを使える可能性があります。</p>
+          <p>ただし、これは Spark の AI 機能そのものではなく、macOS 側の Writing Tools をテキスト入力欄にかける使い方です。Spark の作成欄が標準的なテキスト編集コンポーネントとして扱われれば使いやすい一方、アプリ側が独自の入力欄を使っていて Writing Tools メニューが出ない場合は、その場では使えません。その場合は、本文を Notes、TextEdit、Apple Mail、または ChatGPT などに一度移して添削し、Spark に戻す運用になります。</p>
+          <p>この併用がうまく動くなら、Spark の無料または Plus のメール管理機能を使いながら、英文添削だけ Apple Intelligence に任せる構成が取れます。Spark +AI に課金するかどうかは、Spark 内蔵の返信草案、要約、スマート処理まで必要かで判断します。単純な英語添削だけなら、まず Apple Intelligence の Writing Tools を試してからで十分です。</p>
 
           <h3>プライバシーと運用の見方</h3>
           <p>AI メーラーでは、要約・返信生成・検索のためにメール本文や添付情報が AI 処理に渡る可能性があります。Spark や Canary のような内蔵 AI は設定が簡単な一方で、どのモデル・経路で処理されるかはサービス側の仕様に従います。Apple Intelligence は対応デバイス・対応 OS 内の機能として使え、ChatGPT 連携を使う場合は、ChatGPT に送る内容をユーザーが選ぶ設計です。Thunderbird + ThunderAI は provider を選べる一方で、API キー管理やプロンプト送信範囲の責任が自分に寄ります。</p>
