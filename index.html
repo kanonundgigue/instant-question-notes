@@ -28,6 +28,7 @@
         <nav class="site-nav" aria-label="ページ内カテゴリ">
           <a href="#recent">新着</a>
           <a href="#statistics">統計・機械学習</a>
+          <a href="#calculation">計算・単位換算</a>
           <a href="#ai-services">AI サービス・モデル</a>
           <a href="#productivity">生産性ツール</a>
           <a href="#climate-data">気候データ</a>
@@ -68,6 +69,12 @@
             <li class="category-card">
               <span class="category-card__label">statistics</span>
               <a class="category-card__title" href="#statistics">統計・機械学習</a>
+              <span class="category-card__meta">1 件の記事</span>
+            </li>
+
+            <li class="category-card">
+              <span class="category-card__label">calculation</span>
+              <a class="category-card__title" href="#calculation">計算・単位換算</a>
               <span class="category-card__meta">1 件の記事</span>
             </li>
 
@@ -127,6 +134,13 @@
 
         <div class="note-grid">
           <article class="note-card">
+            <p class="note-card__category">calculation</p>
+            <h3><a href="notes/calculation/simulation-runtime-one-million-years.html">30分/年なら100万年連続計算に何日・何年かかる？</a></h3>
+            <p class="note-card__summary">1 年分に 30 分かかる計算を 100 万年分続けたときの、分・時間・日・年への換算を整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-23">2026-06-23</time></p>
+          </article>
+
+          <article class="note-card">
             <p class="note-card__category">ai-services</p>
             <h3><a href="notes/ai-services/sakana-ai-basic-usage.html">Sakana AI の基本的な使い方</a></h3>
             <p class="note-card__summary">Sakana Chat、Sakana Fugu、Sakana Marlin、Claude との組み合わせ、少額で始める方法を用途別に整理します。</p>
@@ -155,13 +169,6 @@
             <p class="note-card__date">作成日: <time datetime="2026-06-17">2026-06-17</time></p>
           </article>
 
-          <article class="note-card">
-            <p class="note-card__category">ai-coding-agents</p>
-            <h3><a href="notes/ai-coding-agents/allow-codex-to-control-mac.html">Codex に Mac の操作を許可する方法</a></h3>
-            <p class="note-card__summary">Computer Use を使うための Codex 設定、macOS の画面収録・アクセシビリティ権限、アプリ承認の違いを整理します。</p>
-            <p class="note-card__date">作成日: <time datetime="2026-06-17">2026-06-17</time></p>
-          </article>
-
         </div>
       </section>
 
@@ -180,6 +187,25 @@
             <h3><a href="notes/statistics/elastic-net-regression.html">Elastic Net 回帰とは？</a></h3>
             <p class="note-card__summary">Lasso の変数選択と Ridge の安定化を組み合わせ、相関した説明変数が多い回帰で使う考え方を整理します。</p>
             <p class="note-card__date">作成日: <time datetime="2026-06-18">2026-06-18</time></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="topic-section" id="calculation" aria-labelledby="calculation-heading">
+        <div class="section__header section__header--split">
+          <div>
+            <p class="site-kicker">calculation</p>
+            <h2 id="calculation-heading">計算・単位換算</h2>
+          </div>
+          <p>時間、量、単位、概算のための短い計算メモ。</p>
+        </div>
+
+        <div class="note-grid note-grid--compact">
+          <article class="note-card">
+            <p class="note-card__category">計算時間 / 単位換算</p>
+            <h3><a href="notes/calculation/simulation-runtime-one-million-years.html">30分/年なら100万年連続計算に何日・何年かかる？</a></h3>
+            <p class="note-card__summary">30 分/年の速度で 100 万年分を逐次計算すると、約 20,833 日、約 57 年かかることを整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-23">2026-06-23</time></p>
           </article>
         </div>
       </section>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>30分/年なら100万年連続計算に何日・何年かかる？ | k-notes</title>
+    <meta name="description" content="1年分の計算に30分かかるとき、100万年分を逐次計算する所要時間を分・時間・日・年に換算する。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>30分/年なら100万年連続計算に何日・何年かかる？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-06-23">2026-06-23</time></p>
+          <p>カテゴリ: calculation</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>30分/年とすると、100万年連続計算するのに何年（何日）かかる？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>1 年分の計算に 30 分かかるなら、100 万年分を逐次に連続計算すると、<strong>30,000,000 分</strong>かかります。これは <strong>500,000 時間</strong>、<strong>約 20,833.3 日</strong>、<strong>約 57.1 年</strong>です。</p>
+          <p>計算式は単純です。</p>
+
+          <pre><code>30 分/年 * 1,000,000 年 = 30,000,000 分
+30,000,000 分 / 60 = 500,000 時間
+500,000 時間 / 24 = 20,833.333... 日
+20,833.333... 日 / 365 = 57.0776... 年</code></pre>
+
+          <h3>ざっくり言うと</h3>
+          <p>日数で言うと約 2.08 万日です。365 日を 1 年として換算すると約 57.08 年なので、<strong>57 年と約 28 日</strong>です。</p>
+          <p>グレゴリオ暦の平均年長 365.2425 日で割るなら約 57.04 年、つまり <strong>57 年と約 15 日</strong>です。実務上の見積もりとしては、どちらも「約 57 年」と見てよい差です。</p>
+
+          <h3>前提</h3>
+          <ul>
+            <li>ここでは「30分/年」を「シミュレーション 1 年分を計算するのに実時間で 30 分かかる」という意味で扱います。</li>
+            <li>並列化、チェックポイント、I/O、待ち時間、ジョブ再起動、キュー待ち、障害復旧の時間は含めていません。</li>
+            <li>100 万年を途中で分割して複数ノードで並列に走らせられるなら、壁時計時間はこの値より短くできます。</li>
+          </ul>
+
+          <h3>短い結論</h3>
+          <p><strong>30分/年で100万年分を連続計算すると、約20,833日、約57年かかります。</strong></p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ul>
+            <li><a href="https://www.bipm.org/en/publications/si-brochure">BIPM, SI Brochure</a></li>
+          </ul>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
