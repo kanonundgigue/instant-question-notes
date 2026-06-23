@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sakana AI の基本的な使い方 | k-notes</title>
+    <meta name="description" content="Sakana AI を使い始めるときに、Sakana Chat、Sakana Fugu、Sakana Marlin、Claude との組み合わせ、研究コードのどれを選ぶかを整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>Sakana AI の基本的な使い方</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-06-23">2026-06-23</time></p>
+          <p>カテゴリ: ai-services</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>Sakana AIの基本的な使い方は？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>Sakana AI は、東京を拠点に「自然から着想した AI」「複数モデルや複数エージェントの協調」を中心に研究・プロダクト化している会社です。使う側から見ると、2026年6月時点では大きく <strong>Sakana Chat</strong>、<strong>Sakana Fugu</strong>、<strong>Sakana Marlin</strong>、<strong>研究コード・研究成果</strong> の 4 つに分けて考えると分かりやすいです。</p>
+          <p>結論として、<strong>ブラウザで試すだけなら Sakana Chat、普段の開発や自分のツールへ組み込むなら Sakana Fugu、深い調査レポートを作らせるなら Sakana Marlin、研究内容を追うなら公式ブログ・GitHub・論文</strong> から入ります。日本の企業として応援したい、という動機なら、無理に大きく使うよりも <strong>Standard プランで小さく継続利用する</strong> のが一番分かりやすい始め方です。</p>
+
+          <h3>用途別の入口</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>用途</th>
+                <th>入口</th>
+                <th>向いていること</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="用途">まず会話で試す</td>
+                <td data-label="入口">Sakana Chat</td>
+                <td data-label="向いていること">ブラウザ上で日本語チャットを試す。細かい API 設定をせず、モデルの雰囲気を確認する。</td>
+              </tr>
+              <tr>
+                <td data-label="用途">API や Codex で使う</td>
+                <td data-label="入口">Sakana Fugu</td>
+                <td data-label="向いていること">OpenAI 互換 API として、コーディング、レビュー、分析、複雑な推論タスクに組み込む。</td>
+              </tr>
+              <tr>
+                <td data-label="用途">戦略調査を任せる</td>
+                <td data-label="入口">Sakana Marlin</td>
+                <td data-label="向いていること">数時間かけて一次情報を調べ、仮説立案、探索、検証を含む調査レポートを作る。</td>
+              </tr>
+              <tr>
+                <td data-label="用途">研究成果を追う</td>
+                <td data-label="入口">公式ブログ、論文、GitHub</td>
+                <td data-label="向いていること">The AI Scientist、Evolutionary Model Merge、Fugu の基盤技術などを読む。</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Sakana Chat を使う</h3>
+          <p>一番軽い入口は <a href="https://chat.sakana.ai/">Sakana Chat</a> です。ブラウザで開き、メッセージ欄に質問や依頼を書きます。公式画面にも「生成されたコンテンツは不正確または誤りを含む可能性があります」とあるので、事実確認が必要な用途では出典や一次情報を別途確認します。</p>
+          <p>最初に試すプロンプト例（言語名: text）:</p>
+          <pre><code>次のテーマについて、日本語で要点を整理してください。
+目的: 研究会で話すための下調べ
+テーマ: マルチエージェント AI の利点と限界
+条件: 推測と確認済み情報を分けてください。</code></pre>
+
+          <h3>Sakana Fugu を API として使う</h3>
+          <p>Sakana Fugu は、複数モデルを動的に組み合わせるマルチエージェント系のモデル API です。公式ドキュメントでは、通常の LLM のように使えること、エンドポイントが <code>https://api.sakana.ai</code> であること、Chat Completions と Responses API の両方をサポートすることが説明されています。</p>
+          <p>使い始める流れは次の通りです。</p>
+          <ol>
+            <li><a href="https://console.sakana.ai/login">Sakana AI Console</a> にログインします。</li>
+            <li>API key を作成し、安全な場所に保存します。キーは一度しか表示されない前提で扱います。</li>
+            <li>課金方式と料金を確認します。Fugu Ultra では、オーケストレーションに使われたトークンも課金対象になります。</li>
+            <li>既存の OpenAI SDK や cURL の向き先を Sakana API に変えます。</li>
+          </ol>
+          <p>Python 例（言語名: python）:</p>
+          <pre><code>import os
+from openai import OpenAI
+
+client = OpenAI(
+    api_key=os.environ["SAKANA_API_KEY"],
+    base_url="https://api.sakana.ai/v1",
+)
+
+response = client.responses.create(
+    model="fugu",
+    input="日本語で、マルチエージェントAIの基本を短く説明してください。",
+)
+
+print(response.output_text)</code></pre>
+
+          <p>モデルは、日常的なコーディングや対話的な作業では <code>fugu</code>、難しい多段階推論や品質を優先する仕事では <code>fugu-ultra</code> を選ぶ、というのが基本です。公式のモデル説明でも、Fugu は低レイテンシと性能のバランス、Fugu Ultra はより深いエージェントプールによる品質重視として分けられています。</p>
+
+          <h3>Codex から Sakana Fugu を使う</h3>
+          <p>Codex CLI に組み込む場合、公式ドキュメントには一行インストールと手動設定の両方が載っています。最短では次のコマンドで設定できます。</p>
+          <p>コマンド例（言語名: shell）:</p>
+          <pre><code>curl -fsSL https://sakana.ai/fugu/install | bash
+codex-fugu</code></pre>
+          <p>手動で設定する場合は、Codex の provider に <code>base_url = "https://api.sakana.ai/v1"</code>、<code>env_key = "SAKANA_API_KEY"</code>、<code>wire_api = "responses"</code> を設定します。Fugu は複雑な作業で応答に時間がかかることがあるため、公式例では stream timeout や retry も長めに設定されています。</p>
+
+          <h3>Claude と組み合わせたい場合</h3>
+          <p>Claude と Sakana Fugu を組み合わせる場合、最初から 1 つの会話の中で自動的に両方を毎回呼ぶより、<strong>Claude を主担当、Fugu を明示的に呼ぶ別視点の相談役</strong>にするのが扱いやすいです。Claude Code で設計、編集、テスト、長い文脈の整理を進め、必要な場面だけ Fugu に短く投げます。</p>
+          <p>役割分担は次のように考えます。</p>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>場面</th>
+                <th>Claude</th>
+                <th>Sakana Fugu</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="場面">普段の作業</td>
+                <td data-label="Claude">コードを読ませ、方針を決め、編集や検証を進める。</td>
+                <td data-label="Sakana Fugu">呼ばない。コストを抑える。</td>
+              </tr>
+              <tr>
+                <td data-label="場面">設計に迷う</td>
+                <td data-label="Claude">現状の制約、選択肢、暫定案をまとめる。</td>
+                <td data-label="Sakana Fugu">案の弱点、別案、見落としを短くレビューさせる。</td>
+              </tr>
+              <tr>
+                <td data-label="場面">重要な文章を書く</td>
+                <td data-label="Claude">読者、構成、文体を整える。</td>
+                <td data-label="Sakana Fugu">反対意見、曖昧な表現、過剰な断定を指摘させる。</td>
+              </tr>
+              <tr>
+                <td data-label="場面">バグが取れない</td>
+                <td data-label="Claude">再現手順、ログ、差分を整理する。</td>
+                <td data-label="Sakana Fugu">原因候補を 3 つ程度に絞ってもらう。</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>Claude Code から使うなら、Fugu を直接 Claude のモデルとして置き換えるのではなく、ローカルスクリプトや明示的なコマンドとして呼び出すのが単純です。たとえば次のような小さな Python スクリプトをローカルに置いて、必要なときだけ Claude に「この要約を Fugu に投げて」と頼みます。API key は環境変数に置き、リポジトリへコミットしません。</p>
+          <p>Python 例（言語名: python）:</p>
+          <pre><code>import os
+import sys
+from openai import OpenAI
+
+client = OpenAI(
+    api_key=os.environ["SAKANA_API_KEY"],
+    base_url="https://api.sakana.ai/v1",
+)
+
+prompt = sys.stdin.read()
+response = client.responses.create(
+    model="fugu",
+    input=(
+        "次の内容を、別視点のレビューとして短く検討してください。"
+        "弱点、見落とし、代替案だけを箇条書きにしてください。\n\n"
+        + prompt
+    ),
+)
+
+print(response.output_text)</code></pre>
+          <p>使うときは、Claude に全文をそのまま渡させるのではなく、必要な範囲だけに絞ります。</p>
+          <p>コマンド例（言語名: shell）:</p>
+          <pre><code>python ask_fugu.py &lt; design-summary.txt</code></pre>
+          <p>少額運用では、Fugu を「常時オンの自動レビュー役」にしないことが大事です。Claude が作った要約や差分を人間が見て、追加の視点が本当に欲しいときだけ Fugu に投げます。これなら Standard プランでも利用量を管理しやすく、Claude と Sakana AI の得意分野を両方使えます。</p>
+
+          <h3>少額から応援するなら</h3>
+          <p>「日本の AI 企業なので応援したい。ただし、まずは少額で」という目的なら、2026年6月時点では <strong>Standard プラン（月額 20 ドル）</strong> から始めるのが現実的です。公式 Pricing では、Standard は「軽量な日常利用、たまの API 呼び出し、小さな実験、個人ワークフローで Fugu を試す」用途として説明されています。すべてのサブスクリプションプランで Fugu と Fugu Ultra の両方を使えます。</p>
+          <p>始め方は次の順番が無難です。</p>
+          <ol>
+            <li>まず <a href="https://chat.sakana.ai/">Sakana Chat</a> や公式ページで雰囲気を確認します。</li>
+            <li><a href="https://console.sakana.ai/login">Sakana AI Console</a> にログインします。</li>
+            <li>料金ページで Standard、Pro、Max、従量課金の違いを確認します。2026年7月31日までに加入すると、初回加入プランの 2 か月目が無料になる限定キャンペーンも案内されています。</li>
+            <li>まず Standard で始め、API key を作って Codex や小さな Python スクリプトから <code>fugu</code> を使います。</li>
+            <li>月内の利用量と請求の見え方を確認して、足りなければ Pro、長時間の重い作業が多ければ Max を検討します。</li>
+          </ol>
+          <p>従量課金は、使ったトークンに応じて払う方式です。Fugu Ultra は <code>fugu-ultra-20260615</code> の固定料金として、100 万トークンあたり入力 5 ドル、出力 30 ドル、キャッシュ入力 0.50 ドルが示されています。ただし従量課金は公式説明では「高負荷の本番ワークロード向け」と位置づけられており、Fugu では内部で使われる基盤モデルのレートに依存します。個人が応援目的で始めるなら、最初は月額上限が見える Standard の方が管理しやすいです。</p>
+          <p>使い道としては、Codex のモデルを週に数回だけ Fugu に切り替える、普段のコードレビューを 1 件だけ Fugu に投げる、短い調査メモを Fugu に整理させる、といった小さな運用がよいです。応援のために無理に高額プランへ上げるより、継続して使い、よかった点を具体的に周囲へ共有する方が、個人ユーザーとしては健全な支援になります。</p>
+
+          <h3>Sakana Marlin を使う</h3>
+          <p>Sakana Marlin は、即時応答のチャットボットではなく、戦略調査向けの自律型リサーチアシスタントです。公式説明では、AB-MCTS により「仮説立案 → 探索 → 検証」を繰り返し、意思決定前の論点設計まで任せる用途が想定されています。1 回の調査はテーマの複雑さによって変わりますが、目安は約 8 時間とされています。</p>
+          <p>Marlin に向く依頼は、単純な要約ではなく、論点の分解、競合比較、技術動向、規制や市場の一次情報確認を含む調査です。たとえば「国内金融機関で生成 AI エージェントを導入するときのリスクと導入順序を、一次情報中心に整理する」のような依頼が向きます。</p>
+
+          <h3>研究成果を読む</h3>
+          <p>Sakana AI の研究を追うなら、公式ブログの Research、GitHub、論文を読むのが基本です。代表例として、複数モデルを進化的にマージする Evolutionary Model Merge、研究プロセス自体の自動化を目指す The AI Scientist、Fugu の基盤にある TRINITY や Conductor があります。</p>
+          <p>研究成果は、すぐに一般向けサービスとして使えるものと、論文・実験コードとして公開されているものが混ざります。実務で使う場合は、ブログ記事のデモだけで判断せず、利用可能なプロダクト、API、ライセンス、料金、データの扱いを別に確認します。</p>
+
+          <h3>注意点</h3>
+          <ul>
+            <li>Sakana Fugu は外部 LLM を動的に選択・協調させるサービスなので、組織利用ではデータ、プライバシー、コンプライアンス要件を確認します。</li>
+            <li>Fugu では API key 作成時に、利用する provider や model pool の制御ができる場合があります。特定ベンダーを使いたくない場合は、この設定を確認します。</li>
+            <li>Fugu Ultra や Marlin は、軽い雑談よりも、複雑で深いタスクに向きます。コストと時間を見積もってから実行します。</li>
+            <li>生成物は正確性が保証されません。重要な判断、法務、医療、投資、税務などでは一次情報と専門家確認を使います。</li>
+            <li>API key、社内文書、未公開情報、個人情報を入力する前に、利用規約、プライバシーポリシー、組織の情報管理ルールを確認します。</li>
+          </ul>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ul>
+            <li><a href="https://sakana.ai/">Sakana AI 公式サイト</a></li>
+            <li><a href="https://chat.sakana.ai/">Sakana Chat</a></li>
+            <li><a href="https://sakana.ai/fugu/">Sakana Fugu 公式ページ</a></li>
+            <li><a href="https://console.sakana.ai/get-started">Sakana AI Console: Get Started</a></li>
+            <li><a href="https://console.sakana.ai/models">Sakana AI Console: Models</a></li>
+            <li><a href="https://console.sakana.ai/pricing">Sakana AI Console: Pricing</a></li>
+            <li><a href="https://sakana.ai/marlin/">Sakana Marlin 公式ページ</a></li>
+            <li><a href="https://sakana.ai/ai-scientist/">The AI Scientist: Towards Fully Automated Open-Ended Scientific Discovery</a></li>
+            <li><a href="https://sakana.ai/evolutionary-model-merge/">Evolving New Foundation Models: Unleashing the Power of Automating Model Development</a></li>
+            <li><a href="https://console.sakana.ai/terms-of-service">Sakana Fugu Terms of Service</a></li>
+            <li><a href="https://docs.anthropic.com/en/docs/claude-code/overview">Claude Code overview | Anthropic Docs</a></li>
+          </ul>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
