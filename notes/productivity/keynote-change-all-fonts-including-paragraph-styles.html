@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Keynote の全文字フォントと段落スタイルの既定を一括変更する方法 | k-notes</title>
+    <meta name="description" content="Keynote の .key ファイルで、スライド上の全文字と段落スタイルの既定フォントを KeyFontChanger または AppleScript と IWA 編集で一括変更する方法を整理する。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>Keynote の全文字フォントと段落スタイルの既定を一括変更する方法</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-06-23">2026-06-23</time></p>
+          <p>更新日: <time datetime="2026-06-24">2026-06-24</time></p>
+          <p>カテゴリ: productivity</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>Keynote ファイルの中の文字のフォントを、図のタイトルやキャプションも含めて全部変えたい。さらに段落スタイルの既定フォントも変えて、新しく入力した文字も常にそのフォントになるようにするには、どのような戦略を取ればよいか？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>「見えている文字を変える」ことと「これから入力する文字の既定を変える」ことは、Keynote では別の問題です。前者は <strong>AppleScript で全オブジェクトのフォントを上書き</strong>し、後者は <strong>.key 内部のスタイル定義（IWA ファイル）を直接書き換える</strong>、という二段構えにすると確実でした。以下は実際に Mac の Keynote ファイルで全文字を Lucida Grande に変えたときの戦略です。</p>
+
+          <h3>実行には KeyFontChanger を使える</h3>
+          <p>この二段構えを macOS 用 CLI ツールとして実装した <a href="https://github.com/kanonundgigue/KeyFontChanger">KeyFontChanger</a> を公開しました。図のタイトル、キャプション、グループ内テキスト、表セルなどの表示中の文字と、段落スタイル・表スタイルの既定フォントをまとめて変更できます。変更前の自動バックアップと、変更結果を確認する検証コマンドも備えています。</p>
+          <p>リポジトリを取得し、<a href="https://docs.astral.sh/uv/">uv</a> で依存関係を準備します。</p>
+          <pre><code>git clone https://github.com/kanonundgigue/KeyFontChanger.git
+cd KeyFontChanger
+uv sync
+./scripts/install-command.sh</code></pre>
+          <p>変更先には、フォントブックの表示名ではなく <strong>PostScript 名</strong>を指定します。基本操作は次の 3 コマンドです。</p>
+          <pre><code># 利用できる PostScript フォント名を確認
+key-font-changer list-fonts --filter Hiragino
+
+# 表示中の文字と内部スタイルを一括変更
+key-font-changer change presentation.key HiraginoSans-W3
+
+# 期待したフォントに統一されたか検証
+key-font-changer verify presentation.key HiraginoSans-W3</code></pre>
+          <p><code>change</code> は通常、以下で説明する Stage 1 と Stage 2 を続けて実行します。Keynote でファイルを開いたまま処理する場合は <code>--stage1-only</code> を使い、IWA を直接編集する Stage 2 は Keynote を閉じてから <code>--stage2-only</code> で実行します。手順の背景や独自実装が必要な場合は、以下の仕組みを参照してください。</p>
+
+          <h3>全体戦略（二段構え）</h3>
+          <ol>
+            <li><strong>表示中の文字</strong>は AppleScript で全スライド・全オブジェクトを走査して上書きする。</li>
+            <li><strong>段落スタイル・表スタイルの既定フォント</strong>は、AppleScript では触れないため、.key パッケージ内の <code>Index/*.iwa</code> を解析して書き換える。</li>
+            <li>各段階のあとに必ず<strong>再オープン検証</strong>を行い、保存後も設定が残っているか確認する。</li>
+          </ol>
+
+          <h3>事前準備：必ずバックアップを取る</h3>
+          <p>どちらの工程も破壊的になり得ます。工程ごとに <code>.key</code> をコピーしておくと、失敗しても 1 手で戻せます。</p>
+          <pre><code>cp -p deck.key deck_before_font_change.key</code></pre>
+
+          <h3>段階 1：フォント名は「PostScript 名」で指定する</h3>
+          <p>最初の落とし穴がこれです。AppleScript で <code>set font ... to "Lucida Grande"</code> のように<strong>表示名（ファミリー名）</strong>を渡すと、エラーは出ないのに何も変わらないことがあります。Keynote は内部的に <strong>PostScript 名</strong>（例: <code>LucidaGrande</code>）を期待するためです。インストール済みフォントの PostScript 名は次で確認できます。</p>
+          <pre><code>osascript -e 'use framework "AppKit"' \
+  -e 'set fnts to (current application'"'"'s NSFontManager'"'"'s sharedFontManager()'"'"'s availableFonts()) as list' \
+  -e 'return fnts'</code></pre>
+          <p>「Lucida Grande」は <code>LucidaGrande</code>、ボールドは <code>LucidaGrande-Bold</code> という具合です。</p>
+
+          <h3>段階 2：AppleScript で全オブジェクトを再帰的に上書きする</h3>
+          <p>テキストは<strong>本文テキストボックスだけでなく、図形・表セル・グループの中・プレースホルダ</strong>にも入っています。トップレベルだけを回すと、グループ内の図キャプションなどが取り残されます。そこで <code>iWork items</code> を再帰的にたどるのが要点です。</p>
+          <pre><code>on setFont(obj, f)
+  set n to 0
+  tell application "Keynote"
+    try
+      set font of object text of obj to f
+      set n to n + 1
+    end try
+    try
+      repeat with c in cells of obj
+        try
+          set font of c to f
+          set n to n + 1
+        end try
+      end repeat
+    end try
+    try
+      repeat with child in iWork items of obj
+        set n to n + (my setFont(child, f))
+      end repeat
+    end try
+  end tell
+  return n
+end setFont</code></pre>
+          <p>これをスライドの各 <code>iWork item</code> と、<code>default title item</code> / <code>default body item</code> に適用します。最後に <code>save</code> します。</p>
+
+          <h3>段階 3：再オープンして「定着」を確認する</h3>
+          <p>保存直後のメモリ上の値ではなく、<strong>閉じて開き直した後</strong>のフォントを読み返すのが大事です。これで「保存したつもりが戻っていた」を防げます。</p>
+
+          <h3>段階 4：段落スタイルの既定フォントを変える（IWA 編集）</h3>
+          <p>ここまでで「いま見えている文字」は変わりますが、<strong>段落スタイルの定義そのもの</strong>には古いフォントが残ります。これを直さないと、新規入力やスタイル再適用で古いフォントが復活します。AppleScript からはスタイル定義を編集できないため、<code>.key</code>（実体は ZIP）の中の <code>Index/*.iwa</code> を解析します。</p>
+          <p><code>.iwa</code> は <strong>Snappy 圧縮された Protocol Buffers</strong> で、フォント名は <code>ParagraphStyleArchive.char_properties.font_name</code> や <code>TableStyleArchive.table_properties.master_font_family</code> といったフィールドに入っています。Python の <code>keynote-parser</code> を使うと、解凍・再圧縮・長さ再計算まで面倒を見てくれます。</p>
+          <pre><code>python3 -m venv /tmp/kv
+/tmp/kv/bin/pip install keynote-parser protobuf python-snappy</code></pre>
+          <p>これらのフィールドだけを新フォント名に置換し、書き戻します。バイト列を単純置換すると Protobuf の長さ表記や IWA のチャンク長が壊れるため、<strong>必ずメッセージ単位で書き換えて再シリアライズ</strong>します。</p>
+
+          <h3>最大の落とし穴：再 ZIP で画像が消える</h3>
+          <p>ここが今回いちばんはまった点です。<code>.key</code> 全体を Python でまるごと作り直すと、<strong>スクリーンショット系画像の非 ASCII ファイル名や ZIP メタデータが壊れ、画像エントリが脱落</strong>して表示できなくなりました（109 個の <code>Data/</code> が 61 個に減少）。</p>
+          <p>対策は単純で、<strong>画像（<code>Data/</code>）には一切触れず、変更した <code>Index/*.iwa</code> だけを既存 ZIP に上書き</strong>することです。元ファイルを ZIP として開いたまま、対象エントリのみ差し替えます。</p>
+          <pre><code># 変更した iwa だけを既存の .key に無圧縮で上書きする
+cd /tmp/work    # ここに Index/*.iwa を展開・編集済み
+zip -0 -X -q -u "/abs/path/deck.key" Index/DocumentStylesheet.iwa Index/Slide-XXXX.iwa</code></pre>
+          <p>差し替え後に <code>Data/</code> のエントリ数が元と同じであることを必ず確認します。</p>
+
+          <h3>最終検証</h3>
+          <ul>
+            <li>Keynote で開き直し、全テキストオブジェクトのフォントが目的のフォントになっているか走査する。</li>
+            <li>IWA を再解析し、古いフォント名の文字列が 0 件であることを確認する。</li>
+            <li>画像エントリ数が変更前と一致しているか（脱落していないか）確認する。</li>
+            <li>PDF へ書き出し、ページ数と、スクリーンショットを含むページの見た目を確認する。</li>
+          </ul>
+
+          <h3>まとめ：戦略の型</h3>
+          <p>通常の作業では、この一連の処理を実装した <strong>KeyFontChanger</strong> を使うのが簡単です。その内部では、<strong>「表示の上書き（AppleScript・再帰）」＋「既定の書き換え（IWA 編集・画像非破壊）」＋「再オープン／再解析による検証」</strong>という三点セットを採用しています。独自に処理する場合も、フォント名は PostScript 名で渡すこと、グループ内まで再帰すること、再 ZIP では画像を触らないことの 3 つが重要です。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ul>
+            <li><a href="https://github.com/kanonundgigue/KeyFontChanger">kanonundgigue/KeyFontChanger - GitHub</a></li>
+            <li><a href="https://docs.astral.sh/uv/">uv - Documentation</a></li>
+            <li><a href="https://support.apple.com/guide/keynote/welcome/mac">Keynote User Guide for Mac - Apple Support</a></li>
+            <li><a href="https://developer.apple.com/library/archive/documentation/LanguagesUtilities/Conceptual/MacAutomationScriptingGuide/">Mac Automation Scripting Guide - Apple Developer</a></li>
+            <li><a href="https://pypi.org/project/keynote-parser/">keynote-parser - PyPI</a></li>
+            <li><a href="https://github.com/google/snappy">google/snappy - GitHub</a></li>
+            <li><a href="https://protobuf.dev/">Protocol Buffers Documentation</a></li>
+          </ul>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
