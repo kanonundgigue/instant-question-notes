@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Macで「プライベートリレーは利用できません」の通知を止める方法 | k-notes</title>
+    <meta name="description" content="MacでiCloudプライベートリレーを利用できない通知が繰り返し表示される場合に、ほかの接続先では有効のまま、問題が起きるネットワークだけをオフにする方法を整理する。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>Macで「プライベートリレーは利用できません」の通知を止める方法</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-06-24">2026-06-24</time></p>
+          <p>カテゴリ: productivity</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>Macでプライベート利用は不可の通知が頻繁に来るのを止めたい。方法は？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>通知の文面が「プライベートリレーは利用できません」「一部のシステム設定によりプライベートリレーの使用が妨げられています」などであれば、iCloudプライベートリレーに関する通知です。</p>
+          <p><strong>他のネットワークではプライベートリレーを使いたい場合、Mac全体ではオフにせず、通知が出るWi-Fiだけ「IPアドレスのトラッキングを制限」をオフにします。</strong>設定はネットワークごとに保持されるため、ほかのWi-Fiではプライベートリレーを有効なまま利用できます。</p>
+
+          <h3>通知が出るWi-Fiだけプライベートリレーをオフにする</h3>
+          <p>macOS Ventura以降では、次のように設定します。</p>
+          <ol>
+            <li>通知が出るWi-Fiへ接続する。</li>
+            <li><strong>システム設定 &gt; ネットワーク</strong>を開く。</li>
+            <li><strong>Wi-Fi</strong>を選び、接続中ネットワークの横にある<strong>詳細</strong>を開く。</li>
+            <li><strong>IPアドレスのトラッキングを制限</strong>をオフにする。</li>
+          </ol>
+          <p>この操作は現在のネットワークだけが対象です。別のWi-Fiへ接続したときは、そのネットワークの設定に従ってプライベートリレーが動作します。Ethernetでも通知が出る場合は、Ethernet側に対して別途設定します。</p>
+
+          <h3>そのネットワークでも使いたい場合</h3>
+          <p>通知を消すために機能を切るのではなく、競合原因を解消します。Appleによると、VPN、インターネットフィルタリングソフト、カーネル機能拡張、独自のパケットフィルタルールなどがプライベートリレーを妨げることがあります。</p>
+          <ol>
+            <li>使用中のVPNを一時停止し、通知が再発するか確認する。</li>
+            <li>広告ブロック、セキュリティ対策、DNS変更、ペアレンタルコントロールなど、通信を監視・変更するアプリを確認する。</li>
+            <li>会社や大学が管理するMacなら、管理者が指定したVPNやフィルタを勝手に削除せず、管理者へ確認する。</li>
+            <li>macOSをアップデートし、Macを再起動してから再確認する。</li>
+          </ol>
+          <p>企業・教育機関のネットワークでは、監査やネットワークフィルタリングのためにプライベートリレーを利用できない場合があります。この場合は、そのネットワークだけオフにするのが現実的です。</p>
+
+          <h3>オフにする場合の注意</h3>
+          <p>iCloudプライベートリレーは、Safariでの閲覧時にIPアドレスやDNS情報などを分離し、ネットワーク事業者やWebサイトによる行動の関連付けを難しくするiCloud+の機能です。</p>
+          <p>特定ネットワークでオフにすると、そのネットワークを使用中だけ、ネットワーク事業者とWebサイトがSafariでの通信を通常どおり観察できる状態に戻ります。ほかのネットワークでプライベートリレーまで無効になるわけではありません。</p>
+
+          <h3>通知の文面が違う場合</h3>
+          <p>「プライベート利用は不可」ではなく、別のアプリ名や「プライベートブラウズ」などが表示されている場合は、別の通知かもしれません。通知センターで通知を開き、送信元と正確な文面を確認してから設定を変更します。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ul>
+            <li><a href="https://support.apple.com/ja-jp/102022">特定のWebサイト、ネットワーク、システム設定についてiCloudプライベートリレーを管理する - Appleサポート</a></li>
+            <li><a href="https://support.apple.com/guide/mac-help/use-icloud-private-relay-mchlecadabe0/mac">Use iCloud Private Relay on Mac - Apple Support</a></li>
+            <li><a href="https://support.apple.com/en-us/102602">About iCloud Private Relay - Apple Support</a></li>
+          </ul>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
