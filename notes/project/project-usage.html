@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>このプロジェクトの使い方 | k-notes</title>
-    <meta name="description" content="instant-question-notes に質問を渡して静的 HTML 記事を蓄積し、差分確認後にコミットや main への直接 push で公開する基本的な使い方。">
+    <meta name="description" content="instant-question-notes に質問を渡して静的 HTML 記事を蓄積し、本文中の引用番号、差分確認、コミット、main への直接 push まで進める基本的な使い方。">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
@@ -18,7 +18,7 @@
         <h1>このプロジェクトの使い方</h1>
         <div class="article-meta">
           <p>作成日: <time datetime="2026-06-12">2026-06-12</time></p>
-          <p>更新日: <time datetime="2026-06-13">2026-06-13</time></p>
+          <p>更新日: <time datetime="2026-06-25">2026-06-25</time></p>
           <p>カテゴリ: project</p>
         </div>
 
@@ -29,23 +29,23 @@
 
         <section aria-labelledby="answer-heading">
           <h2 id="answer-heading">回答</h2>
-          <p>このプロジェクトは、疑問や調べたことを 1 テーマ 1 ページの静的 HTML 記事として残すためのノートです。普段の使い方は、質問を Codex や Claude Code に渡し、エージェントが記事ファイルとトップページの記事カードを更新して、人間が差分を確認してからコミットや公開を指示する流れです。</p>
+          <p>このプロジェクトは、疑問や調べたことを 1 テーマ 1 ページの静的 HTML 記事として残すためのノートです。普段の使い方は、質問を Codex や Claude Code に渡し、エージェントが記事ファイルとトップページの記事カードを更新して、人間が差分を確認してからコミットや公開を指示する流れです。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
 
           <h3>基本の流れ</h3>
           <ol>
-            <li>疑問や調べたいことを Codex / Claude Code に渡します。</li>
-            <li>エージェントが必要に応じて一次情報を確認し、<code>notes/&lt;category&gt;/&lt;slug&gt;.html</code> に記事を作ります。</li>
-            <li>エージェントが <code>index.html</code> の記事一覧にカードを追加します。</li>
-            <li>エージェントが成果物を人間が確認できる形にします。</li>
-            <li>ローカル運用では、エージェントは記事と <code>index.html</code> を更新して差分を提示し、コミットせずに止まります。記事に追加修正を入れたいときは、続けて指示できます。</li>
-            <li>コミットしてよい状態になったら、<code>commitして</code> と指示します。エージェントはそこでコミットし、push はしません。</li>
-            <li>公開してよい状態になったら、<code>pushして</code> または <code>公開して</code> と明示します。エージェントは <code>main</code> ブランチへ直接 push し、GitHub Pages のデプロイを動かします。</li>
-            <li>作業ブランチや PR は、ユーザーが明示的に求めた場合だけ使います。</li>
+            <li>疑問や調べたいことを Codex / Claude Code に渡します。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></li>
+            <li>エージェントが必要に応じて一次情報を確認し、<code>notes/&lt;category&gt;/&lt;slug&gt;.html</code> に記事を作ります。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></li>
+            <li>エージェントが <code>index.html</code> の記事一覧にカードを追加します。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></li>
+            <li>エージェントが成果物を人間が確認できる形にします。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></li>
+            <li>ローカル運用では、エージェントは記事と <code>index.html</code> を更新して差分を提示し、コミットせずに止まります。記事に追加修正を入れたいときは、続けて指示できます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></li>
+            <li>コミットしてよい状態になったら、<code>commitして</code> と指示します。エージェントはそこでコミットし、push はしません。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></li>
+            <li>公開してよい状態になったら、<code>pushして</code> または <code>公開して</code> と明示します。エージェントは <code>main</code> ブランチへ直接 push し、GitHub Pages のデプロイを動かします。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup><sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></li>
+            <li>作業ブランチや PR は、ユーザーが明示的に求めた場合だけ使います。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></li>
           </ol>
 
           <h3>質問だけ送れば記事化される</h3>
-          <p>このリポジトリでは、ユーザーが疑問や調べたいことだけを送った場合、特に断りがなければ記事作成依頼として扱います。毎回「記事にして」と書く必要はありません。このプロジェクト自身の使い方や運用ルールに関する質問も記事化対象です。</p>
-          <p>会話だけで済ませたい場合は、「説明だけ」「記事にしないで」「相談だけ」のように明示します。</p>
+          <p>このリポジトリでは、ユーザーが疑問や調べたいことだけを送った場合、特に断りがなければ記事作成依頼として扱います。毎回「記事にして」と書く必要はありません。このプロジェクト自身の使い方や運用ルールに関する質問も記事化対象です。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>会話だけで済ませたい場合は、「説明だけ」「記事にしないで」「相談だけ」のように明示します。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
 
           <p>質問例（言語名: text）:</p>
           <pre><code>uv.lock はいつ更新される？
@@ -55,39 +55,41 @@ Python の pathlib.Path と os.path はどう使い分ける？
 このプロジェクトの使い方は？</code></pre>
 
           <h3>記事の置き場所と書式</h3>
-          <p>記事は <code>notes/_template/article.html</code> を元に作り、カテゴリ名と記事ファイル名は英小文字のケバブケースにします。記事ページには、タイトル、作成日、後日修正時の更新日、カテゴリ、元の質問、構造化された本文、参照 URL、トップページへの戻りリンクを置きます。</p>
-          <p>既存記事を後日修正し、本文、参照 URL、運用方針、結論など読者の理解に影響する内容を変えた場合は、記事ページのメタ情報と <code>index.html</code> の記事カードに更新日を追加または更新します。作成日は初回作成日として残します。記事一覧は、更新日がある記事は更新日、更新日がない記事は作成日を基準にした日付降順で並べます。</p>
-          <p>記事固有の CSS は原則使わず、記事ページからは <code>../../styles/main.css</code> を読み込みます。ビルドツールや静的サイトジェネレータは使いません。</p>
+          <p>記事は <code>notes/_template/article.html</code> を元に作り、カテゴリ名と記事ファイル名は英小文字のケバブケースにします。記事ページには、タイトル、作成日、後日修正時の更新日、カテゴリ、元の質問、構造化された本文、本文中の上付き引用番号、番号と対応する参照 URL、トップページへの戻りリンクを置きます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>調査結果、仕様、数値、定義など外部情報に基づく記述には、該当する文や段落の直後に上付き引用番号を付けます。同じ参照先には同じ番号を使い、記事末尾の番号付き参照一覧と一対一で対応させます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>既存記事を後日修正し、本文、参照 URL、運用方針、結論など読者の理解に影響する内容を変えた場合は、記事ページのメタ情報と <code>index.html</code> の記事カードに更新日を追加または更新します。作成日は初回作成日として残します。記事一覧は、更新日がある記事は更新日、更新日がない記事は作成日を基準にした日付降順で並べます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>記事固有の CSS は原則使わず、記事ページからは <code>../../styles/main.css</code> を読み込みます。ビルドツールや静的サイトジェネレータは使いません。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
 
           <h3>ローカルで読む方法</h3>
-          <p>ビルド工程はありません。ローカルでは <code>index.html</code> をブラウザで開けば記事一覧を確認できます。記事ページはトップページのカードから移動します。</p>
+          <p>ビルド工程はありません。ローカルでは <code>index.html</code> をブラウザで開けば記事一覧を確認できます。記事ページはトップページのカードから移動します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
 
           <h3>公開の仕組み</h3>
-          <p><code>main</code> ブランチへの push、または手動実行で GitHub Pages のワークフローが動きます。ワークフローは公開対象だけを <code>_site</code> に集め、<code>index.html</code>、<code>styles/</code>、<code>images/</code>、<code>notes/</code> をデプロイします。ただし <code>notes/_template/</code> は除外されます。</p>
-          <p><code>AGENTS.md</code>、<code>CLAUDE.md</code>、<code>README.md</code>、<code>plan.md</code>、<code>cleanup.sh</code> などの運用ドキュメントは公開対象ではありません。</p>
+          <p><code>main</code> ブランチへの push、または手動実行で GitHub Pages のワークフローが動きます。ワークフローは公開対象だけを <code>_site</code> に集め、<code>index.html</code>、<code>styles/</code>、<code>scripts/</code>、<code>images/</code>、<code>notes/</code> をデプロイします。ただし <code>notes/_template/</code> は除外されます。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <p><code>AGENTS.md</code>、<code>CLAUDE.md</code>、<code>README.md</code>、<code>plan.md</code>、<code>cleanup.sh</code>、<code>tools/</code> などの運用ファイルやローカル専用ツールは公開対象ではありません。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup><sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
 
           <h3>運用ルールの正本</h3>
-          <p>エージェント向けの正本は <code>AGENTS.md</code> です。<code>CLAUDE.md</code> は Claude Code 向けの補足で、現在は <code>AGENTS.md</code> に従うよう案内しています。運用に迷った場合は、まず <code>AGENTS.md</code> を確認します。</p>
+          <p>エージェント向けの正本は <code>AGENTS.md</code> です。<code>CLAUDE.md</code> は Claude Code 向けの補足で、現在は <code>AGENTS.md</code> に従うよう案内しています。運用に迷った場合は、まず <code>AGENTS.md</code> を確認します。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup><sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
 
           <h3>注意点</h3>
           <ul>
-            <li>記事は日本語で書きます。</li>
-            <li>推測を書く場合は「推測」と明示します。</li>
-            <li>機密情報、個人情報、未公開の認証情報は記事に含めません。</li>
-            <li>コミット、push、公開は人間が明示した場合だけ実行します。</li>
-            <li>作業ブランチや PR は、ユーザーが明示的に求めた場合だけ使います。</li>
-            <li>ファイル削除が必要な場合は直接削除せず、<code>cleanup.sh</code> に削除コマンドを追記して確認を待ちます。</li>
+            <li>記事は日本語で書きます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></li>
+            <li>推測を書く場合は「推測」と明示します。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></li>
+            <li>外部情報に基づく記述には、本文中で上付き引用番号を示します。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></li>
+            <li>機密情報、個人情報、未公開の認証情報は記事に含めません。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></li>
+            <li>コミット、push、公開は人間が明示した場合だけ実行します。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></li>
+            <li>作業ブランチや PR は、ユーザーが明示的に求めた場合だけ使います。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></li>
+            <li>ファイル削除が必要な場合は直接削除せず、<code>cleanup.sh</code> に削除コマンドを追記して確認を待ちます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></li>
           </ul>
         </section>
 
         <section class="references" aria-labelledby="references-heading">
           <h2 id="references-heading">参照</h2>
-          <ul>
-            <li><a href="https://github.com/kanonundgigue/instant-question-notes/blob/main/README.md">README.md - instant-question-notes</a></li>
-            <li><a href="https://github.com/kanonundgigue/instant-question-notes/blob/main/AGENTS.md">AGENTS.md - エージェント向け運用ルール</a></li>
-            <li><a href="https://github.com/kanonundgigue/instant-question-notes/blob/main/CLAUDE.md">CLAUDE.md - Claude Code 向け補足</a></li>
-            <li><a href="https://github.com/kanonundgigue/instant-question-notes/blob/main/.github/workflows/pages.yml">pages.yml - GitHub Pages デプロイ設定</a></li>
-          </ul>
+          <ol>
+            <li id="ref-1"><a href="https://github.com/kanonundgigue/instant-question-notes/blob/main/README.md">README.md - instant-question-notes</a></li>
+            <li id="ref-2"><a href="https://github.com/kanonundgigue/instant-question-notes/blob/main/AGENTS.md">AGENTS.md - エージェント向け運用ルール</a></li>
+            <li id="ref-3"><a href="https://github.com/kanonundgigue/instant-question-notes/blob/main/.github/workflows/pages.yml">pages.yml - GitHub Pages デプロイ設定</a></li>
+            <li id="ref-4"><a href="https://github.com/kanonundgigue/instant-question-notes/blob/main/CLAUDE.md">CLAUDE.md - Claude Code 向け補足</a></li>
+          </ol>
         </section>
       </article>
     </main>

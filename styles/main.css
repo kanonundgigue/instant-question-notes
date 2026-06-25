@@ -595,6 +595,23 @@ code {
   font-family: var(--font-mono);
 }
 
+.citation {
+  font-size: 0.75em;
+  line-height: 0;
+  margin-left: 0.12em;
+  vertical-align: super;
+}
+
+.citation a {
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.citation a:hover,
+.citation a:focus-visible {
+  text-decoration: underline;
+}
+
 :not(pre) > code {
   background: rgba(216, 90, 48, 0.1);
   border-radius: 4px;
@@ -608,8 +625,13 @@ code {
   padding-top: 22px;
 }
 
-.references ul {
+.references ul,
+.references ol {
   padding-left: 1.2em;
+}
+
+.references li[id] {
+  scroll-margin-top: 1rem;
 }
 
 @media (max-width: 560px) {

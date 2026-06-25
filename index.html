@@ -34,7 +34,6 @@
           <a href="#climate-data">気候データ</a>
           <a href="#music">音楽</a>
           <a href="#ai-coding-agents">AI コーディングエージェント</a>
-          <a href="#project">プロジェクト運用</a>
           <a href="#google-workspace">Google Workspace</a>
         </nav>
       </div>
@@ -45,6 +44,7 @@
         <div>
           <h2 id="about-heading">このサイトについて</h2>
           <p>日々の疑問や調べたことを、1 ページ 1 テーマの記事としてためていく個人のノートです。</p>
+          <p><a href="notes/project/project-usage.html">このプロジェクトの使い方</a></p>
         </div>
         <p class="notice__disclaimer">内容の正確性や最新性、記事を参考にした結果について保証はしません。重要な判断をする場合は、必ず一次情報や専門家の確認をあわせて行ってください。</p>
         <p class="notice__disclaimer">ソースコードは <a href="https://github.com/kanonundgigue/instant-question-notes">GitHub リポジトリ</a> で公開しています。</p>
@@ -109,12 +109,6 @@
             </li>
 
             <li class="category-card">
-              <span class="category-card__label">project</span>
-              <a class="category-card__title" href="#project">プロジェクト運用</a>
-              <span class="category-card__meta">1 件の記事</span>
-            </li>
-
-            <li class="category-card">
               <span class="category-card__label">google-workspace</span>
               <a class="category-card__title" href="#google-workspace">Google Workspace</a>
               <span class="category-card__meta">1 件の記事</span>
@@ -133,6 +127,14 @@
         </div>
 
         <div class="note-grid">
+          <article class="note-card">
+            <p class="note-card__category">project</p>
+            <h3><a href="notes/project/project-usage.html">このプロジェクトの使い方</a></h3>
+            <p class="note-card__summary">質問から記事を作り、本文中の引用、確認、コミット、公開まで進めるときの基本ルール。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-12">2026-06-12</time></p>
+            <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-06-25">2026-06-25</time></p>
+          </article>
+
           <article class="note-card">
             <p class="note-card__category">statistics</p>
             <h3><a href="notes/statistics/cross-validation-basics.html">機械学習における交差検証とは？</a></h3>
@@ -159,14 +161,6 @@
             <h3><a href="notes/productivity/stop-private-relay-unavailable-notifications-on-mac.html">Macで「プライベートリレーは利用できません」の通知を止める方法</a></h3>
             <p class="note-card__summary">ほかの接続先では有効のまま、通知が出るWi-Fiだけプライベートリレーをオフにする方法を整理します。</p>
             <p class="note-card__date">作成日: <time datetime="2026-06-24">2026-06-24</time></p>
-          </article>
-
-          <article class="note-card">
-            <p class="note-card__category">productivity</p>
-            <h3><a href="notes/productivity/keynote-change-all-fonts-including-paragraph-styles.html">Keynote の全文字フォントと段落スタイルの既定を一括変更する方法</a></h3>
-            <p class="note-card__summary">KeyFontChanger を使い、表示中の文字と IWA の段落スタイル定義を画像非破壊で一括変更する方法を整理します。</p>
-            <p class="note-card__date">作成日: <time datetime="2026-06-23">2026-06-23</time></p>
-            <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-06-24">2026-06-24</time></p>
           </article>
 
         </div>
@@ -361,26 +355,6 @@
             <h3><a href="notes/ai-coding-agents/claude-code-fable5-orchestrates-codex-implementation.html">Claude Code Fable 5 で設計を統括し、Codex に実装させる方法</a></h3>
             <p class="note-card__summary">リードエージェントと実装エージェントを分け、安全に直列ループで進めるための運用メモ。</p>
             <p class="note-card__date">作成日: <time datetime="2026-06-13">2026-06-13</time></p>
-          </article>
-        </div>
-      </section>
-
-      <section class="topic-section" id="project" aria-labelledby="project-heading">
-        <div class="section__header section__header--split">
-          <div>
-            <p class="site-kicker">project</p>
-            <h2 id="project-heading">プロジェクト運用</h2>
-          </div>
-          <p>instant-question-notes の使い方、公開方法、エージェント運用など、このプロジェクト自身に関する記事。</p>
-        </div>
-
-        <div class="note-grid note-grid--compact">
-          <article class="note-card">
-            <p class="note-card__category">運用ルール</p>
-            <h3><a href="notes/project/project-usage.html">このプロジェクトの使い方</a></h3>
-            <p class="note-card__summary">質問から記事を作り、確認、コミット、公開まで進めるときの基本ルール。</p>
-            <p class="note-card__date">作成日: <time datetime="2026-06-12">2026-06-12</time></p>
-            <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-06-13">2026-06-13</time></p>
           </article>
         </div>
       </section>
