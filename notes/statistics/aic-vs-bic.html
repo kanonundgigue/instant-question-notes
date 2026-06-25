@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AICとBICの違いは？どう使い分ける？ | k-notes</title>
+    <meta name="description" content="AICとBICがそれぞれ期待予測損失と周辺尤度の何を近似しているか、罰則が異なる理由、一貫性と予測効率、実務での使い分けを整理する。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>AICとBICの違いは？どう使い分ける？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-06-25">2026-06-25</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>AICとBICの違いは？使い分けは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><strong>AICとBICの原理的な違いは、罰則の強さではなく、何を推定・近似しているか</strong>にあります。AICは、推定したモデルを新しいデータに使うときの期待対数損失を推定します。BICは、各候補モデルを一つの仮説として扱い、パラメータを積分消去した周辺尤度を大標本近似します。式の <code>2k</code> と <code>k log n</code> は、この異なる目的から生じた結果です。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>観点</th>
+                <th>AIC</th>
+                <th>BIC</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="観点">式</td>
+                <td data-label="AIC"><code>-2 log L + 2k</code></td>
+                <td data-label="BIC"><code>-2 log L + k log n</code></td>
+              </tr>
+              <tr>
+                <td data-label="観点">複雑さへの罰則</td>
+                <td data-label="AIC">1パラメータあたり2</td>
+                <td data-label="BIC">1パラメータあたり <code>log n</code></td>
+              </tr>
+              <tr>
+                <td data-label="観点">重視する目的</td>
+                <td data-label="AIC">未知データへの期待対数損失を小さくする</td>
+                <td data-label="BIC">データに対するモデルの周辺尤度を大きくする</td>
+              </tr>
+              <tr>
+                <td data-label="観点">パラメータの扱い</td>
+                <td data-label="AIC">最尤推定値を新しいデータの予測に使う</td>
+                <td data-label="BIC">事前分布を置いたパラメータを積分する</td>
+              </tr>
+              <tr>
+                <td data-label="観点">選ばれやすい傾向</td>
+                <td data-label="AIC">比較的複雑なモデル</td>
+                <td data-label="BIC">比較的単純なモデル</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>ここで <var>L</var> は最大化した尤度、<var>k</var> は推定パラメータ数、<var>n</var> は標本数です。通常の標本数では <code>log n &gt; 2</code> となるため、BICの方がパラメータ追加を強く罰します。厳密には自然対数を使う場合、<var>n</var> が8以上ならBICの罰則がAICより大きくなります。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <p>AICの小標本補正版であるAICcは、標本数が小さい場合や、推定パラメータ数が標本数に対して無視できない場合に特に有用です。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+
+          <h3>AICが推定するもの：新しいデータに対する期待対数損失</h3>
+          <p>未知のデータ生成分布を <var>f</var>、候補モデルの確率分布を <var>g</var> とすると、AICの出発点は <var>f</var> と <var>g</var> のKullback–Leibler（KL）ダイバージェンスです。モデルに依存しない定数を除けば、KLダイバージェンスを小さくすることは、<strong>新しいデータ <var>Y</var> に対する期待負の対数尤度</strong>を小さくすることに対応します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>しかし、学習データで最大化した対数尤度は、同じデータへの当てはまりを楽観的に評価します。AICの <code>2k</code> は、正則な最尤モデルにおいて、この<strong>学習時の楽観バイアス</strong>を漸近的に補正する項です。つまりAICは、単に複雑なモデルを罰しているのではなく、学習データ上の尤度を、独立な将来データ上の予測成績へ補正しようとしています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>この考え方では、候補モデルのどれかが文字どおり真実である必要はありません。各モデルを現実の近似として扱い、その中で期待予測損失が最も小さいものを探します。この意味でAICは、<strong>「どの仮説が真か」より「どの近似が今後よく働くか」</strong>を問う規準です。</p>
+
+          <h3>BICが近似するもの：パラメータを積分したモデルの周辺尤度</h3>
+          <p>ベイズ的なモデル比較では、モデル <var>M</var> の評価に、最大尤度そのものではなく次の周辺尤度を使います。</p>
+          <p><code>p(D | M) = ∫ p(D | θ, M) π(θ | M) dθ</code></p>
+          <p>これは、特定の最尤推定値だけでなく、モデル内で事前分布が許すすべてのパラメータ値について尤度を平均した量です。BICは、正則性、固定されたパラメータ次元、十分大きな標本などの条件で、この積分の負の対数をLaplace近似したものです。定数次数の項を無視すると <code>-2 log L + k log n</code> が現れます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>複雑なモデルは最尤点で高い尤度を得やすい一方、その高い尤度を持つパラメータ領域が狭ければ、パラメータ空間全体で積分した周辺尤度は必ずしも大きくなりません。標本数が増えると、各パラメータの尤度が高い領域の幅は概ね <code>n<sup>-1/2</sup></code> に縮みます。<var>k</var> 次元では体積が概ね <code>n<sup>-k/2</sup></code> になるため、負の対数を2倍すると <code>k log n</code> が生じます。これがBICの複雑さへの罰則の原理です。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>したがってBICが問うのは、<strong>「最適化したパラメータで将来をどれだけ予測できるか」ではなく、「パラメータの不確実性も積分したとき、どのモデル仮説が観測データを最も強く支持するか」</strong>です。等しいモデル事前確率を置けば、BIC差は大標本でベイズ因子、ひいては事後モデル確率の比較に対応します。ただし、BICの数値そのものが事後確率になるわけではありません。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>なぜ「一貫性」と「予測効率」が分かれるのか</h3>
+          <p>小さいモデルが真で、それを含む大きいモデルを比較するとします。不要なパラメータを追加したことによる対数尤度の改善は、標本数が増えても確率的な揺らぎとして一定程度残ります。AICの追加罰則 <code>2 Δk</code> は標本数によらず一定なので、大標本でも大きいモデルを選ぶ確率がゼロにはならず、一般には真の有限次元モデルを必ず選ぶという意味で一貫ではありません。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup><sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
+          <p>一方、BICの追加罰則 <code>Δk log n</code> は標本数とともに増えます。そのため、候補集合に真の有限次元モデルが含まれるなどの条件下では、不要なパラメータを排除し、真のモデルを選ぶ確率が1へ近づきます。これがBICの<strong>モデル選択の一貫性</strong>です。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup><sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
+          <p>反対に、真の分布が候補の有限次元モデルに含まれず、標本数とともに複雑なモデルを使うほど近似が改善する状況では、BICの増大する罰則が予測に必要な複雑さまで削る場合があります。AICはこの種の状況で、候補中の最良の予測リスクへ漸近的に近づく<strong>予測効率</strong>を持つ場合があります。有限次元の真のモデルの同定と、無限次元または誤特定された現実の最良近似は異なる目標であり、一般に一つの規準で両方を同時に達成できるとは限りません。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup><sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
+
+          <h3>「真のモデルがある」と考えるか、「すべて近似」と考えるか</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>前提となる見方</th>
+                <th>中心となる問い</th>
+                <th>対応しやすい規準</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="前提となる見方">候補の一つがデータ生成機構を正しく表す</td>
+                <td data-label="中心となる問い">どのモデル仮説が真か</td>
+                <td data-label="対応しやすい規準">BIC</td>
+              </tr>
+              <tr>
+                <td data-label="前提となる見方">どの候補も現実の不完全な近似である</td>
+                <td data-label="中心となる問い">どの近似が将来データで最も損失が小さいか</td>
+                <td data-label="対応しやすい規準">AIC・AICc</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>これは「ベイズなら必ずBIC、頻度論なら必ずAIC」という区別ではありません。重要なのは分析者の哲学的ラベルではなく、<strong>モデルを真偽の対象として選びたいのか、予測装置として評価したいのか</strong>です。また、BICは完全なベイズ分析そのものではなく、事前分布に依存する周辺尤度から定数次数の項を落とした大標本近似です。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>数値で見る罰則の違い</h3>
+          <p>標本数が <var>n = 100</var> の場合、パラメータを1個増やす罰則は、AICでは <code>2</code>、BICでは <code>log(100) ≈ 4.61</code> です。したがって、複雑なモデルが追加パラメータによって改善した対数尤度が1.5なら、AICはその追加を支持しますが、BICは支持しません。</p>
+          <ul>
+            <li>AIC: 対数尤度の改善 <code>1.5 × 2 = 3</code> が罰則 <code>2</code> を上回る。</li>
+            <li>BIC: 同じ改善 <code>3</code> が罰則 <code>4.61</code> を下回る。</li>
+          </ul>
+          <p>標本数が増えるほどBICの <code>log n</code> は大きくなるため、AICと比べて単純なモデルを選びやすくなります。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+
+          <h3>実務での使い分け</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>目的・状況</th>
+                <th>第一候補</th>
+                <th>理由・補足</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="目的・状況">将来値の予測、候補モデルによる現実の近似</td>
+                <td data-label="第一候補">AICまたはAICc</td>
+                <td data-label="理由・補足">予測・近似の情報損失を重視する。交差検証による予測性能も確認する。</td>
+              </tr>
+              <tr>
+                <td data-label="目的・状況">説明変数や次数を絞り、簡潔な構造を選ぶ</td>
+                <td data-label="第一候補">BIC</td>
+                <td data-label="理由・補足">候補中に真の有限次元構造があるとみなせる場合、条件下でモデル選択の一貫性を持つ。</td>
+              </tr>
+              <tr>
+                <td data-label="目的・状況">標本数がパラメータ数に対して小さい</td>
+                <td data-label="第一候補">AICc</td>
+                <td data-label="理由・補足">AICの小標本バイアスを補正する。AICcが利用できるなら、AICより優先して検討する。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></td>
+              </tr>
+              <tr>
+                <td data-label="目的・状況">目的を一つに決められない</td>
+                <td data-label="第一候補">両方を併記</td>
+                <td data-label="理由・補足">結論が一致するか確認し、異なる場合は予測重視か簡潔さ重視かを明示する。</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>単に「説明しやすいので変数を少なくしたい」という理由だけでは、BICの理論的前提を満たすとは限りません。解釈可能性、測定費用、推定後の利用目的が重要なら、それらを損失や制約として明示し、交差検証、正則化、外部妥当性の確認と組み合わせる方が目的に直接対応します。</p>
+
+          <h3>比較するときの注意点</h3>
+          <ul>
+            <li><strong>値そのものに絶対的な合格基準はない:</strong> 同じ候補集合内で小さい方を比較する。</li>
+            <li><strong>同じ応答データで比較する:</strong> 欠損処理で標本が変わったモデルや、応答変数の変換が異なるモデルの値をそのまま比べない。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></li>
+            <li><strong>尤度の定義をそろえる:</strong> 異なるソフトウェアやモデルクラスでは、対数尤度に含める定数やパラメータ数の数え方が違う場合がある。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></li>
+            <li><strong>最大尤度で当てはめたモデルを比べる:</strong> AICの理論は最大化された対数尤度を前提とする。最大尤度以外で当てはめたモデルについて計算できても、その値をそのまま比較しない。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></li>
+            <li><strong>BICの正則性を確認する:</strong> 混合モデルの成分数、潜在変数モデル、ニューラルネットワークなど、パラメータが識別不能になり得る特異モデルでは、通常のLaplace近似と <code>k log n</code> が成立しない場合がある。<sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup></li>
+            <li><strong>残差診断や予測検証を省略しない:</strong> AIC・BICが最小でも、候補モデルがすべて不適切なら良いモデルとは限らない。</li>
+          </ul>
+
+          <h3>結論</h3>
+          <p><strong>AICは最尤推定後のモデルの期待予測損失を補正推定し、BICはパラメータを積分したモデルの周辺尤度を近似する</strong>というのが原理的な違いです。予測・近似を重視するならAICまたはAICc、候補中に真の有限次元モデルがあるという前提で構造を同定するならBICが対応します。罰則の大小だけで選ばず、何を「よいモデル」と定義しているかを先に決める必要があります。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://doi.org/10.1109/TAC.1974.1100705">Hirotugu Akaike, A New Look at the Statistical Model Identification (1974)</a></li>
+            <li id="ref-2"><a href="https://doi.org/10.1214/aos/1176344136">Gideon Schwarz, Estimating the Dimension of a Model (1978)</a></li>
+            <li id="ref-3"><a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/AIC.html">AIC: Akaike's An Information Criterion - R Documentation</a></li>
+            <li id="ref-4"><a href="https://doi.org/10.1093/biomet/76.2.297">Clifford M. Hurvich and Chih-Ling Tsai, Regression and time series model selection in small samples (1989)</a></li>
+            <li id="ref-5"><a href="https://arxiv.org/abs/1508.02473">Jie Ding, Vahid Tarokh and Yuhong Yang, Bridging AIC and BIC: a new criterion for autoregression</a></li>
+            <li id="ref-6"><a href="https://doi.org/10.1093/biomet/92.4.937">Yuhong Yang, Can the strengths of AIC and BIC be shared? (2005)</a></li>
+            <li id="ref-7"><a href="https://www.jmlr.org/papers/v14/watanabe13a.html">Sumio Watanabe, A Widely Applicable Bayesian Information Criterion (2013)</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
