@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>pseudo-inverse、backslash、LASSOの違いは？ | k-notes</title>
+    <meta name="description" content="疑似逆行列、MATLABのbackslash演算子、LASSOを、PythonのNumPyとscikit-learnによる実行例とともに整理する。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>pseudo-inverse、backslash、LASSOの違いは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-06-25">2026-06-25</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>pseudo-inverse, backslash, LASSOの違いは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><strong>pseudo-inverse（疑似逆行列）と backslash は、線形方程式や通常の最小二乗問題を数値的に解く方法です。一方、LASSO は L1 罰則を加えて目的関数そのものを変える統計モデルです。</strong></p>
+          <p>設計行列を <code>X</code>、目的変数を <code>y</code>、係数を <code>beta</code> とすると、Python では概ね次の対応になります。Python には backslash 演算子がないため、通常の最小二乗には NumPy の <code>lstsq</code> を使います。</p>
+
+          <pre><code>import numpy as np
+from sklearn.linear_model import Lasso
+
+beta_pinv = np.linalg.pinv(X) @ y
+beta_lstsq, *_ = np.linalg.lstsq(X, y, rcond=None)
+
+model = Lasso(alpha=0.1, fit_intercept=False)
+model.fit(X, y)
+beta_lasso = model.coef_</code></pre>
+
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>方法</th>
+                <th>解いている問題</th>
+                <th>ランク落ちした場合</th>
+                <th>主な用途</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="方法"><code>np.linalg.pinv(X) @ y</code></td>
+                <td data-label="解いている問題">残差平方和を最小化し、その中から係数の L2 ノルムが最小の解を選ぶ</td>
+                <td data-label="ランク落ちした場合">Moore–Penrose 疑似逆行列による最小ノルム解</td>
+                <td data-label="主な用途">最小ノルム解が明示的に必要、疑似逆行列自体が必要</td>
+              </tr>
+              <tr>
+                <td data-label="方法"><code>X \ y</code><br>Pythonでは <code>np.linalg.lstsq</code></td>
+                <td data-label="解いている問題">正方系、過決定系、劣決定系に応じた線形方程式または最小二乗問題</td>
+                <td data-label="ランク落ちした場合">MATLABのbackslashは <code>pinv</code> と同じ解とは限らない。NumPyの <code>lstsq</code> は最小L2ノルム解を返す</td>
+                <td data-label="主な用途">通常の数値計算。行列を逆行列化せず効率よく解く</td>
+              </tr>
+              <tr>
+                <td data-label="方法">LASSO</td>
+                <td data-label="解いている問題">残差平方和 + 係数の絶対値和への罰則</td>
+                <td data-label="ランク落ちした場合">罰則付き最適化として係数を推定する</td>
+                <td data-label="主な用途">予測、係数の縮小、疎な変数選択</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>pseudo-inverse（<code>np.linalg.pinv</code>）</h3>
+          <p>通常の逆行列 <code>inv(X)</code> は、<code>X</code> が正方かつ正則な場合にしか定義できません。Moore–Penrose 疑似逆行列 <code>X+</code> は、長方形行列やランク落ちした行列にも定義できます。</p>
+          <p><code>np.linalg.pinv(X) @ y</code> は残差 <code>||X beta - y||2</code> を最小にする係数のうち、さらに <code>||beta||2</code> が最小のものを返します。つまり、最小二乗解が複数ある場合の選択規則が「係数ベクトルの長さが最小」です。</p>
+          <p>NumPy の <code>pinv</code> は特異値分解（SVD）を使い、小さすぎる特異値を許容誤差に基づいて 0 とみなします。この切り捨ては数値的不安定性を抑えますが、交差検証で強さを選ぶ LASSO のような統計的正則化とは別物です。</p>
+
+          <h3>backslash（<code>\</code>、<code>mldivide</code>）</h3>
+          <p><code>X \ y</code> は「<code>X</code> の逆行列を作って <code>y</code> に掛ける」という意味ではありません。行列の形状や性質を判定し、LU、QR、Cholesky など適切な分解を使って、<code>X beta = y</code> または対応する最小二乗問題を直接解きます。</p>
+          <p>通常は、逆行列や疑似逆行列そのものが必要でない限り、<code>inv(X) * y</code> や <code>pinv(X) * y</code> より <code>X \ y</code> を優先します。計算量、メモリ、丸め誤差の面で直接解法が有利だからです。</p>
+          <p><code>X</code> が過決定かつ列フルランクなら、<code>pinv(X) * y</code> と <code>X \ y</code> は、丸め誤差の範囲で同じ通常最小二乗解になります。違いが重要になるのは、特にランク落ちや劣決定の場合です。その場合、<code>pinv</code> は最小 L2 ノルム解を明示的に選びますが、backslash の解は同じとは限りません。</p>
+          <p>Python には backslash に対応する演算子はありません。通常は <code>np.linalg.solve(X, y)</code> を正方・フルランクな連立方程式に、<code>np.linalg.lstsq(X, y, rcond=None)</code> を長方形行列を含む最小二乗問題に使います。ただし、NumPy の <code>lstsq</code> は解が複数ある場合に最小 L2 ノルム解を返すため、ランク落ち時の解選択は MATLAB の backslash と一致するとは限りません。</p>
+
+          <h3>LASSO</h3>
+          <p>LASSO は通常の最小二乗解を別のアルゴリズムで計算しているのではありません。概念的には次の別問題を解きます。</p>
+
+          <pre><code>minimize:
+    (1 / (2n)) * ||y - X beta||2^2
+    + lambda * ||beta||1</code></pre>
+
+          <p><code>lambda</code> が大きいほど係数は強く 0 へ縮み、一部は正確に 0 になります。この性質を変数選択に使えます。その代わり、LASSO の係数には意図的なバイアスが入り、通常最小二乗の残差平方和だけを最小にする解ではありません。</p>
+          <p>scikit-learn ではこの正則化強度を <code>alpha</code> と呼びます。実務では説明変数のスケールをそろえ、<code>alpha</code> を交差検証などで選びます。切片は通常、L1 罰則の対象外です。</p>
+
+          <h3>ランク落ちした具体例</h3>
+          <p>2 列が同一で、<code>beta1 + beta2 = 1</code> なら同じ予測になる状況を考えます。</p>
+
+          <pre><code>import numpy as np
+from sklearn.linear_model import Lasso
+
+X = np.array([
+    [1.0, 1.0],
+    [2.0, 2.0],
+    [3.0, 3.0],
+])
+y = np.array([1.0, 2.0, 3.0])
+
+beta_pinv = np.linalg.pinv(X) @ y
+beta_lstsq, *_ = np.linalg.lstsq(X, y, rcond=None)
+
+lasso = Lasso(alpha=0.1, fit_intercept=False)
+lasso.fit(X, y)
+beta_lasso = lasso.coef_
+
+print(beta_pinv)   # [0.5 0.5]
+print(beta_lstsq)  # [0.5 0.5]
+print(beta_lasso)  # 一方の係数が0になる疎な解</code></pre>
+
+          <ul>
+            <li><code>np.linalg.pinv(X) @ y</code> は、同じ当てはまりを持つ解の中から最小 L2 ノルムの <code>[0.5, 0.5]</code> を選びます。</li>
+            <li><code>np.linalg.lstsq</code> も最小 L2 ノルム解を返すため、この例では <code>[0.5, 0.5]</code> になります。これは MATLAB の backslash がランク落ち時に返す解と同一とは限りません。</li>
+            <li>LASSO は <code>alpha</code> に応じて係数を縮小します。同一または強く相関した変数のどちらを残すかは不安定になり得ます。</li>
+          </ul>
+
+          <h3>どれを使うか</h3>
+          <ul>
+            <li><strong>通常の線形方程式・最小二乗をPythonで解きたい:</strong> 正方・フルランクなら <code>np.linalg.solve</code>、一般の最小二乗なら <code>np.linalg.lstsq</code>。</li>
+            <li><strong>疑似逆行列そのものが必要:</strong> <code>np.linalg.pinv(X)</code>。係数だけが必要なら、通常は行列を明示的に作らない <code>np.linalg.lstsq</code> を使う。</li>
+            <li><strong>予測の過学習を抑え、係数を縮小し、変数も絞りたい:</strong> scikit-learn の <code>Lasso</code> または <code>LassoCV</code>。<code>alpha</code> は検証データや交差検証で選ぶ。</li>
+            <li><strong>説明変数が強く相関している:</strong> LASSO の選択は不安定になり得るため、Ridge や Elastic Net も比較する。</li>
+          </ul>
+
+          <h3>結論</h3>
+          <p><code>pinv</code> と backslash は、基本的には<strong>罰則なしの線形問題をどう数値的に解くか</strong>の違いです。LASSO は<strong>L1 罰則を追加して、推定したい解の定義を変える</strong>方法です。</p>
+          <p>列フルランクの通常最小二乗なら <code>pinv(X) * y</code> と <code>X \ y</code> はほぼ同じ係数になります。しかしランク落ちすると、どの最小二乗解を選ぶかが違います。LASSO はさらに別の基準で係数を縮めるため、三者を単純な代替コマンドとして扱わないことが重要です。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ul>
+            <li><a href="https://numpy.org/doc/stable/reference/generated/numpy.linalg.pinv.html">numpy.linalg.pinv - NumPy documentation</a></li>
+            <li><a href="https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html">numpy.linalg.lstsq - NumPy documentation</a></li>
+            <li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Lasso.html">sklearn.linear_model.Lasso - scikit-learn documentation</a></li>
+            <li><a href="https://www.mathworks.com/help/matlab/ref/pinv.html">pinv - Moore-Penrose pseudoinverse - MathWorks</a></li>
+            <li><a href="https://www.mathworks.com/help/matlab/ref/double.mldivide.html">mldivide, \ - Solve systems of linear equations - MathWorks</a></li>
+            <li><a href="https://doi.org/10.1111/j.2517-6161.1996.tb02080.x">Robert Tibshirani, Regression Shrinkage and Selection via the Lasso</a></li>
+          </ul>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
