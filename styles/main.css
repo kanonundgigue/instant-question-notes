@@ -561,9 +561,19 @@ pre {
 }
 
 .code-block__toolbar {
+  align-items: center;
   display: flex;
+  gap: 12px;
   justify-content: flex-end;
   padding: 8px 8px 0;
+}
+
+.code-block__language {
+  color: #aebdb7;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  margin-right: auto;
+  padding-left: 8px;
 }
 
 .code-block__copy {
@@ -589,6 +599,28 @@ pre {
 .code-block__copy:focus-visible {
   outline: 2px solid var(--color-code-text);
   outline-offset: 2px;
+}
+
+.syntax-comment {
+  color: #91a39b;
+  font-style: italic;
+}
+
+.syntax-function {
+  color: #8bd5ca;
+}
+
+.syntax-keyword {
+  color: #f5a97f;
+  font-weight: 700;
+}
+
+.syntax-number {
+  color: #c6a0f6;
+}
+
+.syntax-string {
+  color: #a6da95;
 }
 
 code {
