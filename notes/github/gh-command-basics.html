@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ghコマンドの基本的な使い方 | k-notes</title>
+    <meta name="description" content="GitHub CLI の gh コマンドで、認証、リポジトリ確認、issue、pull request、Actions、JSON 出力を扱う基本操作を整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>ghコマンドの基本的な使い方</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-06-28">2026-06-28</time></p>
+          <p>カテゴリ: github</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>ghコマンドの基本的な使い方は？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><code>gh</code> は GitHub CLI のコマンドで、リポジトリ、Issue、Pull Request、GitHub Actions などの GitHub 上の操作をブラウザではなく端末から扱うための道具です。公式マニュアルでは <code>gh</code> の下に <code>auth</code>、<code>repo</code>、<code>issue</code>、<code>pr</code>、<code>run</code> などのサブコマンドが並び、操作対象ごとに命令を組み立てる構造になっています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>最初は「認証する」「今いるリポジトリを確認する」「Issue と PR を見る」「必要なときだけ作成する」の 4 つを覚えると十分です。破壊的ではない確認系コマンドから使い始め、作成系は <code>--web</code> や明示的な <code>--title</code> / <code>--body</code> つきで実行すると、意図しない投稿を避けやすくなります。</p>
+
+          <h3>まず認証する</h3>
+          <p>対話的にログインする基本形は <code>gh auth login</code> です。公式マニュアルでは、既定のホストは <code>github.com</code>、既定の認証はブラウザを使うフローで、完了後のトークンは通常システムの資格情報ストアに保存されると説明されています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <p>コード例（言語名: shell）:</p>
+          <pre><code class="language-shell">gh auth login
+gh auth status</code></pre>
+
+          <p><code>gh auth status</code> は、既知の GitHub host ごとに有効なアカウントと認証状態を表示します。自動化では、標準入力からトークンを渡す <code>--with-token</code> や環境変数のトークンも使えます。ただし個人アクセストークンや fine-grained token は権限スコープによって挙動が変わるため、まずは手元の端末で <code>gh auth login</code> を使い、CI やスクリプトに移す段階でトークン運用を分けて考えるのが実務上は安全です。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup><sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+
+          <h3>リポジトリを見る・開く・clone する</h3>
+          <p>現在のディレクトリが GitHub リポジトリなら、引数なしの <code>gh repo view</code> でそのリポジトリの説明や README を端末に表示できます。別のリポジトリを指定する場合は <code>OWNER/REPO</code> 形式を使い、<code>--web</code> を付けるとブラウザで開けます。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+
+          <p>コード例（言語名: shell）:</p>
+          <pre><code class="language-shell">gh repo view
+gh repo view cli/cli
+gh repo view cli/cli --web
+gh repo clone cli/cli</code></pre>
+
+          <p><code>gh repo clone OWNER/REPO</code> は GitHub リポジトリをローカルに clone します。<code>OWNER/</code> 部分を省略すると、認証中のユーザー名が owner として扱われます。また、clone 対象が fork の場合は親リポジトリが <code>upstream</code> remote として追加される挙動があります。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></p>
+
+          <h3>Issue を見る・作る</h3>
+          <p><code>gh issue list</code> はリポジトリの Issue 一覧を表示します。既定では open な Issue だけが対象で、<code>--state</code>、<code>--assignee</code>、<code>--author</code>、<code>--label</code>、<code>--search</code> などで絞り込めます。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
+
+          <p>コード例（言語名: shell）:</p>
+          <pre><code class="language-shell">gh issue list
+gh issue list --assignee "@me"
+gh issue list --state all --label bug
+gh issue view 123
+gh issue create --title "調査する" --body "再現手順と確認事項を書く"</code></pre>
+
+          <p><code>gh issue view</code> は Issue 番号または URL を指定して、タイトル、本文、その他の情報を表示します。<code>gh issue create</code> は Issue を作成します。タイトルや本文をフラグで渡せるほか、<code>--web</code> を使うとブラウザの作成画面を開けます。プロジェクトへ追加する場合は追加の認可スコープが必要になることがあります。<sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup><sup class="citation"><a href="#ref-8" aria-label="参照 8">[8]</a></sup></p>
+
+          <h3>Pull Request を見る・作る</h3>
+          <p><code>gh pr list</code> は Pull Request 一覧を表示します。既定では open な PR が対象で、<code>--state</code>、<code>--author</code>、<code>--assignee</code>、<code>--base</code>、<code>--head</code>、<code>--search</code> などで絞り込めます。<sup class="citation"><a href="#ref-9" aria-label="参照 9">[9]</a></sup></p>
+
+          <p>コード例（言語名: shell）:</p>
+          <pre><code class="language-shell">gh pr list
+gh pr list --author "@me"
+gh pr view 123
+gh pr checkout 123
+gh pr create --title "修正内容" --body "変更点と確認方法を書く"
+gh pr create --draft --fill</code></pre>
+
+          <p><code>gh pr view</code> は PR 番号、URL、またはブランチを指定して、タイトル、本文、その他の情報を表示します。<code>gh pr create</code> は PR を作成し、成功すると作成された PR の URL を表示します。現在のブランチが remote に完全には push されていない場合、どこへ push するかを尋ねたり fork を提案したりするため、作成前に <code>git status</code> と <code>git branch --show-current</code> で状態を確認しておくと混乱しにくいです。<sup class="citation"><a href="#ref-10" aria-label="参照 10">[10]</a></sup><sup class="citation"><a href="#ref-11" aria-label="参照 11">[11]</a></sup></p>
+
+          <h3>GitHub Actions を確認する</h3>
+          <p><code>gh run list</code> は最近の GitHub Actions workflow run を一覧表示します。<code>--branch</code>、<code>--commit</code>、<code>--event</code>、<code>--status</code>、<code>--workflow</code> などで絞り込めます。run の詳細は <code>gh run view</code> で確認でき、PR に紐づく CI 状態を見る用途では <code>gh pr checks</code> が使えます。<sup class="citation"><a href="#ref-12" aria-label="参照 12">[12]</a></sup><sup class="citation"><a href="#ref-13" aria-label="参照 13">[13]</a></sup><sup class="citation"><a href="#ref-14" aria-label="参照 14">[14]</a></sup></p>
+
+          <p>コード例（言語名: shell）:</p>
+          <pre><code class="language-shell">gh run list
+gh run list --branch main --status failure
+gh run view
+gh pr checks</code></pre>
+
+          <h3>別リポジトリを指定する</h3>
+          <p>多くの <code>gh</code> コマンドは、カレントディレクトリのリポジトリを対象にします。別のリポジトリを操作したい場合は、継承オプションの <code>-R</code> / <code>--repo</code> で <code>OWNER/REPO</code> を指定できます。これは Issue、PR、Actions などのコマンドでよく使います。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup><sup class="citation"><a href="#ref-9" aria-label="参照 9">[9]</a></sup><sup class="citation"><a href="#ref-12" aria-label="参照 12">[12]</a></sup></p>
+
+          <p>コード例（言語名: shell）:</p>
+          <pre><code class="language-shell">gh issue list -R cli/cli
+gh pr list -R cli/cli --state merged
+gh run list -R owner/repo</code></pre>
+
+          <h3>JSON 出力を使う</h3>
+          <p>一覧や確認結果をスクリプトで使うときは、対応コマンドの <code>--json</code> で出力フィールドを指定し、必要なら <code>--jq</code> で絞り込みます。<code>gh repo view</code>、<code>gh issue list</code>、<code>gh pr list</code>、<code>gh run list</code> などは、公式マニュアルで利用可能な JSON fields を列挙しています。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup><sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup><sup class="citation"><a href="#ref-9" aria-label="参照 9">[9]</a></sup><sup class="citation"><a href="#ref-12" aria-label="参照 12">[12]</a></sup></p>
+
+          <p>コード例（言語名: shell）:</p>
+          <pre><code class="language-shell">gh repo view --json nameWithOwner,visibility,url
+gh pr list --json number,title,url --jq '.[] | "\(.number) \(.title)"'
+gh issue list --json number,title,state
+gh run list --json databaseId,status,conclusion,displayTitle</code></pre>
+
+          <h3>最初に覚える最小セット</h3>
+          <p>日常用途なら、まずは次の 10 個を手癖にするとよいです。認証は <code>gh auth login</code>、状態確認は <code>gh auth status</code>、リポジトリ確認は <code>gh repo view</code>、clone は <code>gh repo clone OWNER/REPO</code>、Issue は <code>gh issue list</code> と <code>gh issue view</code>、PR は <code>gh pr list</code> と <code>gh pr view</code>、Actions は <code>gh run list</code>、別リポジトリ指定は <code>-R OWNER/REPO</code> です。作成系の <code>gh issue create</code> と <code>gh pr create</code> は、確認系に慣れてから使うのが安全です。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup><sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup><sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup><sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup><sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup><sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup><sup class="citation"><a href="#ref-9" aria-label="参照 9">[9]</a></sup><sup class="citation"><a href="#ref-10" aria-label="参照 10">[10]</a></sup><sup class="citation"><a href="#ref-12" aria-label="参照 12">[12]</a></sup></p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://cli.github.com/manual/gh">GitHub CLI manual - gh</a></li>
+            <li id="ref-2"><a href="https://cli.github.com/manual/gh_auth_login">GitHub CLI manual - gh auth login</a></li>
+            <li id="ref-3"><a href="https://cli.github.com/manual/gh_auth_status">GitHub CLI manual - gh auth status</a></li>
+            <li id="ref-4"><a href="https://cli.github.com/manual/gh_repo_view">GitHub CLI manual - gh repo view</a></li>
+            <li id="ref-5"><a href="https://cli.github.com/manual/gh_repo_clone">GitHub CLI manual - gh repo clone</a></li>
+            <li id="ref-6"><a href="https://cli.github.com/manual/gh_issue_list">GitHub CLI manual - gh issue list</a></li>
+            <li id="ref-7"><a href="https://cli.github.com/manual/gh_issue_view">GitHub CLI manual - gh issue view</a></li>
+            <li id="ref-8"><a href="https://cli.github.com/manual/gh_issue_create">GitHub CLI manual - gh issue create</a></li>
+            <li id="ref-9"><a href="https://cli.github.com/manual/gh_pr_list">GitHub CLI manual - gh pr list</a></li>
+            <li id="ref-10"><a href="https://cli.github.com/manual/gh_pr_view">GitHub CLI manual - gh pr view</a></li>
+            <li id="ref-11"><a href="https://cli.github.com/manual/gh_pr_create">GitHub CLI manual - gh pr create</a></li>
+            <li id="ref-12"><a href="https://cli.github.com/manual/gh_run_list">GitHub CLI manual - gh run list</a></li>
+            <li id="ref-13"><a href="https://cli.github.com/manual/gh_run_view">GitHub CLI manual - gh run view</a></li>
+            <li id="ref-14"><a href="https://cli.github.com/manual/gh_pr_checks">GitHub CLI manual - gh pr checks</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
