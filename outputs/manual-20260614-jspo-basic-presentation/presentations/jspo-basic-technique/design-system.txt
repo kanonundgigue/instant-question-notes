@@ -1,0 +1,14 @@
+Slide size: 1280x720
+Background: warm paper #F7F4ED with white proof surfaces and dark ink text.
+Typography: Hiragino Sans for Japanese titles and body; Aptos Mono only for tiny source labels when needed.
+Palette: ink #172026, muted ink #526069, accent #006C67, support #B65A3A, paper #F7F4ED, white #FFFFFF, hairline #D8D2C5.
+Chart grammar: direct labels, minimal axis, no legends when labels can sit beside marks.
+Diagram grammar: straight lines, square corners, no decorative icons, no filler cards.
+Connector grammar: arrows only when direction matters; otherwise thin rules.
+Container grammar: use bands and ruled panels, not nested cards.
+Source/footer grammar: quiet 10px footer, source URL only on first and figure slides, page marker on every slide.
+Title/kicker grammar: small uppercase / Japanese role label, followed by one claim title.
+Data-label grammar: labels attach to bars or nodes; no detached legends.
+Brand policy: no logos or pseudo-official marks.
+Allowed layout families: cover with thesis rail, four-part map, horizontal split, flow, funnel, rule-based matrix, source figure comparison, checklist close.
+Banned motifs: gradients, decorative blobs, rounded-card dashboard look, heavy animations, logo-like marks.

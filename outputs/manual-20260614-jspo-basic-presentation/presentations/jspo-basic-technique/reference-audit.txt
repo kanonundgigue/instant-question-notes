@@ -1,0 +1,8 @@
+Reference:
+No visual reference deck was supplied.
+
+Article visual characteristics:
+The source is a monochrome academic lecture article with dense two-column text. The PowerPoint should not imitate the page layout. It should translate the article into a training deck with large claims, minimal text, and one proof object per slide.
+
+Anti-pattern from source:
+Dense article paragraphs are not suitable for slide bodies. The source itself warns against small text, crowded figures, excessive slide counts, and reading from manuscript.

@@ -1,0 +1,22 @@
+Thesis:
+学会発表は、原稿やスライドを読む場ではなく、限られた時間で聴衆に要点を残すための設計行為である。
+
+Audience:
+学会発表に慣れていない学生・若手研究者、または発表指導をする教員。
+
+One-line arc:
+発表態度から始め、聴衆設計、内容の絞り込み、スライド準備、質疑応答へ進み、最後に実践チェックリストへ落とす。
+
+Slides:
+1. 学会発表は「読む」より「伝える」が本体。 Proof: cover thesis.
+2. 技術の中心は、聴衆に要点を残す設計である。 Proof: four-part arc.
+3. 聴衆が受け取る印象は言葉だけでは決まらない。 Proof: 7/38/55 split.
+4. 発表態度は、聴衆を見ることから始まる。 Proof: do / avoid comparison.
+5. 内容は聴衆の専門性と参加目的に合わせて決める。 Proof: audience filter flow.
+6. 短い口演では、研究全体ではなく3点を残す。 Proof: funnel diagram.
+7. 原稿は読む台本ではなく、論理を整える設計図である。 Proof: manuscript rules.
+8. スライドは1分1枚を出発点に、説明時間から逆算する。 Proof: time/slide ruler.
+9. 情報を詰め込むと、聴衆は読むだけで時間を失う。 Proof: source Figure 1.
+10. 図表を分けると、説明する対象が明確になる。 Proof: source Figure 2.
+11. 質疑応答は、答え方を3パターンで準備する。 Proof: Q&A matrix.
+12. 発表前の確認は、聴衆・要点・時間・文字・話し方・質疑の6点。 Proof: checklist.

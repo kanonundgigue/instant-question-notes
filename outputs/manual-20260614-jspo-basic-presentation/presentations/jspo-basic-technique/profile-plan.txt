@@ -1,0 +1,8 @@
+task mode: create
+primary deck-profile: strategy-leadership
+secondary profile gates: educational / training deck, source-backed article summary
+required proof objects: article claim spine, communication weight split, preparation flow, slide density before-after, Q&A response matrix
+source/asset requirements: J-STAGE PDF, figures cropped from page 49 with source caption
+brand authenticity constraints: no institutional logos or journal marks are recreated; source is cited in quiet footer only
+profile-specific QA gates: claim titles, varied layouts, readable Japanese type, no invented metrics, no unsupported claims
+known missing inputs: user did not specify audience length; assumed 10-minute training / article introduction deck

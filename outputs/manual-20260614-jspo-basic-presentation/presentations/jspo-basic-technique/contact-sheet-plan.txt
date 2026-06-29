@@ -1,0 +1,12 @@
+1 cover with thesis rail
+2 four-part horizontal map
+3 horizontal percentage bars with explanation rail
+4 do/avoid split
+5 audience filter flow
+6 funnel with three retained points
+7 manuscript rule sheet
+8 time ruler and slide count warning
+9 source figure with critique callouts
+10 source figure with improvement callouts
+11 Q&A matrix
+12 checklist close

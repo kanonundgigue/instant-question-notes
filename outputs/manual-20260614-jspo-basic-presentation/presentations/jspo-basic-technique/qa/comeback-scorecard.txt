@@ -1,0 +1,28 @@
+Primary deck-profile: strategy-leadership
+Profile gate: pass
+
+Rubric:
+story: 5
+specificity: 5
+rhythm: 4
+whitespace: 4
+chart clarity: 4
+typography: 4
+restraint: 5
+precision: 5
+coherence: 5
+reference delta: n/a
+
+Total: 41 / 45
+
+Checks:
+- PPTX exists and is non-empty: pass, 787561 bytes
+- Slide count in package: pass, 12 slides
+- Empty media files: pass, none
+- Artifact-tool render: pass, 12 PNG previews generated
+- Contact sheet review: pass
+- Layout quality: pass with 0 errors; remaining warnings are accepted tight-text / split-label warnings from intentional chart labels and compact Japanese callouts
+
+Known tradeoffs:
+- Figures 1 and 2 are embedded as source-image quotations from the PDF rather than redrawn, to avoid changing the source meaning.
+- The source figures remain monochrome and dense because they are used specifically as before/after evidence from the article.

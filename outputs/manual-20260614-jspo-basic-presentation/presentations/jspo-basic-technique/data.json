@@ -1,0 +1,24 @@
+{
+  "source": "鈴木亨「学会発表の基本テクニック」日本義肢装具学会誌 26(1), 2010, 46-50",
+  "communication_elements": [
+    { "label": "言葉", "value": 7 },
+    { "label": "声", "value": 38 },
+    { "label": "態度", "value": 55 }
+  ],
+  "talking_speed_chars_per_minute": {
+    "professional_announcer": 300,
+    "beginner_min": 250,
+    "beginner_max": 270
+  },
+  "slide_pacing": {
+    "rule": "1分1枚程度",
+    "example_total_minutes": 10,
+    "example_talk_minutes": 7,
+    "example_qa_minutes": 3
+  },
+  "qa_patterns": [
+    "質問の意味がわかっており、答えもある",
+    "質問の意味はわかるが、そこまで研究していない",
+    "質問の意味がわからない"
+  ]
+}
