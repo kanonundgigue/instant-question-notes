@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EZproxyとは？ | k-notes</title>
+    <meta name="description" content="図書館の電子ジャーナル、データベース、電子ブックを学外から利用できるようにする EZproxy の役割、仕組み、SSO や VPN との違いを整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>EZproxyとは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-07-01">2026-07-01</time></p>
+          <p>更新日: <time datetime="2026-07-01">2026-07-01</time></p>
+          <p>カテゴリ: library-tech</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>EZproxyとは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>EZproxy は、図書館や大学などが契約している電子ジャーナル、文献データベース、電子ブックを、学外や館外から使えるようにするためのアクセス仲介システムです。OCLC が提供している製品で、利用者とコンテンツ提供元の間に入り、利用者が機関の正規ユーザーであることを確認したうえで、コンテンツ提供元には機関が登録した EZproxy の IP アドレスからのアクセスとして見せます。</p>
+          <p>短く言えば、「出版社やデータベース側が IP アドレスで契約機関を判定している世界」と、「利用者が自宅や出張先からアクセスする現実」をつなぐ仕組みです。</p>
+
+          <h3>なぜ必要になるのか</h3>
+          <p>多くの学術データベースや電子ジャーナルは、契約機関のネットワークから来たアクセスを許可する形で運用されています。図書館内や大学内の PC からなら、出版社側は接続元 IP アドレスを見て「この機関の契約範囲内」と判断できます。</p>
+          <p>しかし、利用者が自宅の回線やモバイル回線から直接アクセスすると、出版社側から見えるのは利用者個人の IP アドレスです。その IP アドレスは契約機関の登録済み IP ではないため、フルテキストや有料データベースへのアクセスが拒否されます。</p>
+          <p>EZproxy はこの問題を、機関側で利用者認証を行い、認証済みのリクエストだけを EZproxy 経由で出版社側へ送ることで解決します。</p>
+
+          <h3>基本的な流れ</h3>
+          <ol>
+            <li>利用者が図書館サイト、ディスカバリーサービス、または EZproxy 用のリンクから電子リソースへアクセスします。</li>
+            <li>EZproxy が利用者を機関の認証方式で確認します。OCLC の説明では、SAML や LDAP などの認証方式に対応します。</li>
+            <li>認証後、EZproxy は利用者の代わりにコンテンツ提供元へリクエストを送ります。</li>
+            <li>コンテンツ提供元は、接続元を利用者個人の IP ではなく、機関が登録した EZproxy の IP として見ます。</li>
+            <li>提供元から返ってきたページや PDF などを、EZproxy が利用者のブラウザへ返します。</li>
+          </ol>
+          <p>このため、利用者から見ると「大学・図書館のログインを通すと、学外からでも契約リソースが読める」ように見えます。</p>
+
+          <h3>東京大学の場合</h3>
+          <p>東京大学の EZproxy ホストは <code>utokyo.idm.oclc.org</code> です。東京大学附属図書館のデータベース一覧では、E-journal &amp; E-book Portal、TREE、JapanKnowledge、Web of Science、Scopus などの項目に <code>利用する(EZproxy)</code> のリンクがあり、リンク先は <code>https://utokyo.idm.oclc.org/login?url=...</code> という形になっています。</p>
+          <p>したがって、東大所属者が学外から使う場合は、基本的には次のどちらかから入ります。</p>
+          <ul>
+            <li><a href="https://www.lib.u-tokyo.ac.jp/ja/library/contents/database">東京大学附属図書館のデータベース一覧</a>で、目的のデータベースの <code>利用する(EZproxy)</code> をクリックする。</li>
+            <li><a href="https://www.lib.u-tokyo.ac.jp/ja/library/literacy/user-guide/campus/offcampus">学外からの利用</a>の案内に従い、E-journal &amp; E-book Portal や TREE から EZproxy 経由で入る。</li>
+          </ul>
+          <p>URL の形だけを書くと、汎用的には次の形式です。</p>
+          <pre><code>https://utokyo.idm.oclc.org/login?url=アクセスしたい電子リソースのURL</code></pre>
+          <p>たとえば、東京大学附属図書館のデータベース一覧にある E-journal &amp; E-book Portal の EZproxy リンクは、次のような形式です。</p>
+          <pre><code>https://utokyo.idm.oclc.org/login?url=https%3A%2F%2Fvs2ga4mq9g.search.serialssolutions.com%2F</code></pre>
+          <p>ただし、任意の URL を付ければ何でも使えるわけではありません。東京大学が契約し、EZproxy の設定対象になっている電子リソースについて、東京大学アカウント等で認証された所属者が利用するための入口だと考えるのが正確です。</p>
+
+          <h3>URL 書き換えが中心になる</h3>
+          <p>EZproxy の特徴は、利用者のブラウザ全体をプロキシ設定に変えさせるのではなく、電子リソースの URL を EZproxy 経由の URL に書き換えていく点です。OCLC の文書では、この方式を URL rewriting として説明しています。</p>
+          <p>たとえば、実際のデータベースが次の URL だとします。</p>
+          <pre><code>https://www.somedb.com/index.html</code></pre>
+          <p>Proxy by hostname 方式では、EZproxy 配下のホスト名へ次のような形で対応づけられます。</p>
+          <pre><code>https://www-somedb-com.ezproxy.example.edu/index.html</code></pre>
+          <p>こうすると、ページ内のリンクも EZproxy 経由に書き換えられ、利用者はブラウザの通常操作のまま契約リソース内をたどれます。従来型の汎用プロキシのように、ブラウザ側でプロキシサーバーを手動設定する必要がない点が運用上大きいです。</p>
+
+          <h3>データベーススタンザとは何か</h3>
+          <p>EZproxy では、どの電子リソースをプロキシ対象にするかを設定で定義します。このリソースごとの設定単位が、database stanza と呼ばれるものです。スタンザには、対象サービスのホスト名、URL、ドメイン、必要な追加ディレクティブなどが書かれます。</p>
+          <p>重要なのは、電子リソースは単一のトップページだけで完結しないことです。検索画面、本文画面、画像配信、PDF 配信、認証用サブドメインなど、複数のホストや URL が関係します。スタンザが不足していると、トップページは開けても本文や PDF で認証が切れる、画像だけ出ない、別ドメインへ移動した瞬間に学外アクセス扱いになる、といった問題が起こります。</p>
+
+          <h3>VPN や SSO との違い</h3>
+          <p>VPN は、利用者の端末を機関ネットワークに入ったように扱う広いネットワーク接続です。電子リソース以外の通信にも影響するため、ネットワーク設計や端末管理の対象が広くなります。</p>
+          <p>SSO は、利用者が誰かを確認する認証基盤です。SAML や LDAP などでログインをまとめられますが、出版社側が「契約機関からの IP アクセス」を前提にしている場合、SSO だけでは出版社に機関 IP として見せる役割は果たしません。</p>
+          <p>EZproxy は、SSO などで利用者を確認したあと、電子リソースへの Web アクセスだけを機関の認可済み IP 経由にする道具です。したがって、VPN の代替というより、図書館の電子リソース提供に特化したアクセス仲介層と考えるほうが正確です。</p>
+
+          <h3>運用上の注意点</h3>
+          <ul>
+            <li>契約条件に応じて、学部、身分、所属、利用者グループごとにアクセス範囲を分ける必要があります。</li>
+            <li>不正利用や漏えいした認証情報を検知するため、ログ、利用量、同時接続、異常なダウンロードなどの監視が重要です。</li>
+            <li>出版社側のサイト構成変更に合わせて、スタンザの更新が必要になることがあります。</li>
+            <li>利用ログは電子リソース評価に役立ちますが、誰が何を読んだかに近い情報を含み得るため、プライバシーと保存期間の設計が必要です。</li>
+            <li>EZproxy は匿名化サービスではありません。目的は、契約機関の正規利用者に契約リソースを届けることです。</li>
+          </ul>
+
+          <h3>まとめ</h3>
+          <p>EZproxy は、図書館契約の電子リソースをリモート利用させるための「認証 + IP ベースアクセス仲介 + URL 書き換え」の仕組みです。利用者には学外からでもアクセスしやすい導線を提供し、出版社側には契約機関の認可済み IP からのアクセスとして見せます。図書館システムの文脈では、単なる Web プロキシではなく、電子リソース契約、認証基盤、URL 構造、利用ログ、プライバシー管理が交差する場所にあるシステムです。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ul>
+            <li><a href="https://www.oclc.org/en/ezproxy.html">EZproxy: Access and authentication software - OCLC</a></li>
+            <li><a href="https://help.oclc.org/Library_Management/EZproxy/Get_started/About_EZproxy">About EZproxy - OCLC Support</a></li>
+            <li><a href="https://help.oclc.org/Library_Management/EZproxy/Get_started/About_URL_rewriting">About URL rewriting - OCLC Support</a></li>
+            <li><a href="https://help.oclc.org/Library_Management/EZproxy/EZproxy_configuration/Understanding_URLs_and_database_stanzas">Understanding URLs and database stanzas - OCLC Support</a></li>
+            <li><a href="https://help.oclc.org/Library_Management/EZproxy/EZproxy_database_stanzas">EZproxy database stanzas - OCLC Support</a></li>
+            <li><a href="https://www.lib.u-tokyo.ac.jp/ja/library/contents/database">データベース一覧 - 東京大学附属図書館</a></li>
+            <li><a href="https://www.lib.u-tokyo.ac.jp/ja/library/literacy/user-guide/campus/offcampus">学外からの利用 - 東京大学附属図書館</a></li>
+          </ul>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>

@@ -27,6 +27,7 @@
         <p class="site-lead">疑問をメモる速度で記事化する。</p>
         <nav class="site-nav" aria-label="ページ内カテゴリ">
           <a href="#recent">新着</a>
+          <a href="#library-tech">図書館・情報技術</a>
           <a href="#productivity">生産性ツール</a>
           <a href="#health-beauty">ヘルス・美容</a>
           <a href="#climate-data">気候データ</a>
@@ -62,6 +63,12 @@
               <span class="category-card__label">new</span>
               <a class="category-card__title" href="#recent">新着</a>
               <span class="category-card__meta">最近追加・更新した 3 件</span>
+            </li>
+
+            <li class="category-card">
+              <span class="category-card__label">library-tech</span>
+              <a class="category-card__title" href="#library-tech">図書館・情報技術</a>
+              <span class="category-card__meta">1 件の記事</span>
             </li>
 
             <li class="category-card">
@@ -120,6 +127,14 @@
 
         <div class="note-grid">
           <article class="note-card">
+            <p class="note-card__category">library-tech</p>
+            <h3><a href="notes/library-tech/ezproxy-basics.html">EZproxyとは？</a></h3>
+            <p class="note-card__summary">EZproxy の仕組みと、東京大学から学外接続する場合の EZproxy ホスト名を整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-07-01">2026-07-01</time></p>
+            <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-07-01">2026-07-01</time></p>
+          </article>
+
+          <article class="note-card">
             <p class="note-card__category">health-beauty</p>
             <h3><a href="notes/health-beauty/sweat-proof-foundation-touch-up.html">汗でファンデーションが流れるときの崩れにくいベースメイクと直し方</a></h3>
             <p class="note-card__summary">汗を止める、薄く密着させる、濡れている間に触らない、崩れた部分だけ直す手順を整理します。</p>
@@ -134,13 +149,26 @@
             <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-06-17">2026-06-17</time></p>
           </article>
 
-          <article class="note-card">
-            <p class="note-card__category">productivity</p>
-            <h3><a href="notes/productivity/apple-intelligence-settings.html">Apple Intelligence の設定方法</a></h3>
-            <p class="note-card__summary">対応デバイス、OS、言語、空き容量、iPhone・iPad・Mac の設定場所、ChatGPT 拡張を整理します。</p>
-            <p class="note-card__date">作成日: <time datetime="2026-06-17">2026-06-17</time></p>
-          </article>
+        </div>
+      </section>
 
+      <section class="topic-section" id="library-tech" aria-labelledby="library-tech-heading">
+        <div class="section__header section__header--split">
+          <div>
+            <p class="site-kicker">library-tech</p>
+            <h2 id="library-tech-heading">図書館・情報技術</h2>
+          </div>
+          <p>図書館システム、電子リソース、認証、アクセス管理など、情報基盤に関する記事。</p>
+        </div>
+
+        <div class="note-grid note-grid--compact">
+          <article class="note-card">
+            <p class="note-card__category">電子リソース / 認証 / リモートアクセス</p>
+            <h3><a href="notes/library-tech/ezproxy-basics.html">EZproxyとは？</a></h3>
+            <p class="note-card__summary">図書館や大学の契約電子リソースを学外から使えるようにする、EZproxy の役割と東大での入口を整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-07-01">2026-07-01</time></p>
+            <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-07-01">2026-07-01</time></p>
+          </article>
         </div>
       </section>
 
