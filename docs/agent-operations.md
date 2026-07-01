@@ -98,7 +98,9 @@ instant-question-notes/
 - 共通パスワードは `PROTECTED_NOTES.local.md` に置き、`.gitignore` 済みとする
 - `tools/encrypt.html` はローカル専用で、GitHub Pages の公開対象に含めない
 - Web Crypto とローカルメモ読込の都合上、暗号化と復号確認は `file://` ではなく localhost で行う
-- プレビューサーバを立てる場合は、可能なら公開対象だけを配信し、`PROTECTED_NOTES.local.md` を不用意に露出させない
+- プレビューサーバを立てる場合は、可能なら `_site/` のような公開対象だけを集めたディレクトリを配信し、`PROTECTED_NOTES.local.md` を不用意に露出させない
+- `tools/encrypt.html` を使う暗号化作業では `PROTECTED_NOTES.local.md` の自動読込が必要なので、ローカル環境だけで短時間起動し、外部公開しない
+- 保護記事の検証後は、`npm run check` で `note-payload`、`scripts/decrypt.js` 読込、下書き混入の基本検査を通す
 
 ## デプロイ対象
 
@@ -123,6 +125,24 @@ GitHub Pages で公開されるのは `.github/workflows/pages.yml` でステー
 - `tools/`
 - `PROTECTED_NOTES.local.md`
 - 下書きや生成作業ディレクトリ
+
+生成物の扱い:
+
+- `outputs/`、`.playwright-mcp/`、`_site/` は Git 管理外の作業ディレクトリとして扱う
+- 削除が必要な場合も直接削除せず、`cleanup.sh` に理由コメント付きで追記する
+- `package.json` は `npm run check` の入口として使うため、削除対象にしない
+
+## 公開前チェック
+
+`npm run check` は依存なしの Node.js スクリプトで、公開前の最低限の機械検査を行います。
+
+検査内容:
+
+- 公開 HTML 内の相対リンク先が存在すること
+- テンプレートプレースホルダ `{{ }}` が残っていないこと
+- `mobile-table` 内の各 `td` に `data-label` があること
+- 保護記事に `note-payload` と `scripts/decrypt.js` 読込があること
+- GitHub Pages workflow と `.gitignore` に、`_drafts/`、`*.draft.html`、`PROTECTED_NOTES.local.md`、生成作業ディレクトリの除外設定があること
 
 新しく公開したい種類のファイルを増やす場合は、ワークフローのステージング手順にも追記します。
 

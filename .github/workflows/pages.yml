@@ -34,8 +34,13 @@ jobs:
           cp -r styles _site/
           cp -r scripts _site/
           cp -r images _site/
-          # notes は雛形（_template）を除いて公開する
-          rsync -a --exclude='_template/' notes/ _site/notes/
+          # notes は公開記事だけを配信する。雛形、下書き、ローカル秘密メモは除外する。
+          rsync -a \
+            --exclude='_template/' \
+            --exclude='_drafts/' \
+            --exclude='*.draft.html' \
+            --exclude='PROTECTED_NOTES.local.md' \
+            notes/ _site/notes/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
       - name: Deploy
