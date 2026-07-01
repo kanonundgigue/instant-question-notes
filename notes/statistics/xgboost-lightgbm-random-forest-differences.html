@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>XGBoost・LightGBM・Random Forestの違いは？ | k-notes</title>
+    <meta name="description" content="XGBoost、LightGBM、Random Forestの違いを、バギングとブースティング、木の成長方法、速度、過学習、選び方の観点から整理する。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>XGBoost・LightGBM・Random Forestの違いは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-06-24">2026-06-24</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>XGBoost・LightGBM・Random Forestの違いは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>最も大きな違いは、<strong>Random Forest は独立に作った多数の木を平均するバギング</strong>、<strong>XGBoost と LightGBM は前までの予測誤差を次の木で順番に補正する勾配ブースティング</strong>だという点です。</p>
+          <p>そのため、Random Forest は比較的調整しやすく堅牢な基準モデルになりやすい一方、XGBoost と LightGBM は適切に調整すると表形式データで高い予測性能を狙いやすい反面、学習率、木の複雑さ、反復回数などの調整がより重要になります。</p>
+
+          <h3>3手法の要点</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>手法</th>
+                <th>学習の仕方</th>
+                <th>実務上の性格</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="手法">Random Forest</td>
+                <td data-label="学習の仕方">データと特徴量をランダムに変えながら多数の木を独立に作り、分類は多数決、回帰は平均を取る。</td>
+                <td data-label="実務上の性格">調整が比較的容易で、ノイズや過学習に対して堅牢。まず置く基準モデルに向く。</td>
+              </tr>
+              <tr>
+                <td data-label="手法">XGBoost</td>
+                <td data-label="学習の仕方">損失関数の勾配と2階微分を使い、前の予測を改善する木を逐次追加する。目的関数に木の複雑さへの正則化を含む。</td>
+                <td data-label="実務上の性格">精度、正則化、機能、計算効率のバランスがよい。堅実な勾配ブースティングの候補。</td>
+              </tr>
+              <tr>
+                <td data-label="手法">LightGBM</td>
+                <td data-label="学習の仕方">勾配ブースティングをヒストグラム化と leaf-wise 成長で高速化する。GOSS や EFB も提案された。</td>
+                <td data-label="実務上の性格">大規模・高次元データで高速かつ省メモリになりやすい。小規模データでは過学習制御が特に重要。</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Random Forestだけ仕組みの系統が違う</h3>
+          <p>Random Forest では、各決定木をブートストラップ標本で学習し、各分割でも候補となる特徴量をランダムに絞ります。互いに完全には同じでない木を多数作り、その予測を平均することで、単一の深い決定木が持つ高い分散を下げます。</p>
+          <p>各木は基本的に独立して作れるため並列化しやすく、木を増やしてもブースティングのように前の木の結果を待つ必要はありません。また、学習に使われなかった out-of-bag データを利用して、別の検証データを用意せずに汎化誤差を概算できます。</p>
+
+          <h3>XGBoostとLightGBMは誤差を順番に補正する</h3>
+          <p>XGBoost と LightGBM は、どちらも Gradient Boosting Decision Tree（GBDT）の実装です。1本目の木で残った誤差を2本目、そこでも残った誤差を3本目というように、木を逐次追加して損失を下げます。</p>
+          <p>Random Forest の主な狙いが「木どうしの平均で分散を下げる」ことであるのに対し、勾配ブースティングの主な狙いは「弱い木を順次足してバイアスを下げる」ことです。ただし、実際には行・列のサンプリング、正則化、木の深さなども使うため、バイアスと分散の両方を制御します。</p>
+
+          <h3>XGBoostとLightGBMの違い</h3>
+          <p>両者の差は「ブースティングかどうか」ではなく、主に<strong>木の作り方と高速化の設計</strong>にあります。</p>
+          <ul>
+            <li><strong>XGBoost:</strong> 勾配だけでなく損失の2階微分も使い、葉の重みや木の複雑さに正則化を入れた目的関数を最適化します。現在の公式実装では高速なヒストグラム法が標準で、深さ優先の <code>depthwise</code> と損失減少優先の <code>lossguide</code> を選べます。</li>
+            <li><strong>LightGBM:</strong> 連続値をビンにまとめるヒストグラム法を中心に、最も損失を減らせる葉を次に分割する <code>leaf-wise</code> 成長を使います。同じ葉数なら損失を下げやすい一方、一部の枝だけが深くなり、小さいデータでは過学習しやすくなります。</li>
+            <li><strong>LightGBM固有の高速化:</strong> 原論文では、大きな勾配を持つ標本を重視する GOSS と、同時に非ゼロになりにくい疎な特徴量をまとめる EFB が提案されています。</li>
+          </ul>
+          <p>「XGBoost は level-wise、LightGBM は leaf-wise」とだけ説明されることがありますが、これは現在では単純化しすぎです。XGBoost も設定によって loss-guided な成長が可能で、両者ともヒストグラム法を使えます。既定値と実装上の設計思想が違う、と理解する方が正確です。</p>
+
+          <h3>どれを選ぶか</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>状況</th>
+                <th>最初の候補</th>
+                <th>理由</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="状況">まず堅牢な基準を作りたい</td>
+                <td data-label="最初の候補">Random Forest</td>
+                <td data-label="理由">前処理とハイパーパラメータ調整への依存が比較的小さく、単純な決定木より安定しやすい。</td>
+              </tr>
+              <tr>
+                <td data-label="状況">精度を詰めたい一般的な表形式データ</td>
+                <td data-label="最初の候補">XGBoost</td>
+                <td data-label="理由">正則化と学習制御が充実し、速度と精度のバランスを取りやすい。</td>
+              </tr>
+              <tr>
+                <td data-label="状況">行数・特徴量数が多く、学習速度やメモリが課題</td>
+                <td data-label="最初の候補">LightGBM</td>
+                <td data-label="理由">ヒストグラム法と leaf-wise 成長により、大規模データで効率がよいことが多い。</td>
+              </tr>
+              <tr>
+                <td data-label="状況">データが少なく、過学習が心配</td>
+                <td data-label="最初の候補">Random Forest または制約を強めた XGBoost</td>
+                <td data-label="理由">LightGBM の leaf-wise 成長は、葉数・深さ・葉の最小データ数を適切に制限しないと深い枝を作りやすい。</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>比較するときに固定すべき条件</h3>
+          <p>どの手法が最も高精度かはデータ次第です。名前だけで決めず、同じデータ分割と評価指標で比較します。</p>
+          <ul>
+            <li>交差検証の分割、乱数シード、評価指標をそろえる。</li>
+            <li>クラス不均衡がある場合は、accuracy だけでなく ROC-AUC、PR-AUC、F1 など目的に合う指標を使う。</li>
+            <li>XGBoost と LightGBM は、学習率と木の本数をセットで調整し、検証データによる early stopping を使う。</li>
+            <li>Random Forest は、木の本数だけでなく <code>max_features</code>、葉の最小サンプル数、木の深さを確認する。</li>
+            <li>カテゴリ変数や欠損値のネイティブ対応は、手法名ではなく使用するライブラリとバージョンで確認する。</li>
+          </ul>
+
+          <h3>結論</h3>
+          <p><strong>Random Forest は独立な木を平均する、調整しやすく堅牢なバギング手法</strong>です。<strong>XGBoost は正則化と2階情報を組み込んだ汎用性の高い勾配ブースティング</strong>、<strong>LightGBM は leaf-wise 成長などで大規模データでの効率を重視した勾配ブースティング</strong>です。</p>
+          <p>実務では、Random Forest を基準モデルにし、XGBoost と LightGBM を同じ交差検証条件で比較するのが確実です。中小規模で堅実に詰めるなら XGBoost、大規模で速度とメモリが問題なら LightGBM が有力ですが、最終判断は検証データ上の性能、計算時間、安定性で行います。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ul>
+            <li><a href="https://doi.org/10.1023/A:1010933404324">Leo Breiman, Random Forests, Machine Learning 45, 5-32 (2001)</a></li>
+            <li><a href="https://arxiv.org/abs/1603.02754">Tianqi Chen and Carlos Guestrin, XGBoost: A Scalable Tree Boosting System (2016)</a></li>
+            <li><a href="https://papers.nips.cc/paper_files/paper/2017/hash/6449f44a102fde848669bdd9eb6b76fa-Abstract.html">Guolin Ke et al., LightGBM: A Highly Efficient Gradient Boosting Decision Tree (2017)</a></li>
+            <li><a href="https://xgboost.readthedocs.io/en/stable/treemethod.html">Tree Methods - XGBoost documentation</a></li>
+            <li><a href="https://xgboost.readthedocs.io/en/stable/parameter.html">XGBoost Parameters - XGBoost documentation</a></li>
+            <li><a href="https://lightgbm.readthedocs.io/en/latest/Features.html">Features - LightGBM documentation</a></li>
+            <li><a href="https://scikit-learn.org/stable/modules/ensemble.html#forest">Forests of randomized trees - scikit-learn User Guide</a></li>
+          </ul>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>

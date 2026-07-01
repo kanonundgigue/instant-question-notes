@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>機械学習における交差検証とは？ | k-notes</title>
+    <meta name="description" content="機械学習の交差検証について、k-fold法とleave-p-outの仕組み、用途、テストデータとの違い、データ漏洩を避ける注意点を整理する。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>機械学習における交差検証とは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-06-25">2026-06-25</time></p>
+          <p>更新日: <time datetime="2026-06-25">2026-06-25</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>機械学習における交差検証とは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><strong>交差検証（cross-validation）は、手元のデータを学習用と検証用に繰り返し分け、未知のデータに対するモデルの予測性能を見積もる方法</strong>です。略して CV とも呼ばれます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>学習に使ったデータ上の成績だけを見ると、そのデータを過度に覚えたモデルも高く評価されます。交差検証では、各回の学習に使わなかったデータで評価するため、過学習を見つけたり、モデルやハイパーパラメータを比較したりできます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>代表的なk-fold交差検証</h3>
+          <p>最も一般的なのが <strong>k-fold交差検証</strong>です。データをほぼ同じ大きさの <var>k</var> 個のグループ（fold）に分け、次の処理を <var>k</var> 回行います。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <ol>
+            <li>1つのfoldを検証データにする。</li>
+            <li>残りの <var>k - 1</var> 個を使ってモデルを学習する。</li>
+            <li>検証データで予測性能を測る。</li>
+            <li>検証に使うfoldを入れ替え、すべてのfoldを1回ずつ検証に使う。</li>
+          </ol>
+          <p>最後に、各回の評価値を平均します。たとえば5-fold交差検証では、毎回データの約80%で学習し、約20%で評価します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup> 5回の評価値が <code>0.81, 0.84, 0.79, 0.83, 0.82</code> なら、平均スコアは <code>0.818</code> です。</p>
+
+          <h3>leave-p-out交差検証</h3>
+          <p><strong>leave-p-out（LPO）は、全 <var>n</var> 標本から <var>p</var> 個を検証データとして取り出す組み合わせをすべて試す交差検証</strong>です。各回は残りの <var>n - p</var> 個で学習し、取り出した <var>p</var> 個で評価します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>学習・検証は <var>n</var> 個から <var>p</var> 個を選ぶ組み合わせの数、すなわち <code>n! / (p! (n - p)!)</code> 回行います。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup> たとえば標本が5個で <var>p = 2</var> なら、異なる2個の選び方は10通りなので、10個のモデルを学習します。</p>
+          <ul>
+            <li><strong><var>p = 1</var>:</strong> 1標本ずつ除外する leave-one-out（LOO）と同じ。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></li>
+            <li><strong><var>p &gt; 1</var>:</strong> 各標本が複数の検証集合に現れ、検証集合どうしも重複する。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></li>
+            <li><strong>k-foldとの違い:</strong> k-foldは1回の分割で作った重複しないfoldを順番に使う。LPOは大きさ <var>p</var> の検証集合を全組み合わせについて調べる。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></li>
+          </ul>
+          <p>LPOは特定の無作為分割だけに評価を依存させず、指定した <var>p</var> に対するすべての分割を網羅できる一方、組み合わせ数が急増します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup> たとえば100標本から5標本を除外すると学習回数は75,287,520回になるため、通常の機械学習では現実的ではありません。小規模データで <var>p</var> がごく小さい場合や、分割を網羅する明確な理由がある場合に限って検討し、一般的な性能評価では5-foldまたは10-foldの方が実用的です。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>何のために使うか</h3>
+          <ul>
+            <li><strong>汎化性能の推定:</strong> 未知のデータに対する予測性能を見積もる。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></li>
+            <li><strong>モデルの比較:</strong> 線形モデル、Random Forest、勾配ブースティングなどを同じ分割で比較する。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></li>
+            <li><strong>ハイパーパラメータ調整:</strong> 正則化の強さ、木の深さ、近傍数などを選ぶ。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></li>
+            <li><strong>安定性の確認:</strong> foldによって性能が大きく変わらないかを見る。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></li>
+          </ul>
+          <p>平均値だけでなく、fold間のばらつきも確認します。ただし、各foldの評価値は互いに完全には独立でないため、単純な標準偏差をそのまま厳密な信頼区間として扱うことはできません。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+
+          <h3>ホールドアウト法との違い</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>方法</th>
+                <th>分割と評価</th>
+                <th>特徴</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="方法">ホールドアウト法</td>
+                <td data-label="分割と評価">学習用と検証用に1回だけ分ける。</td>
+                <td data-label="特徴">高速だが、偶然選ばれた分割に評価が左右されやすい。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></td>
+              </tr>
+              <tr>
+                <td data-label="方法">k-fold交差検証</td>
+                <td data-label="分割と評価">検証部分を入れ替えて <var>k</var> 回学習・評価する。</td>
+                <td data-label="特徴">データを効率よく使えるが、学習計算はおよそ <var>k</var> 倍になる。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>交差検証と最終テストデータは別</h3>
+          <p>交差検証で最も成績のよいモデルを選び続けると、選択結果が交差検証のデータに適応していきます。そのため、可能なら最初に<strong>最終評価専用のテストデータ</strong>を分け、モデル選択には使わず最後に1回だけ評価します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>厳密にモデル選択と性能推定を同時に行う場合は、外側の交差検証で性能を評価し、各外側foldの学習データ内でさらに内側の交差検証を行ってハイパーパラメータを選ぶ<strong>ネストした交差検証（nested cross-validation）</strong>を使います。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></p>
+
+          <h3>データに合った分割方法を選ぶ</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>データの性質</th>
+                <th>主な方法</th>
+                <th>理由</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="データの性質">独立な回帰データ</td>
+                <td data-label="主な方法">KFold</td>
+                <td data-label="理由">標準的なk-fold分割を使える。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></td>
+              </tr>
+              <tr>
+                <td data-label="データの性質">クラス比が偏った分類</td>
+                <td data-label="主な方法">StratifiedKFold</td>
+                <td data-label="理由">各foldのクラス比を全体と近づける。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></td>
+              </tr>
+              <tr>
+                <td data-label="データの性質">同じ人物・地点などの反復測定</td>
+                <td data-label="主な方法">GroupKFold</td>
+                <td data-label="理由">同じグループが学習側と検証側にまたがる漏洩を防ぐ。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></td>
+              </tr>
+              <tr>
+                <td data-label="データの性質">時系列データ</td>
+                <td data-label="主な方法">TimeSeriesSplitなど</td>
+                <td data-label="理由">未来のデータで学習して過去を予測する不自然な分割を避ける。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></td>
+              </tr>
+            </tbody>
+          </table>
+          <p>無作為なk-fold分割が妥当なのは、基本的に各標本を独立かつ同一の分布から得たとみなせる場合です。空間データ、時系列、患者単位のデータなどには、依存構造に対応した分割が必要です。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>前処理もfoldの内側で学習する</h3>
+          <p>標準化、欠損値補完、特徴量選択、主成分分析などを全データに対して先に実行すると、検証データの情報が学習処理に混ざる<strong>データ漏洩</strong>が起きます。前処理のパラメータは各foldの学習データだけから求め、検証データにはその結果を適用します。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
+          <p>scikit-learnでは、前処理とモデルを <code>Pipeline</code> にまとめると、この手順を交差検証の各fold内で実行できます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
+
+          <p>Pythonの例:<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <pre><code>from sklearn.datasets import load_iris
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+
+X, y = load_iris(return_X_y=True)
+
+model = make_pipeline(
+    StandardScaler(),
+    LogisticRegression(max_iter=1000),
+)
+
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+scores = cross_val_score(model, X, y, cv=cv, scoring="accuracy")
+
+print("各fold:", scores)
+print("平均:", scores.mean())
+print("標準偏差:", scores.std())</code></pre>
+
+          <h3>fold数はいくつにするか</h3>
+          <p>一般的な出発点は <strong>5-foldまたは10-fold</strong>です。<var>k</var> を増やすと1回あたりの学習データは増えますが、学習回数も増えます。全標本を1つずつ検証に使う leave-one-out は計算量が大きく、テスト誤差推定の分散も高くなり得るため、常に優れているわけではありません。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>結論</h3>
+          <p>交差検証は、限られたデータを複数の学習・検証分割に使い、未知データへの予測性能を評価する仕組みです。単に <code>cv=5</code> と指定するだけでなく、<strong>最終テストデータをモデル選択から隔離すること、前処理をfold内で行うこと、時系列やグループ構造に合った分割を選ぶこと</strong>が重要です。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://scikit-learn.org/stable/modules/cross_validation.html">Cross-validation: evaluating estimator performance - scikit-learn User Guide</a></li>
+            <li id="ref-2"><a href="https://www.ijcai.org/Proceedings/95-2/Papers/016.pdf">Ron Kohavi, A Study of Cross-Validation and Bootstrap for Accuracy Estimation and Model Selection (1995)</a></li>
+            <li id="ref-3"><a href="https://doi.org/10.1214/09-SS054">Sylvain Arlot and Alain Celisse, A survey of cross-validation procedures for model selection (2010)</a></li>
+            <li id="ref-4"><a href="https://www.jmlr.org/papers/v5/grandvalet04a.html">Yoshua Bengio and Yves Grandvalet, No Unbiased Estimator of the Variance of K-Fold Cross-Validation (2004)</a></li>
+            <li id="ref-5"><a href="https://scikit-learn.org/stable/auto_examples/model_selection/plot_nested_cross_validation_iris.html">Nested versus non-nested cross-validation - scikit-learn Example</a></li>
+            <li id="ref-6"><a href="https://scikit-learn.org/stable/common_pitfalls.html#data-leakage">Common pitfalls and recommended practices: Data leakage - scikit-learn User Guide</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>

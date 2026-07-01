@@ -27,8 +27,13 @@
         <p class="site-lead">疑問をメモる速度で記事化する。</p>
         <nav class="site-nav" aria-label="ページ内カテゴリ">
           <a href="#recent">新着</a>
+          <a href="#statistics">統計・機械学習</a>
+          <a href="#calculation">計算・単位換算</a>
+          <a href="#ai-services">AI サービス・モデル</a>
           <a href="#library-tech">図書館・情報技術</a>
           <a href="#productivity">生産性ツール</a>
+          <a href="#github">GitHub</a>
+          <a href="#meteorology">気象・大気物理</a>
           <a href="#health-beauty">ヘルス・美容</a>
           <a href="#climate-data">気候データ</a>
           <a href="#music">音楽</a>
@@ -44,6 +49,7 @@
         <div>
           <h2 id="about-heading">このサイトについて</h2>
           <p>日々の疑問や調べたことを、1 ページ 1 テーマの記事としてためていく個人のノートです。</p>
+          <p><a href="notes/project/project-usage.html">このプロジェクトの使い方</a></p>
         </div>
         <p class="notice__disclaimer">内容の正確性や最新性、記事を参考にした結果について保証はしません。重要な判断をする場合は、必ず一次情報や専門家の確認をあわせて行ってください。</p>
         <p class="notice__disclaimer">ソースコードは <a href="https://github.com/kanonundgigue/instant-question-notes">GitHub リポジトリ</a> で公開しています。</p>
@@ -62,7 +68,25 @@
             <li class="category-card">
               <span class="category-card__label">new</span>
               <a class="category-card__title" href="#recent">新着</a>
-              <span class="category-card__meta">最近追加・更新した 3 件</span>
+              <span class="category-card__meta">最近追加・更新した 5 件</span>
+            </li>
+
+            <li class="category-card">
+              <span class="category-card__label">statistics</span>
+              <a class="category-card__title" href="#statistics">統計・機械学習</a>
+              <span class="category-card__meta">5 件の記事</span>
+            </li>
+
+            <li class="category-card">
+              <span class="category-card__label">calculation</span>
+              <a class="category-card__title" href="#calculation">計算・単位換算</a>
+              <span class="category-card__meta">1 件の記事</span>
+            </li>
+
+            <li class="category-card">
+              <span class="category-card__label">ai-services</span>
+              <a class="category-card__title" href="#ai-services">AI サービス・モデル</a>
+              <span class="category-card__meta">1 件の記事</span>
             </li>
 
             <li class="category-card">
@@ -74,7 +98,19 @@
             <li class="category-card">
               <span class="category-card__label">productivity</span>
               <a class="category-card__title" href="#productivity">生産性ツール</a>
-              <span class="category-card__meta">2 件の記事</span>
+              <span class="category-card__meta">4 件の記事</span>
+            </li>
+
+            <li class="category-card">
+              <span class="category-card__label">github</span>
+              <a class="category-card__title" href="#github">GitHub</a>
+              <span class="category-card__meta">1 件の記事</span>
+            </li>
+
+            <li class="category-card">
+              <span class="category-card__label">meteorology</span>
+              <a class="category-card__title" href="#meteorology">気象・大気物理</a>
+              <span class="category-card__meta">1 件の記事</span>
             </li>
 
             <li class="category-card">
@@ -135,6 +171,13 @@
           </article>
 
           <article class="note-card">
+            <p class="note-card__category">meteorology</p>
+            <h3><a href="notes/meteorology/dry-adiabatic-lapse-rate.html">標準大気の6.5°C/kmと乾燥断熱減率</a></h3>
+            <p class="note-card__summary">標準大気の6.5°C/kmは対流圏の環境減率で、乾燥断熱減率は約9.8°C/kmであることを整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-07-01">2026-07-01</time></p>
+          </article>
+
+          <article class="note-card">
             <p class="note-card__category">health-beauty</p>
             <h3><a href="notes/health-beauty/sweat-proof-foundation-touch-up.html">汗でファンデーションが流れるときの崩れにくいベースメイクと直し方</a></h3>
             <p class="note-card__summary">汗を止める、薄く密着させる、濡れている間に触らない、崩れた部分だけ直す手順を整理します。</p>
@@ -142,13 +185,105 @@
           </article>
 
           <article class="note-card">
-            <p class="note-card__category">productivity</p>
-            <h3><a href="notes/productivity/free-mailer-multiple-accounts-byok-ai.html">複数メールアドレスと AI を使うメーラーの選び方</a></h3>
-            <p class="note-card__summary">Apple Intelligence、Spark +AI、Canary Mail、Thunderbird + ThunderAI などを、AI 課金込みで比較します。</p>
-            <p class="note-card__date">作成日: <time datetime="2026-06-16">2026-06-16</time></p>
-            <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-06-17">2026-06-17</time></p>
+            <p class="note-card__category">github</p>
+            <h3><a href="notes/github/gh-command-basics.html">ghコマンドの基本的な使い方</a></h3>
+            <p class="note-card__summary">GitHub CLI で認証、リポジトリ確認、Issue、Pull Request、Actions、JSON 出力を扱う最小セットを整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-28">2026-06-28</time></p>
           </article>
 
+          <article class="note-card">
+            <p class="note-card__category">statistics</p>
+            <h3><a href="notes/statistics/aic-vs-bic.html">AICとBICの違いは？どう使い分ける？</a></h3>
+            <p class="note-card__summary">期待予測損失と周辺尤度という原理の違いから、AIC・BIC・AICcの使い分けを整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-25">2026-06-25</time></p>
+          </article>
+
+        </div>
+      </section>
+
+      <section class="topic-section" id="statistics" aria-labelledby="statistics-heading">
+        <div class="section__header section__header--split">
+          <div>
+            <p class="site-kicker">statistics</p>
+            <h2 id="statistics-heading">統計・機械学習</h2>
+          </div>
+          <p>統計モデル、機械学習、データ分析手法に関する記事。</p>
+        </div>
+
+        <div class="note-grid note-grid--compact">
+          <article class="note-card">
+            <p class="note-card__category">情報量規準 / モデル選択</p>
+            <h3><a href="notes/statistics/aic-vs-bic.html">AICとBICの違いは？どう使い分ける？</a></h3>
+            <p class="note-card__summary">期待予測損失と周辺尤度、罰則が異なる理由、一貫性と予測効率から使い分けを整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-25">2026-06-25</time></p>
+          </article>
+
+          <article class="note-card">
+            <p class="note-card__category">モデル評価 / 機械学習</p>
+            <h3><a href="notes/statistics/cross-validation-basics.html">機械学習における交差検証とは？</a></h3>
+            <p class="note-card__summary">未知データへの予測性能を見積もるk-foldとleave-p-out、層化・グループ・時系列分割、データ漏洩の注意点を整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-25">2026-06-25</time></p>
+            <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-06-25">2026-06-25</time></p>
+          </article>
+
+          <article class="note-card">
+            <p class="note-card__category">最小二乗 / 正則化回帰</p>
+            <h3><a href="notes/statistics/pseudo-inverse-backslash-lasso-differences.html">pseudo-inverse、backslash、LASSOの違いは？</a></h3>
+            <p class="note-card__summary">pinvとbackslashの解法上の違い、LASSOが目的関数にL1罰則を加える意味、ランク落ち時の挙動を整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-25">2026-06-25</time></p>
+          </article>
+
+          <article class="note-card">
+            <p class="note-card__category">決定木 / アンサンブル学習</p>
+            <h3><a href="notes/statistics/xgboost-lightgbm-random-forest-differences.html">XGBoost・LightGBM・Random Forestの違いは？</a></h3>
+            <p class="note-card__summary">Random Forestのバギングと、XGBoost・LightGBMの勾配ブースティングを、学習方法と実務上の選び方から比較します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-24">2026-06-24</time></p>
+          </article>
+
+          <article class="note-card">
+            <p class="note-card__category">正則化回帰 / 機械学習</p>
+            <h3><a href="notes/statistics/elastic-net-regression.html">Elastic Net 回帰とは？</a></h3>
+            <p class="note-card__summary">Lasso の変数選択と Ridge の安定化を組み合わせ、相関した説明変数が多い回帰で使う考え方を整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-18">2026-06-18</time></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="topic-section" id="calculation" aria-labelledby="calculation-heading">
+        <div class="section__header section__header--split">
+          <div>
+            <p class="site-kicker">calculation</p>
+            <h2 id="calculation-heading">計算・単位換算</h2>
+          </div>
+          <p>時間、量、単位、概算のための短い計算メモ。</p>
+        </div>
+
+        <div class="note-grid note-grid--compact">
+          <article class="note-card">
+            <p class="note-card__category">計算時間 / 単位換算</p>
+            <h3><a href="notes/calculation/simulation-runtime-one-million-years.html">30分/年なら100万年連続計算に何日・何年かかる？</a></h3>
+            <p class="note-card__summary">30 分/年の速度で 100 万年分を逐次計算すると、約 20,833 日、約 57 年かかることを整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-23">2026-06-23</time></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="topic-section" id="ai-services" aria-labelledby="ai-services-heading">
+        <div class="section__header section__header--split">
+          <div>
+            <p class="site-kicker">ai-services</p>
+            <h2 id="ai-services-heading">AI サービス・モデル</h2>
+          </div>
+          <p>AI サービス、モデル API、研究成果の使い方や選び方に関する記事。</p>
+        </div>
+
+        <div class="note-grid note-grid--compact">
+          <article class="note-card">
+            <p class="note-card__category">Sakana AI / Fugu / Marlin</p>
+            <h3><a href="notes/ai-services/sakana-ai-basic-usage.html">Sakana AI の基本的な使い方</a></h3>
+            <p class="note-card__summary">Sakana Chat、OpenAI 互換 API の Sakana Fugu、調査向け Sakana Marlin、Claude との組み合わせ方を整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-23">2026-06-23</time></p>
+          </article>
         </div>
       </section>
 
@@ -183,6 +318,21 @@
 
         <div class="note-grid note-grid--compact">
           <article class="note-card">
+            <p class="note-card__category">Apple / iCloud+ / Mac</p>
+            <h3><a href="notes/productivity/stop-private-relay-unavailable-notifications-on-mac.html">Macで「プライベートリレーは利用できません」の通知を止める方法</a></h3>
+            <p class="note-card__summary">通知が出るWi-Fiだけを対象にした設定と、VPNや通信フィルタとの競合対処。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-24">2026-06-24</time></p>
+          </article>
+
+          <article class="note-card">
+            <p class="note-card__category">Keynote / AppleScript</p>
+            <h3><a href="notes/productivity/keynote-change-all-fonts-including-paragraph-styles.html">Keynote の全文字フォントと段落スタイルの既定を一括変更する方法</a></h3>
+            <p class="note-card__summary">KeyFontChanger で表示中の文字、図キャプション、グループ内テキスト、段落スタイル既定をまとめて変更する流れ。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-23">2026-06-23</time></p>
+            <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-06-24">2026-06-24</time></p>
+          </article>
+
+          <article class="note-card">
             <p class="note-card__category">Apple / iPhone / Mac</p>
             <h3><a href="notes/productivity/apple-intelligence-settings.html">Apple Intelligence の設定方法</a></h3>
             <p class="note-card__summary">対応機種、OS、言語、空き容量を確認し、Apple Intelligence と Siri からオンにする手順を整理します。</p>
@@ -214,6 +364,44 @@
             <h3><a href="notes/health-beauty/sweat-proof-foundation-touch-up.html">汗でファンデーションが流れるときの崩れにくいベースメイクと直し方</a></h3>
             <p class="note-card__summary">汗を止める、薄く密着させる、濡れている間に触らない、崩れた部分だけ直す手順を整理します。</p>
             <p class="note-card__date">作成日: <time datetime="2026-06-29">2026-06-29</time></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="topic-section" id="github" aria-labelledby="github-heading">
+        <div class="section__header section__header--split">
+          <div>
+            <p class="site-kicker">github</p>
+            <h2 id="github-heading">GitHub</h2>
+          </div>
+          <p>GitHub、GitHub CLI、Issue、Pull Request、Actions などの運用に関する記事。</p>
+        </div>
+
+        <div class="note-grid note-grid--compact">
+          <article class="note-card">
+            <p class="note-card__category">GitHub CLI / gh</p>
+            <h3><a href="notes/github/gh-command-basics.html">ghコマンドの基本的な使い方</a></h3>
+            <p class="note-card__summary">認証、リポジトリ確認、Issue、Pull Request、Actions、JSON 出力まで、端末から GitHub を扱う基本操作を整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-06-28">2026-06-28</time></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="topic-section" id="meteorology" aria-labelledby="meteorology-heading">
+        <div class="section__header section__header--split">
+          <div>
+            <p class="site-kicker">meteorology</p>
+            <h2 id="meteorology-heading">気象・大気物理</h2>
+          </div>
+          <p>大気の鉛直構造、安定度、標準大気、気象学の基礎概念に関する記事。</p>
+        </div>
+
+        <div class="note-grid note-grid--compact">
+          <article class="note-card">
+            <p class="note-card__category">断熱減率 / 標準大気</p>
+            <h3><a href="notes/meteorology/dry-adiabatic-lapse-rate.html">標準大気の6.5°C/kmと乾燥断熱減率</a></h3>
+            <p class="note-card__summary">標準大気の6.5°C/kmは対流圏の環境減率で、乾燥断熱減率は約9.8°C/kmであることを、g/Cp の導出から整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-07-01">2026-07-01</time></p>
           </article>
         </div>
       </section>
@@ -304,9 +492,9 @@
           <article class="note-card">
             <p class="note-card__category">運用ルール</p>
             <h3><a href="notes/project/project-usage.html">このプロジェクトの使い方</a></h3>
-            <p class="note-card__summary">質問から記事を作り、確認、コミット、公開まで進めるときの基本ルール。</p>
+            <p class="note-card__summary">質問から記事を作り、本文中の引用、確認、コミット、公開まで進めるときの基本ルール。</p>
             <p class="note-card__date">作成日: <time datetime="2026-06-12">2026-06-12</time></p>
-            <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-06-13">2026-06-13</time></p>
+            <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-06-25">2026-06-25</time></p>
           </article>
         </div>
       </section>
