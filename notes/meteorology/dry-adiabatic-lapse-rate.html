@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>標準大気の6.5°C/kmと乾燥断熱減率 | k-notes</title>
+    <meta name="description" content="標準大気の6.5°C/kmは対流圏の環境減率で、乾燥断熱減率は約9.8°C/kmであることを、g/Cp の導出から整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>標準大気の6.5°C/kmと乾燥断熱減率</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-07-01">2026-07-01</time></p>
+          <p>カテゴリ: meteorology</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>標準大気で使われる気温減率 Γ=6.5°C/km はどう求める？乾燥断熱減率とはどう違う？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>標準大気でよく使われる 6.5°C/km は、対流圏の温度が高度とともに下がる平均的な環境減率です。乾燥断熱減率そのものではありません。NASA Glenn の標準大気モデルでは、対流圏の気温を <code>T = 15.04 - 0.00649 h</code>、ここで <code>T</code> は摂氏温度、<code>h</code> はメートル単位の高度、と近似しています。この係数 <code>0.00649°C/m</code> を 1000 m あたりに直すと 6.49°C/km、つまりほぼ 6.5°C/km になります。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <p>一方、乾燥断熱減率は地球大気ではおよそ 9.8°C/km です。NASA Planetary Data System の説明では、乾燥断熱減率は <code>Γa = -dT/dz = g/Cp</code> と導かれ、地球の値は 9.760 K/km とされています。温度差の 1 K は 1°C と同じ大きさなので、これは約 9.8°C/km と読めます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>乾燥断熱減率の導出</h3>
+          <p>未飽和の空気塊が周囲と熱をやり取りせずにゆっくり上昇するとします。このとき断熱過程なので <code>dQ = 0</code> です。熱力学第一法則と理想気体の式を組み合わせると、断熱変化について <code>Cp dT - dP/ρ = 0</code>、つまり <code>dT/dP = 1/(Cp ρ)</code> と書けます。さらに静水圧平衡 <code>dP = -ρ g dz</code> を使って圧力座標から高度座標へ変換すると、<code>dT/dz = -g/Cp</code> になります。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <p>したがって、温度が高度とともに下がる割合を正の数で表す減率は、</p>
+
+          <pre><code class="language-shell">Γd = -dT/dz = g/Cp
+   ≈ 9.8 m/s^2 / 1004 J/(kg K)
+   ≈ 0.0098 K/m
+   ≈ 9.8 K/km
+   ≈ 9.8°C/km</code></pre>
+
+          <p>ここで重要なのは、乾燥断熱減率が「空気塊を断熱的に動かしたときの温度変化率」だという点です。実際の大気の平均的な温度分布、つまり環境減率とは別物です。標準大気の 6.5°C/km は、対流圏の平均的な気温プロファイルを表す便宜的な近似であり、乾燥断熱過程から直接出る値ではありません。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>使い分け</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>値</th>
+                <th>名前</th>
+                <th>意味</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="値">約 9.8°C/km</td>
+                <td data-label="名前">乾燥断熱減率</td>
+                <td data-label="意味">未飽和の空気塊を断熱的に上下させたときの温度変化率。</td>
+              </tr>
+              <tr>
+                <td data-label="値">約 6.5°C/km</td>
+                <td data-label="名前">標準大気の対流圏環境減率</td>
+                <td data-label="意味">標準大気モデルで、周囲の大気の平均的な気温低下を表す近似。</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>したがって、標準大気の気温プロファイルを計算したい場合は <code>Γ ≈ 6.5°C/km</code> を環境減率として使います。乾いた空気塊を断熱的に持ち上げる計算なら <code>Γd ≈ 9.8°C/km</code> を使います。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://pds-atmospheres.nmsu.edu/education_and_outreach/encyclopedia/adiabatic_lapse_rate.htm">NASA Planetary Data System: Adiabatic Lapse Rate, Dry</a></li>
+            <li id="ref-2"><a href="https://www.grc.nasa.gov/www/k-12/airplane/atmosmet.html">NASA Glenn Research Center: Earth Atmosphere Model - Metric Units</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
