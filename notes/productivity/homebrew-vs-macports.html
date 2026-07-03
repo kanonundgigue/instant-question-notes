@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Homebrew と MacPorts の違いは？ | k-notes</title>
+    <meta name="description" content="Mac で普段 Homebrew を使っている人向けに、MacPorts との違い、併用時の注意、どちらを選ぶべきかを整理する。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>Homebrew と MacPorts の違いは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-07-03">2026-07-03</time></p>
+          <p>カテゴリ: productivity</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>普段はhomebrewを使っていますが、Macportを新規に導入することを検討しています。homebrewとの違いは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>すでに Homebrew で困っていないなら、MacPorts は「置き換え」ではなく「必要なときだけ別系統として足す」くらいに考えるのが現実的です。Homebrew は日常的な CLI ツールや GUI アプリの導入が速く、MacPorts は `/opt/local` に独立した環境を作り、依存関係やビルド variant を MacPorts 側で管理しやすい、という性格の違いがあります。Homebrew の標準 prefix は Apple Silicon で `/opt/homebrew`、Intel Mac で `/usr/local` で、標準 prefix は bottle と呼ばれる事前ビルド済みバイナリの利用条件にも関係します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup> MacPorts は標準で `/opt/local` に入れ、OS やベンダー提供ソフトと混ざらない private sandbox に閉じ込める設計を説明しています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <p>結論だけ先に書くと、普段使いは Homebrew のままで十分です。MacPorts を入れる価値が出るのは、Homebrew の formula ではビルド条件を変えにくいものを variant 付きで入れたい、研究・開発用に Homebrew と別の依存関係ツリーを持ちたい、または MacPorts にある port のほうが目的に合う、という場合です。</p>
+
+          <h3>大きな違い</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>観点</th>
+                <th>Homebrew</th>
+                <th>MacPorts</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="観点">標準の置き場所</td>
+                <td data-label="Homebrew">Apple Silicon は `/opt/homebrew`、Intel Mac は `/usr/local`。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></td>
+                <td data-label="MacPorts">標準は `/opt/local`。設定上の prefix も既定値は `/opt/local` とされています。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></td>
+              </tr>
+              <tr>
+                <td data-label="観点">権限モデル</td>
+                <td data-label="Homebrew">通常の `brew install` では sudo を使わない思想で、単一ユーザー利用を主に想定します。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></td>
+                <td data-label="MacPorts">多くの操作を `sudo port install ...` の形で実行します。公式 Guide の install 例も `sudo port install apache2 ...` です。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></td>
+              </tr>
+              <tr>
+                <td data-label="観点">バイナリかソースか</td>
+                <td data-label="Homebrew">利用可能なら bottle を使うのが標準で、標準 prefix から外れるとソースビルドになりやすくなります。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></td>
+                <td data-label="MacPorts">prebuilt archive があれば使い、なければソースからビルドする運用です。buildfromsource の既定は必要時にビルドへ戻る `ifneeded` です。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></td>
+              </tr>
+              <tr>
+                <td data-label="観点">ビルドオプション</td>
+                <td data-label="Homebrew">多くの利用では既定ビルドをそのまま使う前提です。独自変更は formula 編集など開発者寄りの作業になります。</td>
+                <td data-label="MacPorts">port ごとに `+openldap` や `-preforkmpm` のような variant を選べる設計です。<sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup></td>
+              </tr>
+              <tr>
+                <td data-label="観点">GUI アプリ</td>
+                <td data-label="Homebrew">Homebrew Cask が `.app`、`.pkg`、フォント、入力メソッドなどの artifact を扱えます。<sup class="citation"><a href="#ref-8" aria-label="参照 8">[8]</a></sup></td>
+                <td data-label="MacPorts">native macOS application bundle の既定インストール先は `/Applications/MacPorts` です。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></td>
+              </tr>
+              <tr>
+                <td data-label="観点">古い版の扱い</td>
+                <td data-label="Homebrew">`brew upgrade` 後は古い formula を自動 cleanup する運用が基本です。<sup class="citation"><a href="#ref-9" aria-label="参照 9">[9]</a></sup></td>
+                <td data-label="MacPorts">upgrade 後も古い inactive version を安全策として残し、必要なら `sudo port uninstall inactive` で掃除します。<sup class="citation"><a href="#ref-10" aria-label="参照 10">[10]</a></sup></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>併用するときの考え方</h3>
+          <p>Homebrew と MacPorts は標準の置き場所が違うため、同じ Mac に入れること自体は可能です。ただし、同じ名前のコマンドやライブラリが両方に入ると、どちらが使われるかは `PATH` やビルド時の探索順に依存します。実務上は、日常の shell では Homebrew を優先し、MacPorts が必要な作業だけ明示的に `/opt/local/bin` を前に出す、という運用が安全です。</p>
+          <p>特に Python、Ruby、Perl、OpenSSL、GDAL、Qt、TeX、Fortran 関連のように依存関係が大きいものを両方で入れる場合は、混ぜてビルドしないほうがよいです。たとえば Homebrew の Python から MacPorts のライブラリを拾ったり、その逆をすると、原因の追いにくいリンクエラーや実行時エラーになります。これは公式文書の個別警告というより、両者が別 prefix に依存関係ツリーを作ることから来る実務上の注意です。</p>
+
+          <h3>MacPorts を足すとよい場面</h3>
+          <ul>
+            <li>特定ソフトを variant 指定で入れたい。例: GUI 有無、LDAP 有無、universal build などを明示したい。</li>
+            <li>研究・解析用に、Homebrew とは別の依存関係セットを固定したい。</li>
+            <li>Homebrew では目的の formula/cask がない、または MacPorts の port のほうが更新・依存関係・オプションの都合がよい。</li>
+            <li>古い inactive version を一時的に残しながら、更新後の戻しやすさを重視したい。</li>
+          </ul>
+
+          <h3>Homebrew のままでよい場面</h3>
+          <ul>
+            <li>CLI ツールを手早く入れて更新したい。</li>
+            <li>GUI アプリも `brew install --cask ...` でまとめて管理したい。</li>
+            <li>ビルドオプションを細かく変える予定がない。</li>
+            <li>チームや記事・README の手順が Homebrew 前提になっている。</li>
+          </ul>
+
+          <h3>最初に入れるなら試すコマンド</h3>
+          <p>MacPorts 導入後は、いきなり既存 Homebrew 環境と同じものを大量に入れず、MacPorts でだけ試したいものを 1 つに絞るのがよいです。MacPorts は macOS ではまず Command Line Tools、必要に応じて Xcode を使います。公式 Guide は、多くの port では full Xcode なしでもよいが、`xcode-select --install` で Command Line Tools を入れる手順を示しています。<sup class="citation"><a href="#ref-11" aria-label="参照 11">[11]</a></sup></p>
+          <p>コマンド例（言語名: shell）:</p>
+          <pre><code class="language-shell"># MacPorts 側の更新
+sudo port selfupdate
+
+# port を探す
+port search gdal
+port info gdal
+port variants gdal
+
+# variant を確認してから入れる
+sudo port install gdal
+
+# 古い inactive version の確認と掃除
+port installed inactive
+sudo port uninstall inactive</code></pre>
+
+          <p>普段の Homebrew 環境を壊したくないだけなら、まずは MacPorts の PATH を常時有効にせず、必要なターミナルセッションだけで使うのが無難です。たとえば `.zshrc` にすぐ書き込む前に、試験用 shell で `export PATH="/opt/local/bin:/opt/local/sbin:$PATH"` を一時的に実行し、目的の port が問題なく動くか確認します。</p>
+
+          <h3>まとめ</h3>
+          <p>Homebrew は「Mac でソフトをすばやく入れる日常用の標準装備」に近く、MacPorts は「独立した prefix に、より ports 的な依存関係ツリーと variant を持つ別環境」です。普段 Homebrew を使っているなら、MacPorts を入れる理由は「Homebrew より優れているから」ではなく、「別 prefix・別依存関係・variant が必要だから」と考えると判断しやすいです。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://docs.brew.sh/FAQ">Homebrew Documentation: FAQ</a></li>
+            <li id="ref-2"><a href="https://guide.macports.org/">MacPorts Guide: Chapter 1. Introduction</a></li>
+            <li id="ref-3"><a href="https://guide.macports.org/#internals.configuration-files">MacPorts Guide: 6.2. Configuration Files</a></li>
+            <li id="ref-4"><a href="https://docs.brew.sh/FAQ">Homebrew Documentation: sudo, ownership, and single-user notes</a></li>
+            <li id="ref-5"><a href="https://guide.macports.org/#using.port.install">MacPorts Guide: port install</a></li>
+            <li id="ref-6"><a href="https://guide.macports.org/#using.binaries">MacPorts Guide: Port Binaries and buildfromsource</a></li>
+            <li id="ref-7"><a href="https://guide.macports.org/#using.variants">MacPorts Guide: Port Variants</a></li>
+            <li id="ref-8"><a href="https://docs.brew.sh/Cask-Cookbook">Homebrew Documentation: Cask Cookbook</a></li>
+            <li id="ref-9"><a href="https://docs.brew.sh/FAQ">Homebrew Documentation: keeping old formula versions and cleanup</a></li>
+            <li id="ref-10"><a href="https://guide.macports.org/#using.common-tasks">MacPorts Guide: Upgrading Outdated Ports and removing inactive versions</a></li>
+            <li id="ref-11"><a href="https://guide.macports.org/#installing.macports.xcode">MacPorts Guide: Install Xcode / Command Line Tools</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>

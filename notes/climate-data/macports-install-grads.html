@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MacPorts経由でGrADSをインストールする方法 | k-notes</title>
+    <meta name="description" content="macOSでMacPortsを使ってGrADSを入れる手順、X11環境、インストール確認、更新方法を整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>MacPorts経由でGrADSをインストールする方法</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-07-03">2026-07-03</time></p>
+          <p>更新日: <time datetime="2026-07-03">2026-07-03</time></p>
+          <p>カテゴリ: climate-data</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>MacPorts経由でgradsをインストールする方法は？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>結論だけなら、MacPortsを入れたうえで <code>sudo port install grads</code> を実行します。MacPortsのportsページでは、<code>grads</code> portはGrADS 2.2.1として公開されており、インストールコマンドも <code>sudo port install grads</code> と案内されています。GrADSは地球科学データの対話的な可視化ツールで、binary、GRIB、NetCDF、HDF-SDSなどの形式を扱うものとして説明されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>前提を入れる</h3>
+          <p>MacPortsをまだ入れていない場合は、先にAppleのCommand Line Developer Toolsを入れ、macOSのバージョンに合うMacPortsのpkgインストーラを使います。MacPorts公式のQuickstartでも、最初に <code>xcode-select --install</code> を実行し、その後macOS別のMacPortsインストーラを入れる手順になっています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <pre><code class="language-shell">xcode-select --install
+
+# 新しいターミナルを開き直してから確認
+port version</code></pre>
+
+          <p><code>port: command not found</code> になる場合は、新しいターミナルを開き直します。MacPortsのpkgインストーラは通常シェル設定を調整しますが、反映には新しいシェルが必要になることがあります。手動で直す場合は、<code>/opt/local/bin</code> と <code>/opt/local/sbin</code> が <code>PATH</code> の前方に入っているか確認します。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>GrADSを入れる</h3>
+          <p>ports treeを最新化してからGrADSをインストールします。MacPortsでは <code>selfupdate</code> がports treeとMacPorts baseの更新に使われ、MacPortsのgradsページでも後日の更新方法として <code>sudo port selfupdate &amp;&amp; sudo port upgrade grads</code> が示されています。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup><sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <pre><code class="language-shell">sudo port selfupdate
+sudo port install grads</code></pre>
+
+          <p>MacPortsだけでX11サーバまで揃えたい場合は、GrADSの前後どちらかで <code>xorg-server</code> も入れておきます。MacPorts公式のインストール説明では、X11が必要なports向けの選択肢として、MacPortsの <code>xorg-server</code> portが推奨されています。XQuartzを使う構成も選択肢として挙げられています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <pre><code class="language-shell">sudo port install xorg-server</code></pre>
+
+          <p>XQuartzを使う場合は、XQuartz公式サイトのpkgを入れてからXQuartzを起動します。XQuartzはmacOS上で動くX.Org X Window Systemの実装として説明されています。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+
+          <h3>入ったことを確認する</h3>
+          <p>まずMacPortsの管理下で入ったかを確認します。</p>
+
+          <pre><code class="language-shell">port installed grads
+port installed active and grads
+port contents grads
+command -v grads</code></pre>
+
+          <p><code>port installed grads</code> で <code>grads @2.2.1_23</code> のように出るのに、行末に <code>(active)</code> が付かず、<code>command -v grads</code> も空になる場合は、MacPortsにはインストール済みだが有効化されていない状態です。この場合は次を試します。</p>
+
+          <pre><code class="language-shell">sudo port activate grads</code></pre>
+
+          <p>それでも <code>/opt/local/bin/grads already exists</code> のように言われる場合は、以前のOpenGrADSなどが残したリンクやファイルが邪魔をしている可能性があります。たとえば <code>/opt/local/bin/grads -&gt; /Applications/OpenGrADS/grads</code> というリンクがあり、リンク先の <code>/Applications/OpenGrADS/grads</code> が存在しない場合、zshからは <code>command not found: grads</code> になります。診断は次のようにします。</p>
+
+          <pre><code class="language-shell">ls -l /opt/local/bin/grads
+ls -l /Applications/OpenGrADS/grads
+port provides /opt/local/bin/grads</code></pre>
+
+          <p><code>port provides /opt/local/bin/grads</code> でMacPorts portの所有物ではないと出る壊れたリンクなら、退避してからMacPorts版を有効化します。</p>
+
+          <pre><code class="language-shell">sudo mv /opt/local/bin/grads /opt/local/bin/grads.broken-opengrads-link
+sudo port activate grads</code></pre>
+
+          <p>グラフィック画面を開く確認は、X11サーバを起動した状態で行います。X11まわりが未設定だと、GrADS本体のインストールは成功していても表示を開く段階で失敗します。</p>
+
+          <pre><code class="language-shell">grads</code></pre>
+
+          <p>GrADSのプロンプトが出たら、終了は次のようにします。</p>
+
+          <pre><code class="language-shell">quit</code></pre>
+
+          <h3>何が一緒に入るか</h3>
+          <p>MacPortsのPortfileでは、<code>grads</code> は <code>netcdf</code>、<code>hdf4</code>、<code>hdf5</code>、<code>wgrib2</code>、<code>curl</code>、<code>shapelib</code>、<code>xorg-libXmu</code> などに依存し、ビルド設定でもGRIB2、SDF、HDF4、HDF5、NetCDF、X11を有効にする指定が入っています。つまり、MacPorts経由ならデータ形式まわりの依存関係もまとめて管理されます。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></p>
+
+          <h3>GrADSスクリプトはどこに置くか</h3>
+          <p><code>.gs</code> のGrADSスクリプトは、MacPorts管理下の <code>/opt/local/share/grads</code> には置かず、自分のホームディレクトリかプロジェクトディレクトリに置きます。GrADSのスクリプト実行は <code>run filename</code> で行い、スクリプト名は通常 <code>.gs</code> で終わります。公式ドキュメントでは、<code>run cbar.gs</code> は <code>cbar</code> のように省略できる、と説明されています。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
+
+          <p>おすすめは次の分け方です。</p>
+
+          <ul>
+            <li>一時的な解析スクリプト: そのデータや <code>.ctl</code> ファイルのある作業ディレクトリに置く。</li>
+            <li>プロジェクトで使うスクリプト: プロジェクト内の <code>scripts/grads/</code> や <code>grads/</code> に置き、Git管理する。</li>
+            <li><code>cbarn.gs</code> のような共通ユーティリティ: <code>~/grads/scripts/</code> のような個人用ディレクトリにまとめる。</li>
+          </ul>
+
+          <pre><code class="language-shell">mkdir -p ~/grads/scripts
+grep -qxF 'export GASCRP="$HOME/grads/scripts"' ~/.zshrc || \
+  echo 'export GASCRP="$HOME/grads/scripts"' >> ~/.zshrc
+
+# 反映
+source ~/.zshrc</code></pre>
+
+          <p>GrADSはまずカレントディレクトリでスクリプトを探し、見つからなければ <code>.gs</code> を付けて再試行し、それでも見つからない場合に環境変数 <code>GASCRP</code> で指定したディレクトリを探します。<sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup> したがって、普段使いの共通スクリプトだけを <code>GASCRP</code> 側に置き、解析ごとのスクリプトは作業ディレクトリまたはプロジェクト配下に置くのが扱いやすいです。</p>
+
+          <pre><code class="language-shell"># カレントディレクトリにある plot.gs を実行
+grads
+ga-&gt; run plot
+
+# 明示的にパスを指定して実行
+ga-&gt; run scripts/grads/plot_map.gs</code></pre>
+
+          <h3>更新とアンインストール</h3>
+          <p>後日GrADSを更新する場合は、ports treeを更新してから対象portをupgradeします。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <pre><code class="language-shell">sudo port selfupdate
+sudo port upgrade grads</code></pre>
+
+          <p>削除する場合は、MacPortsの管理対象として次のように外します。</p>
+
+          <pre><code class="language-shell">sudo port uninstall grads</code></pre>
+
+          <h3>つまずきやすい点</h3>
+          <ul>
+            <li><code>port</code> が見つからない場合は、新しいターミナルを開き直すか、<code>/opt/local/bin</code> と <code>/opt/local/sbin</code> のPATHを確認する。</li>
+            <li><code>port installed grads</code> では出るのに <code>grads</code> が見つからない場合は、まず <code>port installed active and grads</code> で有効化状態を見る。</li>
+            <li><code>/opt/local/bin/grads</code> が古いOpenGrADSへの壊れたリンクなら、そのリンクを退避してから <code>sudo port activate grads</code> を実行する。</li>
+            <li>インストール前には <code>sudo port selfupdate</code> を実行し、古いports treeのまま作業しない。</li>
+            <li>描画ウィンドウが開かない場合は、GrADSではなくX11サーバ側の問題として、<code>xorg-server</code> またはXQuartzの起動状態を確認する。</li>
+            <li>macOSをメジャーアップグレードした直後は、MacPorts公式のmigration情報も確認する。MacPortsのインストールページでも、macOSのメジャーアップグレード時はmigration情報を見るよう案内されています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></li>
+          </ul>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://ports.macports.org/port/grads/">MacPorts Ports: grads</a></li>
+            <li id="ref-2"><a href="https://www.macports.org/install.php">The MacPorts Project: Download &amp; Installation</a></li>
+            <li id="ref-3"><a href="https://guide.macports.org/chunked/using.common-tasks.html">MacPorts Guide: Common Tasks</a></li>
+            <li id="ref-4"><a href="https://www.xquartz.org/">XQuartz</a></li>
+            <li id="ref-5"><a href="https://github.com/macports/macports-ports/blob/master/science/grads/Portfile">macports-ports: science/grads/Portfile</a></li>
+            <li id="ref-6"><a href="https://github.com/j-m-adams/GrADS/blob/master/doc/gradcomdrun.html">GrADS documentation: run</a></li>
+            <li id="ref-7"><a href="https://github.com/j-m-adams/GrADS/blob/master/doc/script.html">GrADS documentation: Scripting Language</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
