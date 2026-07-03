@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MacPorts経由でGrADSをインストールする方法 | k-notes</title>
-    <meta name="description" content="macOSでMacPortsを使ってGrADSを入れる手順、X11環境、インストール確認、更新方法を整理します。">
+    <meta name="description" content="macOSでMacPortsを使ってGrADSを入れる手順、X11環境、地図データが表示されない場合の確認方法、更新方法を整理します。">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
@@ -25,6 +25,7 @@
         <section class="question-box" aria-labelledby="question-heading">
           <h2 id="question-heading">元の質問</h2>
           <p>MacPorts経由でgradsをインストールする方法は？</p>
+          <p>追記の質問: MacPortsでgradsをインストールして描画したら地図が表示されなかった。どこかから追加ダウンロードが必要？</p>
         </section>
 
         <section aria-labelledby="answer-heading">
@@ -87,6 +88,49 @@ sudo port activate grads</code></pre>
           <h3>何が一緒に入るか</h3>
           <p>MacPortsのPortfileでは、<code>grads</code> は <code>netcdf</code>、<code>hdf4</code>、<code>hdf5</code>、<code>wgrib2</code>、<code>curl</code>、<code>shapelib</code>、<code>xorg-libXmu</code> などに依存し、ビルド設定でもGRIB2、SDF、HDF4、HDF5、NetCDF、X11を有効にする指定が入っています。つまり、MacPorts経由ならデータ形式まわりの依存関係もまとめて管理されます。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></p>
 
+          <h3>地図が表示されない場合、追加ダウンロードが必要か</h3>
+          <p>MacPorts版なら、通常は地図ファイルを別途ダウンロードする必要はありません。MacPortsの <code>grads</code> PortfileはGrADS本体とは別に <code>data2</code> も配布物として取得し、インストール時に <code>*.dat</code> と <code>*res</code> を <code>${prefix}/share/grads</code> へ配置します。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup> 実際に確認すべきファイル名は、少なくとも <code>lowres</code>、<code>mres</code>、<code>hires</code> です。</p>
+
+          <pre><code class="language-shell">port contents grads | grep -E '/(lowres|mres|hires)$'
+ls -l /opt/local/share/grads/lowres \
+      /opt/local/share/grads/mres \
+      /opt/local/share/grads/hires</code></pre>
+
+          <p>これらが存在するのに地図だけ出ない場合は、まず <code>GADDIR</code> を疑います。GrADSはデータディレクトリ名を作るときに環境変数 <code>GADDIR</code> を見て、未設定ならビルド時の既定ディレクトリを使います。MacPortsのPortfileはこの既定ディレクトリを <code>/opt/local/share/grads</code> 側へ書き換えています。<sup class="citation"><a href="#ref-8" aria-label="参照 8">[8]</a></sup><sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup> そのため、古いOpenGrADS向けの設定などで <code>GADDIR</code> が別の場所を指していると、MacPortsが入れた地図ファイルを見に行けません。</p>
+
+          <pre><code class="language-shell">echo "$GADDIR"
+
+# 何か出る場合は、その先にMacPorts版の地図ファイルがあるか確認
+ls -l "$GADDIR"/lowres "$GADDIR"/mres "$GADDIR"/hires</code></pre>
+
+          <p><code>GADDIR</code> が空なら、MacPorts版では基本的にそのままでかまいません。空でない場合、まず一時的に外して動作を見ます。</p>
+
+          <pre><code class="language-shell">unset GADDIR
+grads</code></pre>
+
+          <p><code>GX Package Error</code> とともに <code>udpt</code> が見つからない、というエラーが出る場合も、<code>GADDIR</code> がGrADSの共有データディレクトリ以外を指している可能性があります。<code>udpt</code> もMacPorts版では <code>/opt/local/share/grads</code> に入ります。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></p>
+
+          <p>これで直るなら、<code>~/.zshrc</code>、<code>~/.zprofile</code>、<code>~/.profile</code> などに残っている古い <code>GADDIR</code> 設定を消すか、MacPorts版に合わせて次のように直します。</p>
+
+          <pre><code class="language-shell">export GADDIR=/opt/local/share/grads</code></pre>
+
+          <p>ただし、MacPortsの既定値が効いている環境では <code>GADDIR</code> を明示しない方が移植性は高いです。手で設定するのは、複数のGrADS環境を切り替えていて明示が必要な場合に限るのが無難です。</p>
+
+          <h3>地図データの種類と描画設定を確認する</h3>
+          <p>GrADSの地図データセットは <code>set mpdset</code> で切り替えられ、既定は <code>lowres</code> です。<code>mres</code> と <code>hires</code> は州境・国境を含み、<code>nmap</code> は北米だけを対象にします。<sup class="citation"><a href="#ref-9" aria-label="参照 9">[9]</a></sup> 海岸線だけ薄く出ている、国境や州境だけ出ない、という場合はデータ不足ではなく、使っている地図データセットやmap typeの表示設定の問題かもしれません。</p>
+
+          <pre><code class="language-shell"># GrADSプロンプト内で、データを開いたあとに確認する例
+set mpdset hires
+set map 1 1 6
+draw map</code></pre>
+
+          <p><code>set map</code> は地図背景の線色・線種・太さを指定するコマンドです。<sup class="citation"><a href="#ref-10" aria-label="参照 10">[10]</a></sup> また、<code>set mpt</code> ではmap typeごとに表示・非表示や線属性を制御できます。<sup class="citation"><a href="#ref-11" aria-label="参照 11">[11]</a></sup> 過去のスクリプトに <code>set mpdraw off</code>、<code>set mpt * off</code>、背景と同じ色の <code>set map</code> が入っていると、地図ファイルが存在していても地図は見えません。</p>
+
+          <pre><code class="language-shell"># 既存スクリプト内に地図を消す設定がないか探す
+grep -nE 'set +mpdraw|set +mpt|set +map|set +mpdset' ./*.gs 2&gt;/dev/null</code></pre>
+
+          <p>切り分けの順番は、<code>port contents grads</code> で <code>lowres</code> などの存在を確認し、<code>echo "$GADDIR"</code> で古い環境変数を確認し、最後にGrADSスクリプト側の <code>set mpdset</code>、<code>set map</code>、<code>set mpt</code>、<code>set mpdraw</code> を確認する、でよいです。</p>
+
           <h3>GrADSスクリプトはどこに置くか</h3>
           <p><code>.gs</code> のGrADSスクリプトは、MacPorts管理下の <code>/opt/local/share/grads</code> には置かず、自分のホームディレクトリかプロジェクトディレクトリに置きます。GrADSのスクリプト実行は <code>run filename</code> で行い、スクリプト名は通常 <code>.gs</code> で終わります。公式ドキュメントでは、<code>run cbar.gs</code> は <code>cbar</code> のように省略できる、と説明されています。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
 
@@ -145,6 +189,10 @@ sudo port upgrade grads</code></pre>
             <li id="ref-5"><a href="https://github.com/macports/macports-ports/blob/master/science/grads/Portfile">macports-ports: science/grads/Portfile</a></li>
             <li id="ref-6"><a href="https://github.com/j-m-adams/GrADS/blob/master/doc/gradcomdrun.html">GrADS documentation: run</a></li>
             <li id="ref-7"><a href="https://github.com/j-m-adams/GrADS/blob/master/doc/script.html">GrADS documentation: Scripting Language</a></li>
+            <li id="ref-8"><a href="https://github.com/j-m-adams/GrADS/blob/master/src/gxsubs.c">GrADS source: gxsubs.c</a></li>
+            <li id="ref-9"><a href="https://github.com/j-m-adams/GrADS/blob/master/doc/gradcomdsetmpdset.html">GrADS documentation: set mpdset</a></li>
+            <li id="ref-10"><a href="https://github.com/j-m-adams/GrADS/blob/master/doc/gradcomdsetmap.html">GrADS documentation: set map</a></li>
+            <li id="ref-11"><a href="https://github.com/j-m-adams/GrADS/blob/master/doc/gradcomdsetmpt.html">GrADS documentation: set mpt</a></li>
           </ol>
         </section>
       </article>
