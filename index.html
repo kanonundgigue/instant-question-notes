@@ -21,26 +21,51 @@
   <body>
     <header class="site-header">
       <div class="site-header__inner">
-        <a class="site-header__protected" href="notes/private/index.html">🔒 保護領域</a>
-        <p class="site-kicker">instant-question-notes</p>
-        <h1>k-notes</h1>
-        <p class="site-lead">疑問をメモる速度で記事化する。</p>
-        <nav class="site-nav" aria-label="ページ内カテゴリ">
-          <a href="#recent">新着</a>
-          <a href="#statistics">統計・機械学習</a>
-          <a href="#calculation">計算・単位換算</a>
-          <a href="#ai-services">AI サービス・モデル</a>
-          <a href="#library-tech">図書館・情報技術</a>
-          <a href="#productivity">生産性ツール</a>
-          <a href="#github">GitHub</a>
-          <a href="#meteorology">気象・大気物理</a>
-          <a href="#health-beauty">ヘルス・美容</a>
-          <a href="#climate-data">気候データ</a>
-          <a href="#music">音楽</a>
-          <a href="#ai-coding-agents">AI コーディングエージェント</a>
-          <a href="#project">プロジェクト運用</a>
-          <a href="#google-workspace">Google Workspace</a>
-        </nav>
+        <div class="site-header__main">
+          <p class="site-kicker">instant-question-notes</p>
+          <h1>k-notes</h1>
+          <p class="site-lead">疑問をメモる速度で記事化する。</p>
+          <nav class="site-nav" aria-label="ページ内カテゴリ">
+            <a href="#recent">新着</a>
+            <a href="#statistics">統計・機械学習</a>
+            <a href="#calculation">計算・単位換算</a>
+            <a href="#ai-services">AI サービス・モデル</a>
+            <a href="#library-tech">図書館・情報技術</a>
+            <a href="#productivity">生産性ツール</a>
+            <a href="#github">GitHub</a>
+            <a href="#meteorology">気象・大気物理</a>
+            <a href="#health-beauty">ヘルス・美容</a>
+            <a href="#climate-data">気候データ</a>
+            <a href="#music">音楽</a>
+            <a href="#ai-coding-agents">AI コーディングエージェント</a>
+            <a href="#project">プロジェクト運用</a>
+            <a href="#google-workspace">Google Workspace</a>
+          </nav>
+        </div>
+
+        <div class="site-header__tools">
+          <a class="site-header__protected" href="notes/private/index.html">🔒 保護領域</a>
+
+          <section class="search-panel site-header__search" aria-labelledby="search-heading">
+            <div class="section__header search-panel__header">
+              <div>
+                <p class="site-kicker">Search</p>
+                <h2 id="search-heading">記事検索</h2>
+              </div>
+              <p id="note-search-status" class="search-form__status" aria-live="polite">検索待ち</p>
+            </div>
+
+            <form class="search-form" role="search">
+              <label class="search-form__label" for="note-search">キーワード</label>
+              <div class="search-form__control">
+                <input class="search-form__input" id="note-search" name="q" type="search" autocomplete="off" placeholder="Docker、MacPorts、交差検証">
+                <button class="search-form__clear" type="button" hidden>クリア</button>
+              </div>
+            </form>
+
+            <div class="note-grid search-results" id="note-search-results" hidden></div>
+          </section>
+        </div>
       </div>
     </header>
 
@@ -54,26 +79,6 @@
         <p class="notice__disclaimer">内容の正確性や最新性、記事を参考にした結果について保証はしません。重要な判断をする場合は、必ず一次情報や専門家の確認をあわせて行ってください。</p>
         <p class="notice__disclaimer">ソースコードは <a href="https://github.com/kanonundgigue/instant-question-notes">GitHub リポジトリ</a> で公開しています。</p>
         <p class="notice__disclaimer">このノートの仕組みは <a href="https://zenn.dev/ttaniguchi/articles/instant-question-html-notes">「メモる速度で記事化する技術ノート」（ttaniguchi 氏 / Zenn）</a> を参考にしています。</p>
-      </section>
-
-      <section class="search-panel" aria-labelledby="search-heading">
-        <div class="section__header search-panel__header">
-          <div>
-            <p class="site-kicker">Search</p>
-            <h2 id="search-heading">記事検索</h2>
-          </div>
-          <p id="note-search-status" class="search-form__status" aria-live="polite">検索待ち</p>
-        </div>
-
-        <form class="search-form" role="search">
-          <label class="search-form__label" for="note-search">キーワード</label>
-          <div class="search-form__control">
-            <input class="search-form__input" id="note-search" name="q" type="search" autocomplete="off" placeholder="Docker、MacPorts、交差検証">
-            <button class="search-form__clear" type="button" hidden>クリア</button>
-          </div>
-        </form>
-
-        <div class="note-grid search-results" id="note-search-results" hidden></div>
       </section>
 
       <section class="section section--spaced" aria-labelledby="categories-heading">
