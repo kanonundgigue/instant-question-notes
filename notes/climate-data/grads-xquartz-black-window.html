@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GrADS の XQuartz 画面が黒いままのときの対処法 | k-notes</title>
+    <meta name="description" content="macOS の XQuartz 上で GrADS の画面が黒いまま更新されない場合に、Cairo 表示 backend を避けて X11 backend を使う対処法を整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>GrADS の XQuartz 画面が黒いままのときの対処法</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-07-04">2026-07-04</time></p>
+          <p>カテゴリ: climate-data</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>GrADS の XQuartz 画面表示問題はどうしたら解決できる？バージョンの噛み合わせの問題？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>MacPorts 版 GrADS で <code>draw map</code> や <code>d u</code> を実行しても XQuartz のウィンドウが黒いままなのに、<code>printim</code> で保存した PNG は正しく描ける場合、まず疑うべきなのはデータや GrADS コマンドではなく、XQuartz のライブ表示経路です。MacPorts の <code>grads</code> port は GrADS 2.2.1 を提供し、地球科学データの対話的な可視化ツールとして説明されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <p>この症状では、最短の対処として GrADS の表示 backend を既定の Cairo から X11 に切り替えます。MacPorts 版の手元の環境では <code>/opt/local/share/grads/udpt</code> に <code>Cairo</code> と <code>X11</code> の表示 plugin があり、<code>grads -d X11</code> で X11 backend を明示できます。</p>
+
+          <pre><code class="language-shell">export GADDIR=/opt/local/share/grads
+grads -d X11 -lp</code></pre>
+
+          <h3>毎回打たなくてよいようにする</h3>
+          <p>ライブ表示を使うたびに <code>-d X11</code> を付け忘れないよう、<code>~/.zshrc</code> に専用関数を置きます。通常の <code>grads</code> コマンドは残し、XQuartz の画面表示を使うときだけ <code>gradsx</code> を使うのが安全です。</p>
+
+          <pre><code class="language-shell">export GADDIR="/opt/local/share/grads"
+
+gradsx() {
+    command grads -d X11 "$@"
+}</code></pre>
+
+          <p>設定後、新しいターミナルを開くか、次のように読み込み直します。</p>
+
+          <pre><code class="language-shell">source ~/.zshrc
+gradsx -lp</code></pre>
+
+          <h3>動作確認の順番</h3>
+          <p>まず XQuartz を起動し、通常のターミナルから <code>gradsx -lp</code> を実行します。GrADS のプロンプトが出たら、簡単な描画を試します。</p>
+
+          <pre><code class="language-shell"># GrADS プロンプト内
+clear
+set dbuff off
+draw rec 1 1 10 7
+draw string 3 4 GrADS X11 test</code></pre>
+
+          <p>データファイルを開ける状態なら、実データでも確認します。</p>
+
+          <pre><code class="language-shell"># GrADS プロンプト内
+open /tmp/sample.ctl
+set gxout contour
+d u
+draw map</code></pre>
+
+          <p>画面が表示されるなら、原因の中心は GrADS のデータ処理ではなく、Cairo 表示 backend と XQuartz/macOS の組み合わせにあります。推測を含む言い方をすれば、XQuartz 画面へのライブ描画更新だけが詰まっており、GrADS 側の描画内容は作れている、という状態です。</p>
+
+          <h3>なぜバージョンの噛み合わせを疑うのか</h3>
+          <p>XQuartz 2.8.5 は 2023-01-26 にリリースされており、変更点には resize handling や window content rendering に関する修正が含まれています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup> 一方、2026-06-19 には XQuartz 2.8.6_rc2 が公開され、基盤プロジェクトとして cairo 1.18.4 などが列挙されています。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup> そのため、macOS の新しい環境で XQuartz 2.8.5 と GrADS の Cairo 表示がうまく噛み合っていない、という見立ては十分ありえます。ただし、今回の実用解は XQuartz の入れ替えではなく、GrADS 側で Cairo 表示を避けることです。</p>
+
+          <h3><code>gradsx</code> でも黒い場合</h3>
+          <p><code>gradsx -lp</code> でも画面が黒いままなら、X11 backend への切り替えだけでは足りません。その場合は、まず PNG 書き出しで GrADS 本体の描画が生きているかを確認します。</p>
+
+          <pre><code class="language-shell"># GrADS プロンプト内
+open your_data.ctl
+set gxout shaded
+d variable
+printim /tmp/grads-check.png png white</code></pre>
+
+          <p>PNG が正しく出るなら、当面は <code>printim</code> と Preview を使う運用に切り替えます。Preview は同じファイルを再書き出ししたとき表示が更新されることがあるので、ライブ表示に近い確認用途なら実用になる場合があります。</p>
+
+          <pre><code class="language-shell">open /tmp/grads-check.png</code></pre>
+
+          <p>それでもライブ表示が必要な場合の次の候補は、XQuartz の別バージョンを試すことです。2.8.6 系はこの記事作成時点では RC なので、研究作業の主環境にいきなり入れるより、戻せる前提で試すのが無難です。</p>
+
+          <h3>切り分けの要点</h3>
+          <ul>
+            <li><code>printim</code> の PNG が正常なら、GrADS の計算・描画命令・地図データは大きくは壊れていない。</li>
+            <li>XQuartz の画面だけ黒いなら、まず <code>grads -d X11</code> で Cairo 表示 backend を避ける。</li>
+            <li><code>GADDIR</code> は MacPorts 版に合わせて <code>/opt/local/share/grads</code> を指すようにする。</li>
+            <li>通常の <code>grads</code> は残し、ライブ表示用だけ <code>gradsx</code> に分ける。</li>
+            <li><code>gradsx</code> でもだめなら、<code>printim</code> 運用か XQuartz の別バージョン検証に進む。</li>
+          </ul>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://ports.macports.org/port/grads/">MacPorts Ports: grads</a></li>
+            <li id="ref-2"><a href="https://www.xquartz.org/releases/XQuartz-2.8.5.html">XQuartz: XQuartz 2.8.5</a></li>
+            <li id="ref-3"><a href="https://www.xquartz.org/releases/XQuartz-2.8.6_rc2.html">XQuartz: XQuartz 2.8.6_rc2</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
