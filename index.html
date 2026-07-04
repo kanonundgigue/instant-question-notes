@@ -56,6 +56,26 @@
         <p class="notice__disclaimer">このノートの仕組みは <a href="https://zenn.dev/ttaniguchi/articles/instant-question-html-notes">「メモる速度で記事化する技術ノート」（ttaniguchi 氏 / Zenn）</a> を参考にしています。</p>
       </section>
 
+      <section class="search-panel" aria-labelledby="search-heading">
+        <div class="section__header search-panel__header">
+          <div>
+            <p class="site-kicker">Search</p>
+            <h2 id="search-heading">記事検索</h2>
+          </div>
+          <p id="note-search-status" class="search-form__status" aria-live="polite">検索待ち</p>
+        </div>
+
+        <form class="search-form" role="search">
+          <label class="search-form__label" for="note-search">キーワード</label>
+          <div class="search-form__control">
+            <input class="search-form__input" id="note-search" name="q" type="search" autocomplete="off" placeholder="Docker、MacPorts、交差検証">
+            <button class="search-form__clear" type="button" hidden>クリア</button>
+          </div>
+        </form>
+
+        <div class="note-grid search-results" id="note-search-results" hidden></div>
+      </section>
+
       <section class="section section--spaced" aria-labelledby="categories-heading">
         <div class="section__header">
           <p class="site-kicker">Categories</p>
@@ -165,8 +185,9 @@
           <article class="note-card">
             <p class="note-card__category">productivity</p>
             <h3><a href="notes/productivity/docker-basic-usage.html">Docker の基本的な使い方は？</a></h3>
-            <p class="note-card__summary">image、container、Dockerfile、port、volume、bind mount、Composeを、最初に覚えるコマンド単位で整理します。</p>
+            <p class="note-card__summary">Dockerを初めて触る人向けに、daemon未起動エラー、imageとcontainerの違い、最初のdocker runを整理します。</p>
             <p class="note-card__date">作成日: <time datetime="2026-07-04">2026-07-04</time></p>
+            <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-07-04">2026-07-04</time></p>
           </article>
 
           <article class="note-card">
@@ -321,8 +342,9 @@
           <article class="note-card">
             <p class="note-card__category">Docker / 開発環境</p>
             <h3><a href="notes/productivity/docker-basic-usage.html">Docker の基本的な使い方は？</a></h3>
-            <p class="note-card__summary">Dockerのimage、container、Dockerfile、port、volume、bind mount、Composeの使い方を基本コマンドから整理します。</p>
+            <p class="note-card__summary">Dockerを初めて触る人向けに、daemon未起動エラー、何のための道具か、最初に打つコマンドを整理します。</p>
             <p class="note-card__date">作成日: <time datetime="2026-07-04">2026-07-04</time></p>
+            <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-07-04">2026-07-04</time></p>
           </article>
 
           <article class="note-card">
@@ -549,5 +571,6 @@
       </section>
     </main>
 
+    <script src="scripts/search-notes.js" defer></script>
   </body>
 </html>

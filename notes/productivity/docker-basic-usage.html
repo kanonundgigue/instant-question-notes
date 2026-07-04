@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Docker の基本的な使い方は？ | k-notes</title>
-    <meta name="description" content="Docker の image、container、Dockerfile、port、volume、bind mount、Docker Compose の基本的な使い方を、最初に覚えるコマンド単位で整理します。">
+    <meta name="description" content="Docker を初めて使う人向けに、何のための道具か、image と container の違い、最初に打つコマンド、Web サーバーの動かし方、データの残し方を整理します。">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
@@ -18,6 +18,7 @@
         <h1>Docker の基本的な使い方は？</h1>
         <div class="article-meta">
           <p>作成日: <time datetime="2026-07-04">2026-07-04</time></p>
+          <p>更新日: <time datetime="2026-07-04">2026-07-04</time></p>
           <p>カテゴリ: productivity</p>
         </div>
 
@@ -28,35 +29,112 @@
 
         <section aria-labelledby="answer-heading">
           <h2 id="answer-heading">回答</h2>
-          <p>Docker は、アプリケーションと実行に必要なものを image としてまとめ、container という隔離された実行単位で動かすための仕組みです。Docker 公式は、Docker を「開発、配布、実行」のためのオープンプラットフォームとして説明し、container は image から作られる実行可能なインスタンスだと整理しています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup> まずは「image を取る、container を起動する、ログを見る、止める、消す、自分の Dockerfile から image を作る」という流れを覚えるのが基本です。</p>
+          <p>Docker は、今使っている Mac や PC の中に、別の小さな実行環境を作ってアプリやコマンドを動かす道具です。たとえば「このプロジェクトだけ Ubuntu で動かしたい」「自分の Mac に直接いろいろ入れずに Web サーバーを試したい」「他の人と同じ環境でプログラムを動かしたい」ときに使います。</p>
+
+          <p>公式には、Docker はアプリケーションを開発、配布、実行するためのオープンプラットフォームで、container は image から作られる実行可能なインスタンスだと説明されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup> 初心者はまず、「image は起動元、container は実際に動いているもの」と覚えれば十分です。</p>
+
+          <h3>まず結論: 最初はこの流れだけでよい</h3>
+          <ol>
+            <li>Docker Desktop を起動する。</li>
+            <li><code>docker run ...</code> で container を起動する。</li>
+            <li><code>docker ps</code> で動いているか見る。</li>
+            <li><code>docker logs ...</code> で出力を見る。</li>
+            <li><code>docker stop ...</code> と <code>docker rm ...</code> で止めて消す。</li>
+          </ol>
+
+          <p>最初から Dockerfile、network、volume、Compose を全部理解しようとすると混乱します。まずは「他の人が用意した image を、自分の PC で container として起動する」だけを触るのがよいです。</p>
+
+          <h3>その前に: Docker の本体が起動しているか確認する</h3>
+          <p><code>docker run</code> は、Docker の命令を受け取る daemon が起動していないと動きません。Mac では Docker Desktop を使っている場合と、Colima を使っている場合があります。Colima は macOS と Linux 向けの container runtime 環境で、Docker runtime では <code>colima start</code> のあとに <code>docker run hello-world</code> や <code>docker ps</code> を使う例が公式 README に示されています。<sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup></p>
+
+          <p>次のようなエラーが出る場合は、Docker コマンドの書き方ではなく、daemon が起動していない可能性が高いです。</p>
+
+          <pre><code class="language-shell">failed to connect to the docker API at unix:///Users/kanon/.colima/default/docker.sock
+check if the path is correct and if the daemon is running</code></pre>
+
+          <p>Colima を使っているなら、まず状態を確認して、止まっていれば起動します。</p>
+
+          <p>コード例（言語名: shell）:</p>
+          <pre><code class="language-shell"># Docker CLI がどの接続先を見ているか確認する
+docker context ls
+
+# Colima の状態を見る
+colima status
+
+# "colima is not running" なら起動する
+colima start
+
+# 起動後にもう一度試す
+docker run --rm -it ubuntu:24.04 bash</code></pre>
+
+          <p>Docker Desktop を使っている場合は、Docker Desktop アプリを起動してからもう一度 <code>docker run</code> を試します。<code>docker context ls</code> で現在の context が <code>colima</code> なのか <code>default</code> なのかを見ると、自分が Docker Desktop と Colima のどちらへ接続しようとしているかを確認できます。</p>
 
           <h3>最初に押さえる用語</h3>
           <ul>
-            <li><strong>image</strong>: container を作るための読み取り専用テンプレート。OS の最小環境、言語ランタイム、アプリ、設定などを含められる。</li>
-            <li><strong>container</strong>: image から起動した実行中または停止中の実体。削除すると、永続化していない変更は消える。</li>
-            <li><strong>Dockerfile</strong>: image の作り方を書いたテキストファイル。<code>FROM</code>、<code>COPY</code>、<code>RUN</code>、<code>CMD</code> などを並べる。</li>
-            <li><strong>registry</strong>: image の置き場。Docker Hub は既定で使われる公開 registry として説明されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></li>
-            <li><strong>volume / bind mount</strong>: container の外にデータを置く仕組み。volume は Docker 管理の永続領域、bind mount はホスト側の具体的なディレクトリを container に見せる方法です。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup><sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></li>
+            <li><strong>image</strong>: Ubuntu、nginx、Python などの起動元。まだ動いていない。</li>
+            <li><strong>container</strong>: image から起動した実体。動いている場合も、停止して残っている場合もある。</li>
+            <li><strong>Docker Hub</strong>: 公開 image の置き場。<code>docker run ubuntu:24.04</code> のように指定すると、ローカルになければ取得される。</li>
+            <li><strong>port</strong>: Web サーバーなどへアクセスする入口。container の中の port と、自分の PC 側の port をつなぐ必要がある。</li>
+            <li><strong>volume / bind mount</strong>: container の外にデータを置く仕組み。データを残したいときに後で使う。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup><sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></li>
           </ul>
 
-          <h3>既存 image を動かす</h3>
-          <p>最初は自分で image を作らず、公開 image を一度だけ実行して感覚をつかむとよいです。Docker 公式の概要ページでも、<code>docker run -i -t ubuntu /bin/bash</code> のように Ubuntu image から対話的な container を起動する例が示されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <h3>最初の練習: Ubuntu に入って出る</h3>
+          <p>最初は自分で image を作らず、公開 image を一度だけ実行して感覚をつかむとよいです。次のコマンドは、Ubuntu の container を起動して、その中の shell に入ります。Docker 公式の概要ページでも、Ubuntu image から対話的な container を起動する例が示されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
 
           <p>コード例（言語名: shell）:</p>
           <pre><code class="language-shell"># Ubuntu の shell に入る。ローカルになければ image が取得される
 docker run --rm -it ubuntu:24.04 bash
 
-# container の中
+# ここから先は container の中
 cat /etc/os-release
 exit</code></pre>
 
-          <p><code>--rm</code> は container 終了時に自動削除する指定です。試しに動かすだけなら便利ですが、container の中で作ったファイルも残りません。残したいデータは volume や bind mount に逃がします。</p>
+          <p>このコマンドは、次のように読めます。</p>
 
-          <h3>Web サーバーをポート公開して動かす</h3>
-          <p>container 内のアプリを Mac やブラウザから見るには、host 側の port と container 側の port を対応させます。Docker Docs は <code>-p HOST:CONTAINER</code> 形式で port mapping を作ると説明しており、例では container の 3000 番を host の <code>127.0.0.1:3000</code> に公開しています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>部分</th>
+                <th>意味</th>
+                <th>初心者向けの見方</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="部分"><code>docker run</code></td>
+                <td data-label="意味">container を起動する</td>
+                <td data-label="初心者向けの見方">Docker で何かを動かす基本形。</td>
+              </tr>
+              <tr>
+                <td data-label="部分"><code>--rm</code></td>
+                <td data-label="意味">終了後に container を自動削除する</td>
+                <td data-label="初心者向けの見方">練習用。作業結果は残らない。</td>
+              </tr>
+              <tr>
+                <td data-label="部分"><code>-it</code></td>
+                <td data-label="意味">対話操作できるようにする</td>
+                <td data-label="初心者向けの見方">shell に入るときはだいたい付ける。</td>
+              </tr>
+              <tr>
+                <td data-label="部分"><code>ubuntu:24.04</code></td>
+                <td data-label="意味">使う image 名</td>
+                <td data-label="初心者向けの見方">Ubuntu 24.04 の環境を使う。</td>
+              </tr>
+              <tr>
+                <td data-label="部分"><code>bash</code></td>
+                <td data-label="意味">container 内で実行するコマンド</td>
+                <td data-label="初心者向けの見方">Ubuntu の中で shell を開く。</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p><code>exit</code> すると container から出ます。<code>--rm</code> を付けているので、出た時点でこの container は消えます。</p>
+
+          <h3>次の練習: Web サーバーをブラウザで見る</h3>
+          <p>Docker で Web アプリを動かすときは、container の中の port を、自分の PC 側の port に接続します。Docker Docs は <code>-p HOST:CONTAINER</code> 形式で port mapping を作ると説明しています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
 
           <p>コード例（言語名: shell）:</p>
-          <pre><code class="language-shell"># nginx を localhost:8080 で見る
+          <pre><code class="language-shell"># nginx という Web サーバーを background で起動する
 docker run --name web-demo -d -p 127.0.0.1:8080:80 nginx:alpine
 
 # 状態確認
@@ -69,28 +147,46 @@ docker logs web-demo
 docker stop web-demo
 docker rm web-demo</code></pre>
 
-          <p><code>-d</code> は background 実行、<code>--name</code> は container 名、<code>-p 127.0.0.1:8080:80</code> は host の localhost 8080 番を container の 80 番へ渡す指定です。開発中に外部公開する必要がないなら、host 側を <code>127.0.0.1</code> に絞ると意図しない LAN 公開を避けやすくなります。</p>
+          <p>起動したら、ブラウザで <code>http://127.0.0.1:8080/</code> を開きます。ここで重要なのは、nginx は container の中では 80 番 port で動いているが、自分の PC からは 8080 番として見ている、という点です。</p>
 
-          <h3>自分の Dockerfile から image を作る</h3>
-          <p>アプリを container 化する場合は、プロジェクト直下に拡張子なしの <code>Dockerfile</code> を置き、<code>docker build -t 名前 .</code> で image を作ります。Docker の workshop では、<code>Dockerfile</code> を使って image を作り、<code>-t</code> で人間が扱いやすい名前を付け、末尾の <code>.</code> で現在ディレクトリを build context にする流れが説明されています。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <ul>
+            <li><code>-d</code>: 画面を占有せず、background で動かす。</li>
+            <li><code>--name web-demo</code>: container に <code>web-demo</code> という名前を付ける。</li>
+            <li><code>-p 127.0.0.1:8080:80</code>: PC 側の <code>127.0.0.1:8080</code> を container 側の <code>80</code> に接続する。</li>
+          </ul>
+
+          <p>開発中に外部公開する必要がないなら、host 側を <code>127.0.0.1</code> に絞ると意図しない LAN 公開を避けやすくなります。</p>
+
+          <h3>Dockerfile は「自分用 image の作り方」</h3>
+          <p>ここまでは、Ubuntu や nginx など、既にある image を使いました。自分のアプリを同じ形で何度も動かしたい場合は、<code>Dockerfile</code> を作って自分用 image を作ります。Docker の workshop では、<code>Dockerfile</code> を使って image を作り、<code>docker build -t 名前 .</code> のように build する流れが説明されています。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
 
           <p>コード例（言語名: shell）:</p>
-          <pre><code class="language-shell"># Dockerfile の例
-cat > Dockerfile.example <<'EOF'
+          <pre><code class="language-shell"># Dockerfile という名前のファイルを作る
+cat > Dockerfile <<'EOF'
 FROM python:3.12-slim
 WORKDIR /app
 COPY . .
 CMD ["python", "-m", "http.server", "8000"]
 EOF
 
-# 実際に使う場合は Dockerfile という名前にしてから build する
+# Dockerfile から image を作る
 docker build -t my-python-server .
+
+# 作った image から container を起動する
 docker run --rm -p 127.0.0.1:8000:8000 my-python-server</code></pre>
 
-          <p>実運用では、<code>.env</code>、秘密鍵、巨大な出力ディレクトリ、cache などを image に入れないように <code>.dockerignore</code> を置きます。Docker Compose Quickstart でも、build context に不要なファイルを送らないために <code>.dockerignore</code> を使う意義が説明されています。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
+          <p>末尾の <code>.</code> は「今いるディレクトリを build に使う」という意味です。実運用では、<code>.env</code>、秘密鍵、巨大な出力ディレクトリ、cache などを image に入れないように <code>.dockerignore</code> も置きます。Docker Compose Quickstart でも、build context に不要なファイルを送らないために <code>.dockerignore</code> を使う意義が説明されています。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
 
-          <h3>データを残す: volume と bind mount</h3>
-          <p>container の書き込み層は container の寿命に強く結びつくため、container を削除しても残したいデータは別に扱います。Docker Docs は、container が削除されると通常の file changes も削除される一方で、volume は個別 container の lifecycle を越えてデータを残す storage mechanism だと説明しています。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+          <h3>データは何もしないと残らない</h3>
+          <p>初心者が混乱しやすい点は、container の中で作ったファイルが永続保存とは限らないことです。Docker Docs は、container が削除されると通常の file changes も削除される一方で、volume は個別 container の lifecycle を越えてデータを残す storage mechanism だと説明しています。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+
+          <p>まずはこのように考えると分かりやすいです。</p>
+
+          <ul>
+            <li>練習だけなら <code>--rm</code> を付けて、container を使い捨てにする。</li>
+            <li>データベースの中身などを残したいなら volume を使う。</li>
+            <li>自分の手元のプロジェクトフォルダを container から見せたいなら bind mount を使う。</li>
+          </ul>
 
           <p>コード例（言語名: shell）:</p>
           <pre><code class="language-shell"># Docker 管理の volume にデータを残す
@@ -101,13 +197,13 @@ docker run --rm -v app-data:/data ubuntu:24.04 cat /data/history.txt
 # ホストの現在ディレクトリを container に読み書きさせる
 docker run --rm -it -v "$PWD":/work -w /work ubuntu:24.04 bash</code></pre>
 
-          <p>開発コードを container から直接見せたい場合は bind mount が便利です。Docker Docs は、host 側の特定ファイルやディレクトリを container と共有したい場合に bind mount を使うと説明し、より明示的な制御には <code>--mount</code> 構文を推奨しています。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup> 読み取りだけで十分なら <code>:ro</code> を付けると、container からホスト側ファイルを書き換えにくくできます。</p>
+          <p>bind mount は、host 側の特定ファイルやディレクトリを container と共有する仕組みです。Docker Docs は、より明示的な制御には <code>--mount</code> 構文を推奨しています。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup> ただし最初は、<code>-v "$PWD":/work</code> が「今いるフォルダを container の <code>/work</code> として見せる」という意味だと分かれば十分です。</p>
 
-          <h3>複数 container は Docker Compose でまとめる</h3>
-          <p>Web アプリと Redis、アプリと PostgreSQL のように複数 container を一緒に扱うなら、<code>compose.yaml</code> に services、ports、environment、volumes などを書き、<code>docker compose up</code> でまとめて起動します。Docker Compose Quickstart は、Compose が複数 service、network、volume を 1 つの YAML 設定で扱いやすくし、<code>docker compose up</code> で構成ファイルの service を作成・起動すると説明しています。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
+          <h3>Docker Compose は「複数 container の起動メモ」</h3>
+          <p>Web アプリだけなら <code>docker run</code> でも動かせます。しかし、Web アプリ、データベース、Redis のように複数 container が必要になると、毎回長いコマンドを打つのがつらくなります。そのときに <code>compose.yaml</code> へ設定を書き、<code>docker compose up</code> でまとめて起動します。Docker Compose Quickstart は、Compose が複数 service、network、volume を 1 つの YAML 設定で扱いやすくし、<code>docker compose up</code> で構成ファイルの service を作成・起動すると説明しています。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
 
           <p>コード例（言語名: shell）:</p>
-          <pre><code class="language-shell"># compose.yaml の最小例
+          <pre><code class="language-shell"># compose.yaml という名前のファイルを作る
 cat > compose.yaml <<'EOF'
 services:
   web:
@@ -116,81 +212,81 @@ services:
       - "127.0.0.1:8080:80"
 EOF
 
+# compose.yaml に書いた service を起動する
 docker compose up -d
 docker compose ps
 docker compose logs -f
 docker compose down</code></pre>
 
-          <h3>よく使うコマンド早見表</h3>
+          <h3>初心者向けコマンド早見表</h3>
           <table class="mobile-table">
             <thead>
               <tr>
                 <th>目的</th>
                 <th>コマンド</th>
-                <th>見方</th>
+                <th>まずこう理解する</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td data-label="目的">image を取得する</td>
-                <td data-label="コマンド"><code>docker pull ubuntu:24.04</code></td>
-                <td data-label="見方">明示的に registry から取る。<code>docker run</code> 時にも必要なら自動取得される。</td>
+                <td data-label="目的">Ubuntu を試す</td>
+                <td data-label="コマンド"><code>docker run --rm -it ubuntu:24.04 bash</code></td>
+                <td data-label="まずこう理解する">Linux 環境に一時的に入る。</td>
               </tr>
               <tr>
-                <td data-label="目的">container を起動する</td>
-                <td data-label="コマンド"><code>docker run --rm -it ubuntu:24.04 bash</code></td>
-                <td data-label="見方">1 回限りの対話実行。</td>
+                <td data-label="目的">Web サーバーを試す</td>
+                <td data-label="コマンド"><code>docker run --name web-demo -d -p 127.0.0.1:8080:80 nginx:alpine</code></td>
+                <td data-label="まずこう理解する">ブラウザで <code>127.0.0.1:8080</code> を開く。</td>
               </tr>
               <tr>
                 <td data-label="目的">動いている container を見る</td>
                 <td data-label="コマンド"><code>docker ps</code></td>
-                <td data-label="見方">停止中も含めるなら <code>docker ps -a</code>。</td>
+                <td data-label="まずこう理解する">今 Docker で動いているものの一覧。</td>
               </tr>
               <tr>
-                <td data-label="目的">container 内で追加コマンドを実行する</td>
-                <td data-label="コマンド"><code>docker exec -it 名前 bash</code></td>
-                <td data-label="見方">既に動いている container に入る。</td>
+                <td data-label="目的">停止中も含めて見る</td>
+                <td data-label="コマンド"><code>docker ps -a</code></td>
+                <td data-label="まずこう理解する">過去に作った container も見る。</td>
               </tr>
               <tr>
                 <td data-label="目的">ログを見る</td>
                 <td data-label="コマンド"><code>docker logs -f 名前</code></td>
-                <td data-label="見方"><code>-f</code> は追尾。</td>
+                <td data-label="まずこう理解する">アプリの出力を見る。</td>
               </tr>
               <tr>
                 <td data-label="目的">停止する</td>
                 <td data-label="コマンド"><code>docker stop 名前</code></td>
-                <td data-label="見方">停止しても container は残る。</td>
+                <td data-label="まずこう理解する">container を止める。まだ削除はしない。</td>
               </tr>
               <tr>
                 <td data-label="目的">削除する</td>
                 <td data-label="コマンド"><code>docker rm 名前</code></td>
-                <td data-label="見方">container を消す。image や volume は別管理。</td>
+                <td data-label="まずこう理解する">container を消す。image や volume は別。</td>
               </tr>
               <tr>
                 <td data-label="目的">image を作る</td>
                 <td data-label="コマンド"><code>docker build -t app .</code></td>
-                <td data-label="見方">現在ディレクトリを build context として Dockerfile を読む。</td>
+                <td data-label="まずこう理解する">Dockerfile から自分用 image を作る。</td>
               </tr>
               <tr>
                 <td data-label="目的">Compose で起動する</td>
                 <td data-label="コマンド"><code>docker compose up -d</code></td>
-                <td data-label="見方"><code>compose.yaml</code> の service 群をまとめて起動。</td>
+                <td data-label="まずこう理解する"><code>compose.yaml</code> に書いた複数 service を起動する。</td>
               </tr>
             </tbody>
           </table>
 
-          <h3>最初の判断基準</h3>
+          <h3>初心者がよく混乱する点</h3>
           <ul>
-            <li>「一時的に Linux コマンドを試す」なら <code>docker run --rm -it ubuntu:24.04 bash</code>。</li>
-            <li>「Web アプリをローカルで見る」なら <code>-p 127.0.0.1:ホスト側:コンテナ側</code>。</li>
-            <li>「DB や生成データを残す」なら named volume。</li>
-            <li>「ソースコードを container に読ませて開発する」なら bind mount。</li>
-            <li>「複数 service を毎回同じ構成で立てる」なら Docker Compose。</li>
-            <li>「他人に配る、CI で使う、本番へ近づける」なら Dockerfile と <code>.dockerignore</code> を整える。</li>
+            <li><strong>Docker を入れただけでは何も動かない。</strong> Docker Desktop を起動し、さらに <code>docker run</code> で container を起動します。</li>
+            <li><strong>image と container は別物。</strong> image は起動元、container は実際に起動したものです。</li>
+            <li><strong><code>localhost</code> で見えないときは port 指定を見る。</strong> Web サーバーなら <code>-p 127.0.0.1:8080:80</code> のような指定が必要です。</li>
+            <li><strong><code>--rm</code> を付けた container の中身は終了後に消える。</strong> 残す必要があるものは volume か bind mount を使います。</li>
+            <li><strong>最初から Dockerfile と Compose を書かなくてよい。</strong> まずは既存 image を <code>docker run</code> で動かすところからで十分です。</li>
           </ul>
 
           <h3>まとめ</h3>
-          <p>Docker の基本は、image を材料に container を起動し、必要なら port、environment、volume、bind mount を足して、作業が終わったら止める、という操作です。単発なら <code>docker run</code>、自分のアプリなら <code>Dockerfile</code> と <code>docker build</code>、複数 container なら <code>docker compose up</code>、データを残すなら volume、と分けて考えると見通しがよくなります。</p>
+          <p>Docker の最初の理解は、「image から container を起動して、その中でアプリやコマンドを動かす」で十分です。最初に覚えるのは <code>docker run</code>、<code>docker ps</code>、<code>docker logs</code>、<code>docker stop</code>、<code>docker rm</code> です。Web アプリを見るときは port、データを残すときは volume や bind mount、毎回同じ環境を作りたいときは Dockerfile、複数 container をまとめたいときは Docker Compose、という順番で広げると混乱しにくくなります。</p>
         </section>
 
         <section class="references" aria-labelledby="references-heading">
@@ -202,6 +298,7 @@ docker compose down</code></pre>
             <li id="ref-4"><a href="https://docs.docker.com/get-started/docker-concepts/running-containers/persisting-container-data/">Docker Docs: Persisting container data</a></li>
             <li id="ref-5"><a href="https://docs.docker.com/get-started/docker-concepts/running-containers/sharing-local-files/">Docker Docs: Sharing local files with containers</a></li>
             <li id="ref-6"><a href="https://docs.docker.com/compose/gettingstarted/">Docker Docs: Docker Compose Quickstart</a></li>
+            <li id="ref-7"><a href="https://github.com/abiosoft/colima">GitHub: abiosoft/colima</a></li>
           </ol>
         </section>
       </article>
