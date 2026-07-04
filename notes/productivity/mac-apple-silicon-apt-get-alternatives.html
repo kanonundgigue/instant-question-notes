@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mac (Apple Silicon) で apt-get したい場合は？ | k-notes</title>
+    <meta name="description" content="Apple Silicon Mac で apt-get 相当のコマンドインストールをしたい場合に、Homebrew、MacPorts、Linux コンテナをどう使い分けるかを整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>Mac (Apple Silicon) で apt-get したい場合は？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-07-04">2026-07-04</time></p>
+          <p>カテゴリ: productivity</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>Mac (apple silicon)でapt-getしたい場合は？コマンドインストールできる？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>macOS で <code>apt-get</code> をそのまま使う、という発想はいったん分けたほうがよいです。<code>apt-get</code> は Debian/Ubuntu 系 Linux の APT パッケージを扱うコマンドラインツールです。Debian の man page でも、<code>apt-get</code> は APT library を使うパッケージ操作用コマンドとして説明されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup> Mac ネイティブのコマンドを入れたいなら、通常は Homebrew か MacPorts を使います。Linux 環境そのものが必要なら、Docker などの Linux コンテナ、または仮想マシンの中で <code>apt-get</code> を使います。</p>
+
+          <h3>結論</h3>
+          <ul>
+            <li>Mac に <code>wget</code>、<code>ffmpeg</code>、<code>git</code>、<code>gfortran</code> などのコマンドを入れたいだけなら、まず <code>brew install パッケージ名</code> を使う。</li>
+            <li>MacPorts 前提のソフト、variant 指定、Homebrew と別 prefix の依存関係ツリーが必要なら、<code>sudo port install パッケージ名</code> を使う。</li>
+            <li>README に <code>sudo apt-get install ...</code> と書かれていて、その Linux 手順をそのまま再現したいなら、Ubuntu/Debian コンテナか VM の中で実行する。</li>
+          </ul>
+
+          <h3>Homebrew で入れる</h3>
+          <p>Apple Silicon Mac で最も手軽な選択肢は Homebrew です。Homebrew 公式のインストールページでは、Apple Silicon の標準 prefix は <code>/opt/homebrew</code>、Intel Mac は <code>/usr/local</code> と説明されています。公式トップページにも、Homebrew は macOS、Linux、WSL をサポートし、コマンドラインツールやアプリケーションを入れるものとして案内されています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup><sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+
+          <p>コマンド例（言語名: shell）:</p>
+          <pre><code class="language-shell"># Homebrew を入れる
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# インストール後、表示された指示に従って shell に brew を認識させる
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# apt-get install 相当
+brew install wget
+brew install ffmpeg
+
+# GUI アプリなら cask
+brew install --cask firefox
+
+# 更新
+brew update
+brew upgrade</code></pre>
+
+          <p>Homebrew は通常の <code>brew install</code> で <code>sudo</code> を使いません。Homebrew の FAQ では、パッケージ定義と Homebrew 本体の更新に <code>brew update</code>、インストール済みパッケージの更新に <code>brew upgrade</code> を使う手順が示されています。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+
+          <h3>MacPorts で入れる</h3>
+          <p>MacPorts も macOS 用のパッケージ管理です。MacPorts の pkg インストーラは MacPorts 本体の導入、shell 環境の設定、ports tree と MacPorts base の selfupdate まで行い、動作確認として新しいターミナルで <code>port version</code> を試す流れが説明されています。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup> インストール操作は <code>sudo port install ...</code> が基本で、MacPorts Guide では <code>sudo port install apache2 -preforkmpm +workermpm</code> のような例が示されています。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
+
+          <p>コマンド例（言語名: shell）:</p>
+          <pre><code class="language-shell"># MacPorts の更新
+sudo port selfupdate
+
+# パッケージ検索
+port search wget
+port info wget
+
+# apt-get install 相当
+sudo port install wget
+
+# variant を見てから入れる
+port variants apache2
+sudo port install apache2 +openldap</code></pre>
+
+          <h3>apt-get そのものが必要な場合</h3>
+          <p><code>apt-get</code> で入るものは、基本的に Debian/Ubuntu などの Linux 環境に対して入ります。Mac の <code>/usr/bin</code> や <code>/opt/homebrew</code> に Debian パッケージを直接展開して macOS ネイティブコマンドとして使う、という運用ではありません。Linux の手順を再現したいなら、Docker Desktop などで Ubuntu/Debian コンテナを動かし、その中で <code>apt-get</code> を実行します。Docker 公式は Mac 用 Docker Desktop の Apple Silicon 版を提供しており、Apple Silicon Mac と Intel Mac それぞれのダウンロード導線とシステム要件を示しています。<sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup></p>
+
+          <p>コマンド例（言語名: shell）:</p>
+          <pre><code class="language-shell"># Docker Desktop を起動してから、Ubuntu コンテナに入る
+docker run --rm -it ubuntu:24.04 bash
+
+# ここから先はコンテナ内の Linux
+apt-get update
+apt-get install -y wget build-essential
+wget --version</code></pre>
+
+          <p>この方法で入れた <code>wget</code> や <code>build-essential</code> はコンテナ内のものです。Mac の通常ターミナルから直接使うコマンドを入れたい場合は、同名または近いパッケージを Homebrew や MacPorts で探します。</p>
+
+          <h3>apt-get と Mac の対応表</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>やりたいこと</th>
+                <th>Linux の感覚</th>
+                <th>Mac での置き換え</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="やりたいこと">パッケージ一覧を更新する</td>
+                <td data-label="Linux の感覚"><code>sudo apt-get update</code></td>
+                <td data-label="Mac での置き換え"><code>brew update</code> または <code>sudo port selfupdate</code></td>
+              </tr>
+              <tr>
+                <td data-label="やりたいこと">コマンドを入れる</td>
+                <td data-label="Linux の感覚"><code>sudo apt-get install wget</code></td>
+                <td data-label="Mac での置き換え"><code>brew install wget</code> または <code>sudo port install wget</code></td>
+              </tr>
+              <tr>
+                <td data-label="やりたいこと">全体を更新する</td>
+                <td data-label="Linux の感覚"><code>sudo apt-get upgrade</code></td>
+                <td data-label="Mac での置き換え"><code>brew upgrade</code> または <code>sudo port upgrade outdated</code></td>
+              </tr>
+              <tr>
+                <td data-label="やりたいこと">Debian/Ubuntu の手順をそのまま動かす</td>
+                <td data-label="Linux の感覚"><code>apt-get</code> 前提の README</td>
+                <td data-label="Mac での置き換え">Ubuntu/Debian コンテナまたは VM 内で実行</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Apple Silicon で気をつけること</h3>
+          <ul>
+            <li>Homebrew は Apple Silicon では <code>/opt/homebrew</code> が標準なので、古い Intel Mac 向け記事にある <code>/usr/local/bin/brew</code> 前提の記述をそのまま使わない。</li>
+            <li>Intel 専用バイナリしかないソフトは Rosetta 2 や <code>--platform linux/amd64</code> が必要になる場合がある。ただし、まずは arm64 ネイティブの formula、port、コンテナイメージを探す。</li>
+            <li>Homebrew と MacPorts を併用する場合は、<code>PATH</code> の順番で同名コマンドが変わる。普段使いの系統を 1 つ決め、別系統は必要な作業だけで使う。</li>
+          </ul>
+
+          <h3>まとめ</h3>
+          <p>「Mac で <code>apt-get</code> したい」が「コマンドをインストールしたい」という意味なら、Apple Silicon Mac ではまず Homebrew の <code>brew install</code> を使うのが最短です。MacPorts が向くソフトなら <code>sudo port install</code> も選択肢です。<code>apt-get</code> というコマンド自体が必要な場合だけ、Ubuntu/Debian コンテナや VM の中で使う、と切り分けるのが混乱しにくいです。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://manpages.debian.org/bookworm/apt/apt-get.8.en.html">Debian Manpages: apt-get(8)</a></li>
+            <li id="ref-2"><a href="https://docs.brew.sh/Installation">Homebrew Documentation: Installation</a></li>
+            <li id="ref-3"><a href="https://brew.sh/">Homebrew: The Package Manager for Everywhere</a></li>
+            <li id="ref-4"><a href="https://docs.brew.sh/FAQ">Homebrew Documentation: FAQ</a></li>
+            <li id="ref-5"><a href="https://guide.macports.org/#installing.macports">MacPorts Guide: Installing MacPorts</a></li>
+            <li id="ref-6"><a href="https://guide.macports.org/#using.port.install">MacPorts Guide: port install</a></li>
+            <li id="ref-7"><a href="https://docs.docker.com/desktop/setup/install/mac-install/">Docker Docs: Install Docker Desktop on Mac</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
