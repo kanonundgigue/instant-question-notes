@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Claude や Codex のスラッシュコマンドを活用する方法 | k-notes</title>
+    <meta name="description" content="Claude Code と Codex のスラッシュコマンドを、組み込みコマンド、Skills、カスタムプロンプトの違いから整理し、実務で使う型をまとめます。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>Claude や Codex のスラッシュコマンドを活用する方法</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-07-07">2026-07-07</time></p>
+          <p>カテゴリ: ai-coding-agents</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>claudeやcodexのスラッシュコマンドをうまく活用できていない。活用方法は？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>スラッシュコマンドは「機能一覧を覚えるもの」ではなく、作業の局面を素早く切り替えるための入口として使います。Claude Code なら <code>/plan</code>、<code>/compact</code>、<code>/code-review</code>、<code>/debug</code> のような組み込みコマンドや bundled skill を使い、繰り返す手順は Skills として <code>/skill-name</code> で呼び出すのが現在の中心です。Claude Code では custom commands が Skills に統合され、既存の <code>.claude/commands/</code> も動きますが、新しく作るなら Skills を優先します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <p>Codex では、CLI なら <code>/model</code>、<code>/permissions</code>、<code>/plan</code>、<code>/review</code>、<code>/status</code> などでセッションを制御できます。Codex app や IDE 拡張にも <code>/plan</code>、<code>/goal</code>、<code>/review</code>、<code>/status</code> などがありますが、使えるコマンドは環境とアクセス権で変わります。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup><sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup><sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></p>
+
+          <h3>まず覚える分類</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>分類</th>
+                <th>使う場面</th>
+                <th>例</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="分類">組み込みコマンド</td>
+                <td data-label="使う場面">今のセッションの状態、権限、モデル、レビュー、文脈量を操作する</td>
+                <td data-label="例"><code>/status</code>、<code>/plan</code>、<code>/permissions</code>、<code>/compact</code>、<code>/review</code></td>
+              </tr>
+              <tr>
+                <td data-label="分類">Skills</td>
+                <td data-label="使う場面">毎回同じ手順で調査、レビュー、実装、検証、記事化を行う</td>
+                <td data-label="例"><code>/summarize-changes</code>、<code>/deploy-staging</code>、<code>/write-note</code></td>
+              </tr>
+              <tr>
+                <td data-label="分類">旧カスタムプロンプト</td>
+                <td data-label="使う場面">Codex で手元の <code>~/.codex/prompts</code> にある古い再利用プロンプトを呼ぶ</td>
+                <td data-label="例"><code>/prompts:draftpr</code></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>Codex の custom prompts は deprecated で、再利用したい指示は Skills を使うよう案内されています。custom prompts はローカルの <code>~/.codex</code> に置く明示呼び出し用プロンプトなので、リポジトリで共有したい手順や、Codex に自動選択させたい手順には向きません。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
+
+          <h3>活用の順序</h3>
+          <ol>
+            <li>まず、いまの作業局面を切り替える組み込みコマンドだけを使います。大きい変更前は <code>/plan</code>、差分確認は <code>/diff</code> や <code>/review</code>、長い会話では <code>/compact</code>、権限確認は <code>/status</code> や <code>/permissions</code> です。</li>
+            <li>次に、自分が毎回貼っている指示文を 3 つだけ拾います。たとえば「差分を要約してリスクを出す」「PR レビューコメントを直す」「このリポジトリの公開記事を作る」です。</li>
+            <li>その指示文を Skills にします。Claude Code なら <code>.claude/skills/&lt;name&gt;/SKILL.md</code>、Codex なら <code>.agents/skills/&lt;name&gt;/SKILL.md</code> やユーザー配下の skills に置く、という考え方です。Codex の Skills は CLI、IDE 拡張、app で利用でき、タスク固有の指示、参照、スクリプトをまとめられます。<sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup></li>
+            <li>最後に、よく使うものだけ明示呼び出しします。Claude Code では <code>/skill-name</code>、Codex では <code>$skill-name</code> や slash menu からの選択を使い、説明文に合う作業は暗黙起動に任せます。</li>
+          </ol>
+
+          <h3>最初に作ると効果が出やすいコマンド</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>名前</th>
+                <th>中身</th>
+                <th>向いている理由</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="名前"><code>summarize-changes</code></td>
+                <td data-label="中身">未コミット差分を読み、変更点、リスク、検証不足、commit message 案を出す</td>
+                <td data-label="向いている理由">毎回の作業終盤で使え、失敗しても破壊的でない</td>
+              </tr>
+              <tr>
+                <td data-label="名前"><code>fix-review-comments</code></td>
+                <td data-label="中身">PR コメントやレビュー指摘を読み、実装するもの、保留するもの、質問するものに分ける</td>
+                <td data-label="向いている理由">判断基準を固定しやすく、指摘の取りこぼしを減らせる</td>
+              </tr>
+              <tr>
+                <td data-label="名前"><code>write-note</code></td>
+                <td data-label="中身">質問を記事化し、一次情報、引用、トップページ導線、検証まで進める</td>
+                <td data-label="向いている理由">このリポジトリのように手順が決まっている作業ほど効果が大きい</td>
+              </tr>
+              <tr>
+                <td data-label="名前"><code>run-and-verify</code></td>
+                <td data-label="中身">アプリを起動し、画面確認、テスト、lint、失敗ログの要約まで行う</td>
+                <td data-label="向いている理由">「実行して確認する」を習慣化できる</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Claude Code での考え方</h3>
+          <p>Claude Code では、セッション制御は組み込みコマンド、繰り返し作業は Skills に寄せます。公式ドキュメントは、同じ指示、チェックリスト、複数手順を何度も貼っているなら Skill を作る場面だと説明しています。また、Skill の本文は使われたときだけ読み込まれるため、長い手順や参照を <code>CLAUDE.md</code> に常駐させるより文脈を節約できます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <p>実務では、<code>CLAUDE.md</code> には恒久ルールだけを置き、作業手順は Skills に逃がします。たとえば「PR をレビューして修正まで行う」「デバッグログを読んで再現手順を作る」「発表資料の章立てを直す」のように、成果物と検証が決まっているものを <code>/review-pr</code>、<code>/debug-failure</code>、<code>/revise-slides</code> として切り出します。</p>
+
+          <h3>Codex での考え方</h3>
+          <p>Codex は surface によって slash command の粒度が違います。CLI はモデル、権限、IDE 文脈、差分、メモリ、プラグイン、フックなどを細かく操作できます。app と IDE 拡張は、<code>/plan</code>、<code>/goal</code>、<code>/review</code>、<code>/status</code> のように、スレッドやレビューの進行を制御するものが中心です。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup><sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup><sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></p>
+
+          <p>Codex で再利用ワークフローを作るなら、旧 custom prompts ではなく Skills を基本にします。Skill は <code>SKILL.md</code>、任意の <code>scripts/</code>、<code>references/</code>、<code>assets/</code> を持てるため、単なる長いプロンプトより「手順 + 参照 + 検証」をまとめやすいです。<sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup></p>
+
+          <h3>小さな Skill の例</h3>
+          <p>最初は、ファイル編集をしない read-only 系の Skill から始めると失敗が少ないです。以下は「差分の要約とリスク確認」を作るときのシェル例です。</p>
+          <p>コマンド例（言語名: shell）:</p>
+          <pre><code class="language-shell">mkdir -p .agents/skills/summarize-changes
+$EDITOR .agents/skills/summarize-changes/SKILL.md</code></pre>
+
+          <p><code>SKILL.md</code> には、次の要素だけを短く入れます。</p>
+          <ul>
+            <li><code>name</code>: コマンド名または表示名。</li>
+            <li><code>description</code>: いつ使うか。暗黙起動の精度に効きます。</li>
+            <li>手順: 何を読み、何を出すか。</li>
+            <li>出力形式: 変更点、リスク、検証不足、次のアクション。</li>
+          </ul>
+
+          <h3>増やしすぎないルール</h3>
+          <p>スラッシュコマンドは数が増えるほど使われなくなります。最初は「開始」「調査」「実装」「レビュー」「終了」の 5 局面に 1 つずつで十分です。</p>
+          <ul>
+            <li>開始: <code>/plan</code> または計画 Skill。</li>
+            <li>調査: 公式情報確認やコード探索の Skill。</li>
+            <li>実装: 対象ファイル、禁止事項、完了条件を固定した Skill。</li>
+            <li>レビュー: 差分、テスト、セキュリティ、不要変更を見る Skill。</li>
+            <li>終了: 検証結果、残リスク、commit message 案を出す Skill。</li>
+          </ul>
+
+          <p>うまく使えていないと感じる場合は、まず slash menu を眺めるより、直近 10 回の依頼文から「同じ文を貼っているところ」を探す方が早いです。その繰り返し文を 1 つだけ Skill 化し、1 週間使ってから次を増やすと定着します。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://code.claude.com/docs/en/slash-commands">Extend Claude with skills - Claude Code Docs</a></li>
+            <li id="ref-2"><a href="https://code.claude.com/docs/en/commands">Commands - Claude Code Docs</a></li>
+            <li id="ref-3"><a href="https://developers.openai.com/codex/cli/slash-commands">Slash commands in Codex CLI - OpenAI Developers</a></li>
+            <li id="ref-4"><a href="https://developers.openai.com/codex/app/commands">Commands - Codex app | OpenAI Developers</a></li>
+            <li id="ref-5"><a href="https://developers.openai.com/codex/ide/slash-commands">Slash commands - Codex IDE | OpenAI Developers</a></li>
+            <li id="ref-6"><a href="https://developers.openai.com/codex/custom-prompts">Custom Prompts - Codex | OpenAI Developers</a></li>
+            <li id="ref-7"><a href="https://developers.openai.com/codex/skills">Agent Skills - Codex | OpenAI Developers</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
