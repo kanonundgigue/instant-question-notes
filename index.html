@@ -28,6 +28,7 @@
           <nav class="site-nav" aria-label="ページ内カテゴリ">
             <a href="#recent">新着</a>
             <a href="#statistics">統計・機械学習</a>
+            <a href="#python">Python</a>
             <a href="#calculation">計算・単位換算</a>
             <a href="#ai-services">AI サービス・モデル</a>
             <a href="#library-tech">図書館・情報技術</a>
@@ -99,7 +100,13 @@
             <li class="category-card">
               <span class="category-card__label">statistics</span>
               <a class="category-card__title" href="#statistics">統計・機械学習</a>
-              <span class="category-card__meta">5 件の記事</span>
+              <span class="category-card__meta">6 件の記事</span>
+            </li>
+
+            <li class="category-card">
+              <span class="category-card__label">python</span>
+              <a class="category-card__title" href="#python">Python</a>
+              <span class="category-card__meta">1 件の記事</span>
             </li>
 
             <li class="category-card">
@@ -123,7 +130,7 @@
             <li class="category-card">
               <span class="category-card__label">productivity</span>
               <a class="category-card__title" href="#productivity">生産性ツール</a>
-              <span class="category-card__meta">7 件の記事</span>
+              <span class="category-card__meta">8 件の記事</span>
             </li>
 
             <li class="category-card">
@@ -188,6 +195,27 @@
 
         <div class="note-grid">
           <article class="note-card">
+            <p class="note-card__category">statistics</p>
+            <h3><a href="notes/statistics/vector-distance-measures.html">代表的なベクトル間距離は何を意味する？</a></h3>
+            <p class="note-card__summary">ユークリッド距離、マンハッタン距離、最大距離、マハラノビス距離について、式の読み方と違いを整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-07-16">2026-07-16</time></p>
+          </article>
+
+          <article class="note-card">
+            <p class="note-card__category">python</p>
+            <h3><a href="notes/python/dask-effective-usage.html">Dask を効果的に使うには？</a></h3>
+            <p class="note-card__summary">Dask を速く使うために、チャンク設計、遅延評価、<code>load</code>・<code>persist</code>・<code>compute</code> の置き場所を整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-07-15">2026-07-15</time></p>
+          </article>
+
+          <article class="note-card">
+            <p class="note-card__category">productivity</p>
+            <h3><a href="notes/productivity/rsync-command-basics.html">rsync コマンドの使い方は？</a></h3>
+            <p class="note-card__summary">差分同期、末尾スラッシュ、SSH 経由の転送、<code>--dry-run</code> と <code>--delete</code> の安全な使い方を整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-07-10">2026-07-10</time></p>
+          </article>
+
+          <article class="note-card">
             <p class="note-card__category">ai-coding-agents</p>
             <h3><a href="notes/ai-coding-agents/claude-codex-slash-command-workflow.html">Claude や Codex のスラッシュコマンドを活用する方法</a></h3>
             <p class="note-card__summary">組み込みコマンド、Skills、旧カスタムプロンプトの違いを整理し、繰り返し作業をコマンド化する型をまとめます。</p>
@@ -199,29 +227,6 @@
             <h3><a href="notes/climate-data/grads-xquartz-black-window.html">GrADS の XQuartz 画面が黒いままのときの対処法</a></h3>
             <p class="note-card__summary">printim は正常なのに XQuartz の画面だけ黒い場合、Cairo 表示 backend を避けて X11 backend で起動します。</p>
             <p class="note-card__date">作成日: <time datetime="2026-07-04">2026-07-04</time></p>
-          </article>
-
-          <article class="note-card">
-            <p class="note-card__category">productivity</p>
-            <h3><a href="notes/productivity/docker-basic-usage.html">Docker の基本的な使い方は？</a></h3>
-            <p class="note-card__summary">Dockerを初めて触る人向けに、daemon未起動エラー、imageとcontainerの違い、最初のdocker runを整理します。</p>
-            <p class="note-card__date">作成日: <time datetime="2026-07-04">2026-07-04</time></p>
-            <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-07-04">2026-07-04</time></p>
-          </article>
-
-          <article class="note-card">
-            <p class="note-card__category">productivity</p>
-            <h3><a href="notes/productivity/mac-apple-silicon-apt-get-alternatives.html">Mac (Apple Silicon) で apt-get したい場合は？</a></h3>
-            <p class="note-card__summary">macOSでコマンドを入れるならHomebrewやMacPortsを使い、apt-getそのものが必要ならLinuxコンテナやVMで動かす、と切り分けます。</p>
-            <p class="note-card__date">作成日: <time datetime="2026-07-04">2026-07-04</time></p>
-          </article>
-
-          <article class="note-card">
-            <p class="note-card__category">climate-data</p>
-            <h3><a href="notes/climate-data/macports-install-grads.html">MacPorts経由でGrADSをインストールする方法</a></h3>
-            <p class="note-card__summary">macOSでMacPortsを使ってGrADSを入れる手順、X11環境、地図データが表示されない場合の確認方法を整理します。</p>
-            <p class="note-card__date">作成日: <time datetime="2026-07-03">2026-07-03</time></p>
-            <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-07-03">2026-07-03</time></p>
           </article>
 
         </div>
@@ -237,6 +242,13 @@
         </div>
 
         <div class="note-grid note-grid--compact">
+          <article class="note-card">
+            <p class="note-card__category">距離尺度 / 多変量解析</p>
+            <h3><a href="notes/statistics/vector-distance-measures.html">代表的なベクトル間距離は何を意味する？</a></h3>
+            <p class="note-card__summary">ユークリッド距離、マンハッタン距離、最大距離、マハラノビス距離について、式の読み方と違いを整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-07-16">2026-07-16</time></p>
+          </article>
+
           <article class="note-card">
             <p class="note-card__category">情報量規準 / モデル選択</p>
             <h3><a href="notes/statistics/aic-vs-bic.html">AICとBICの違いは？どう使い分ける？</a></h3>
@@ -271,6 +283,25 @@
             <h3><a href="notes/statistics/elastic-net-regression.html">Elastic Net 回帰とは？</a></h3>
             <p class="note-card__summary">Lasso の変数選択と Ridge の安定化を組み合わせ、相関した説明変数が多い回帰で使う考え方を整理します。</p>
             <p class="note-card__date">作成日: <time datetime="2026-06-18">2026-06-18</time></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="topic-section" id="python" aria-labelledby="python-heading">
+        <div class="section__header section__header--split">
+          <div>
+            <p class="site-kicker">python</p>
+            <h2 id="python-heading">Python</h2>
+          </div>
+          <p>Python、データ処理ライブラリ、Notebook での実装・性能改善に関する記事。</p>
+        </div>
+
+        <div class="note-grid note-grid--compact">
+          <article class="note-card">
+            <p class="note-card__category">Dask / xarray / 性能改善</p>
+            <h3><a href="notes/python/dask-effective-usage.html">Dask を効果的に使うには？</a></h3>
+            <p class="note-card__summary">Dask を速く使うために、チャンク設計、遅延評価、<code>load</code>・<code>persist</code>・<code>compute</code> の置き場所を整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-07-15">2026-07-15</time></p>
           </article>
         </div>
       </section>
@@ -343,6 +374,13 @@
         </div>
 
         <div class="note-grid note-grid--compact">
+          <article class="note-card">
+            <p class="note-card__category">rsync / ファイル同期</p>
+            <h3><a href="notes/productivity/rsync-command-basics.html">rsync コマンドの使い方は？</a></h3>
+            <p class="note-card__summary">差分同期、末尾スラッシュ、SSH 経由の転送、<code>--dry-run</code> と <code>--delete</code> の安全な使い方を整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-07-10">2026-07-10</time></p>
+          </article>
+
           <article class="note-card">
             <p class="note-card__category">Docker / 開発環境</p>
             <h3><a href="notes/productivity/docker-basic-usage.html">Docker の基本的な使い方は？</a></h3>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>代表的なベクトル間距離は何を意味する？ | k-notes</title>
+    <meta name="description" content="ユークリッド距離、マンハッタン距離、最大距離、マハラノビス距離の式、意味、使い分けを整理する。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+        <h1>代表的なベクトル間距離は何を意味する？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-07-16">2026-07-16</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>ユークリッド距離 ‖x<sub>j</sub> − x<sub>k</sub>‖<sub>2</sub>、その二乗、マンハッタン距離 ‖x<sub>j</sub> − x<sub>k</sub>‖<sub>1</sub>、最大距離 ‖x<sub>j</sub> − x<sub>k</sub>‖<sub>∞</sub>、マハラノビス距離 √((x<sub>j</sub> − x<sub>k</sub>)<sup>T</sup>C<sup>−1</sup>(x<sub>j</sub> − x<sub>k</sub>)) の意味は？</p>
+        </section>
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>これらはすべて、<strong>2つのベクトル x<sub>j</sub> と x<sub>k</sub> の離れ具合</strong>を1つの数で表す方法です。ただし、成分ごとの差をどうまとめるかが異なります。差ベクトルを <var>d</var> = <var>x</var><sub>j</sub> − <var>x</var><sub>k</sub> = (<var>d</var><sub>1</sub>, …, <var>d</var><sub>p</sub>) と置くと見通しがよくなります。ユークリッド距離、マンハッタン距離、最大距離はMinkowski距離の代表例です。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <h3>記号 ‖・‖<sub>p</sub> の意味</h3>
+          <p>‖<var>d</var>‖<sub>p</sub> はベクトル <var>d</var> の <strong>p-ノルム</strong>です。ノルムはベクトルの大きさを表し、2点の差ベクトルに適用すると距離になります。下付きの 1、2、∞ は、成分差のまとめ方を指定します。</p>
+          <h3>1. ユークリッド距離：直線距離</h3>
+          <p>‖<var>x</var><sub>j</sub> − <var>x</var><sub>k</sub>‖<sub>2</sub> = √(Σ<sub>i</sub> (<var>x</var><sub>ji</sub> − <var>x</var><sub>ki</sub>)<sup>2</sup>)</p>
+          <p>各成分の差を二乗して足し、平方根を取ります。2次元ではピタゴラスの定理による直線距離で、すべての方向を同等に扱う通常の幾何学的距離です。SciPyでもEuclidean distanceは2-ノルムとして定義されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <h3>2. ユークリッド距離の二乗：平方根を取らない量</h3>
+          <p>‖<var>x</var><sub>j</sub> − <var>x</var><sub>k</sub>‖<sub>2</sub><sup>2</sup> = Σ<sub>i</sub> (<var>x</var><sub>ji</sub> − <var>x</var><sub>ki</sub>)<sup>2</sup></p>
+          <p>ユークリッド距離を二乗した量です。平方根がなく計算しやすく、平方和を最小化する最小二乗法やk-meansなどで現れます。距離の大小関係はユークリッド距離と同じですが、単位は元の変数の単位の二乗になり、一般の距離が満たす三角不等式は満たしません。表記は ‖<var>x</var><sub>j</sub> − <var>x</var><sub>k</sub>‖<sub>2</sub><sup>2</sup> で、下付きの 2 はノルムの種類、上付きの 2 は二乗です。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <h3>3. マンハッタン距離：絶対差の合計</h3>
+          <p>‖<var>x</var><sub>j</sub> − <var>x</var><sub>k</sub>‖<sub>1</sub> = Σ<sub>i</sub> |<var>x</var><sub>ji</sub> − <var>x</var><sub>ki</sub>|</p>
+          <p>各成分で何単位ずれたかを絶対値で足します。碁盤目状の街路を縦横に移動する距離になぞらえてcity-block distanceとも呼ばれます。1成分の大きな差を二乗して強調しないため、ユークリッド距離より外れ値の影響が穏やかです。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <h3>4. 最大距離：最も大きな成分差</h3>
+          <p>‖<var>x</var><sub>j</sub> − <var>x</var><sub>k</sub>‖<sub>∞</sub> = max<sub>i</sub> |<var>x</var><sub>ji</sub> − <var>x</var><sub>ki</sub>|</p>
+          <p>全成分のうち、絶対差が最大のものを距離とします。Chebyshev distanceとも呼ばれます。「どれか1項目でも許容値を超えたら問題」のように、最悪の成分差が全体を決める場合に対応します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <h3>同じ2点で比較する</h3>
+          <p><var>x</var><sub>j</sub> = (1, 2)、<var>x</var><sub>k</sub> = (4, 6) なら、差の絶対値は (3, 4) です。</p>
+          <table class="mobile-table">
+            <thead><tr><th>測り方</th><th>計算</th><th>値</th></tr></thead>
+            <tbody>
+              <tr><td data-label="測り方">ユークリッド距離</td><td data-label="計算">√(3<sup>2</sup> + 4<sup>2</sup>)</td><td data-label="値">5</td></tr>
+              <tr><td data-label="測り方">ユークリッド距離の二乗</td><td data-label="計算">3<sup>2</sup> + 4<sup>2</sup></td><td data-label="値">25</td></tr>
+              <tr><td data-label="測り方">マンハッタン距離</td><td data-label="計算">|3| + |4|</td><td data-label="値">7</td></tr>
+              <tr><td data-label="測り方">最大距離</td><td data-label="計算">max(3, 4)</td><td data-label="値">4</td></tr>
+            </tbody>
+          </table>
+          <h3>5. マハラノビス距離：ばらつきと相関を考慮</h3>
+          <p>√((<var>x</var><sub>j</sub> − <var>x</var><sub>k</sub>)<sup>T</sup> <var>C</var><sup>−1</sup> (<var>x</var><sub>j</sub> − <var>x</var><sub>k</sub>))</p>
+          <p><var>C</var> はデータの共分散行列、<var>C</var><sup>−1</sup> はその逆行列、上付きの <var>T</var> は転置です。マハラノビス距離は、共分散行列によって重み付けされたユークリッド距離です。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <ul>
+            <li><strong>ばらつきが大きい方向:</strong> 同じ数値差でも珍しくないため、寄与を小さくする。</li>
+            <li><strong>ばらつきが小さい方向:</strong> 小さな差でも珍しいため、寄与を大きくする。</li>
+            <li><strong>相関がある変数:</strong> 重複した情報を二重に数えず、相関方向に沿った差か、そこから外れた差かを区別する。</li>
+          </ul>
+          <p>例えば身長をcm、体重をkgで測ると、普通のユークリッド距離は単位や尺度に左右され、身長と体重の相関も扱えません。マハラノビス距離はデータ全体の共分散で座標を標準化・非相関化してから直線距離を測ることに相当し、「そのデータ分布の中でどれほど異例な離れ方か」を表します。SciPyで計算するときも逆共分散行列を指定します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>ただし、<var>C</var> が特異で逆行列を持たない場合は、この式をそのまま使えません。変数数に対して標本が少ない場合などは、変数選択、正則化した共分散推定、擬似逆行列を目的に応じて検討します。</p>
+          <h3>使い分けの目安</h3>
+          <ul>
+            <li><strong>通常の直線的な近さ:</strong> ユークリッド距離。</li>
+            <li><strong>平方和を最小化したい:</strong> ユークリッド距離の二乗。</li>
+            <li><strong>各成分の差を加算したい:</strong> マンハッタン距離。</li>
+            <li><strong>最悪の1成分を基準にしたい:</strong> 最大距離。</li>
+            <li><strong>尺度、分散、相関を補正したい:</strong> マハラノビス距離。</li>
+          </ul>
+          <p>距離は単なる計算式ではなく、何を「似ている」とみなすかという分析上の仮定です。</p>
+        </section>
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.cdist.html">SciPy Manual: scipy.spatial.distance.cdist</a></li>
+            <li id="ref-2"><a href="https://www.itl.nist.gov/div898/software/dataplot/refman2/auxillar/matrdist.htm">NIST/SEMATECH: Matrix Distance</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>

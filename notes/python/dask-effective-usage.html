@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dask を効果的に使うには？ | k-notes</title>
+    <meta name="description" content="Dask を速く使うために、チャンク設計、遅延評価、load・persist・compute の置き場所、xarray/NetCDF での典型的な落とし穴を整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>Dask を効果的に使うには？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-07-15">2026-07-15</time></p>
+          <p>カテゴリ: python</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>daskの効果的な使い方がわかっていないので、/Users/kanon/Work/instant-question-notesに新しい記事としてまとめて</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>Dask は「大きいデータを勝手に速くする魔法」ではなく、「大きい計算を小さな task graph に分け、必要なタイミングまで実行を遅らせる仕組み」です。公式の Best Practices でも、Dask は使い始めやすい一方で、うまく使うには経験が必要で、まずは小さく始めること、dashboard で観察すること、大きすぎる partition や巨大すぎる graph を避けることが強調されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <p>実務上の結論は、<strong>「先に小さく切る」「同じ中間結果を何度も計算しない」「最後に一度だけ compute する」「メモリに収まる小さな結果になったら NumPy / pandas に戻す」</strong>です。Dask を入れたのに遅い場合は、多くの場合、チャンクが悪い、task graph が細かすぎる、あるいは <code>compute()</code> 相当の処理をループの中で何度も呼んでいます。</p>
+
+          <h3>まず押さえるモデル: Dask は「レシピ」を作り、compute で料理する</h3>
+          <p><code>xr.open_dataset(..., chunks=...)</code> や <code>dask.array</code> を使うと、その場で巨大配列を全部読むのではなく、「このファイルをこのチャンクで読み、こう足し、こう集計する」というレシピを作ります。このレシピが task graph です。<code>.compute()</code>、<code>.load()</code>、<code>.persist()</code>、または <code>np.asarray()</code> や <code>np.nanmax()</code> のような NumPy 側の実体化要求が来たときに、初めて計算が走ります。</p>
+
+          <p>したがって、次のような書き方は「Dask にしたのに速くならない」典型です。</p>
+
+          <p>コード例（言語名: python）:</p>
+          <pre><code class="language-python"># 悪い例: ループのたびに巨大な遅延計算を再実行する
+results = []
+for site in sites:
+    selected = ds["pr"].sel(lon=site.lon, lat=site.lat, method="nearest")
+    results.append(float(selected.max().compute()))</code></pre>
+
+          <p>Dask の公式 Best Practices は、<code>compute</code> をループ内や少しずつ異なる query に対して逐次的に呼ぶと、計算間の並列化や中間結果の共有を妨げると説明しています。共有部分を一度だけ計算できるように、できるだけまとめて graph を作ってから一度に計算します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>Dask を使う前に考えること</h3>
+          <p>Dask Array の公式 Best Practices は、データが RAM に十分収まり、速度が問題でないなら NumPy のほうがよい場合があると述べています。Dask は複雑さと scheduler overhead を追加するので、「小さいデータを雑に速くする」目的では逆効果になり得ます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <p>判断の目安は次の通りです。</p>
+          <ul>
+            <li><strong>NumPy / pandas でよい</strong>: データがメモリに収まり、1 回の処理で終わる。</li>
+            <li><strong>Dask が向く</strong>: データがメモリより大きい、複数ファイルにまたがる、同じ処理を多数の chunk に並列適用したい。</li>
+            <li><strong>アルゴリズムを見直すべき</strong>: 小さい配列を何千回も Python ループで処理している、I/O が支配的、毎回同じ巨大ファイルを読み直している。</li>
+          </ul>
+
+          <h3>チャンクは「小さすぎても大きすぎても遅い」</h3>
+          <p>Dask Array で最も重要なのが <code>chunks</code> です。chunk が小さすぎると task 数が増えて scheduler overhead が支配的になります。大きすぎると worker のメモリに複数 chunk を載せられず、spill やメモリ不足が起きます。Dask Array の Best Practices は、最適な chunk は問題依存だが、100 MB 未満の chunk は珍しく、Dask が考える chunk 数を減らしつつ、同時に多数の chunk がメモリに収まる大きさを選ぶと説明しています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <p>さらに、NetCDF、HDF5、Zarr のような保存形式自体が chunk を持つ場合、Dask 側の chunk は保存側 chunk と整合しているほうが効率的です。Dask の chunks ドキュメントは、保存形式の chunk と Dask Array の chunk を揃える、または保存側 chunk の整数倍にするのがよいと説明しています。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+
+          <p>気候データのような <code>time, lat, lon</code> 配列では、まずは次のように考えます。</p>
+          <ul>
+            <li>時系列解析なら <code>time</code> 方向をある程度長く持つ。</li>
+            <li>地図ごとの処理なら <code>lat, lon</code> をまとまった面として持つ。</li>
+            <li>地点抽出だけなら、先に対象領域・対象地点へ絞り、結果が小さくなったところで <code>load()</code> する。</li>
+          </ul>
+
+          <h3><code>load</code>、<code>persist</code>、<code>compute</code> の使い分け</h3>
+          <p>名前が似ていますが、実務上は次のように使い分けると理解しやすいです。</p>
+
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>操作</th>
+                <th>何をするか</th>
+                <th>使いどころ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="操作"><code>compute()</code></td>
+                <td data-label="何をするか">Dask object を通常の Python / NumPy / pandas object として返す。</td>
+                <td data-label="使いどころ">最終結果だけ欲しいとき。ループの中で何度も呼ばない。</td>
+              </tr>
+              <tr>
+                <td data-label="操作"><code>load()</code></td>
+                <td data-label="何をするか">xarray object などの中身をメモリに読み込む。</td>
+                <td data-label="使いどころ">小さく切った Dataset / DataArray を、このあと何度も使うとき。</td>
+              </tr>
+              <tr>
+                <td data-label="操作"><code>persist()</code></td>
+                <td data-label="何をするか">Dask object の形を保ったまま、計算済み chunk を worker 側に保持する。</td>
+                <td data-label="使いどころ">distributed cluster で、大きいが繰り返し使う中間結果を保持したいとき。</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p><code>persist()</code> は便利ですが、何でも persist すればよいわけではありません。Dask DataFrame の Best Practices は、<code>persist</code> が最適化を妨げる場合があるため、必要なときだけ控えめに使うべきだと注意しています。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup> ローカル notebook で小さな地点時系列へ絞ったあとは、<code>persist()</code> より <code>load()</code> で xarray object を実メモリ化するほうが単純です。</p>
+
+          <h3>今回の notebook 型の典型パターン</h3>
+          <p>xarray は Dask と統合されており、大きなデータセットや複数ファイルの処理を、NumPy に近い書き方で扱えると説明されています。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup> ただし、その「透過的に使える」便利さのために、遅延配列を意識しないまま Python ループへ渡してしまうことがあります。</p>
+
+          <p>たとえば、日別降水 NetCDF から数地点の PDF を描くなら、よい流れは次です。</p>
+          <ol>
+            <li>必要な変数だけ開く。<code>time_bnds</code> など補助変数を演算対象にしない。</li>
+            <li>対象サイトを含む bbox へ先に絞る。</li>
+            <li>全サイトを一括で nearest 抽出する。</li>
+            <li>抽出後の小さい時系列を <code>load()</code> する。</li>
+            <li>季節抽出、bin 集計、描画は in-memory の NumPy 配列で行う。</li>
+          </ol>
+
+          <p>コード例（言語名: python）:</p>
+          <pre><code class="language-python">import numpy as np
+import xarray as xr
+
+chunks = {"time": 3650}
+
+ds = xr.open_dataset("prcp.nc", chunks=chunks)[["pr"]]
+ds = ds.sel(lat=slice(48, 10), lon=slice(20, 55))
+
+site_names = list(sites_dict)
+site_lons = xr.DataArray(
+    [sites_dict[name][0] for name in site_names],
+    dims="site",
+    coords={"site": site_names},
+)
+site_lats = xr.DataArray(
+    [sites_dict[name][1] for name in site_names],
+    dims="site",
+    coords={"site": site_names},
+)
+
+# ここで一度だけ計算する。以後は小さい site 時系列を使う。
+site_series = ds.sel(lon=site_lons, lat=site_lats, method="nearest").load()
+
+ann = site_series.sel(time=site_series["time"].dt.month.isin([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]))
+values = np.asarray(ann["pr"].sel(site="Tel leilan")).reshape(-1)
+values = values[np.isfinite(values)]
+
+bins = np.linspace(0, 50, 21)
+bin_total, _ = np.histogram(values, bins=bins, weights=values)</code></pre>
+
+          <p>この形にすると、Dask が担当するのは「巨大 NetCDF から必要な地点時系列を抜き出すところ」までです。その後の季節ループや PDF の bin 計算は、小さい NumPy 配列で速く終わります。Dask を最後まで引きずらず、<strong>小さくなった時点で普通の配列へ戻す</strong>のがポイントです。</p>
+
+          <h3>避けたい書き方</h3>
+          <p>次の書き方は、見た目は普通でも遅くなりやすいです。</p>
+          <ul>
+            <li><code>for site</code>、<code>for season</code>、<code>for bin</code> の内側で <code>np.nanmax(dask_array)</code> や <code>np.nansum(dask_array.where(...))</code> を呼ぶ。</li>
+            <li>変数を絞らず <code>Dataset</code> 全体に係数を掛け、座標境界や補助変数まで演算対象にする。</li>
+            <li>最終的に数地点しか使わないのに、全球・全時刻の遅延 Dataset を後段まで持ち回す。</li>
+            <li><code>chunks={}</code> や <code>chunks="auto"</code> を指定したあと、実際の <code>ds.chunks</code> を確認しない。</li>
+            <li>遅い原因を見ずに、worker 数だけ増やす。</li>
+          </ul>
+
+          <h3>確認用の小さいチェックリスト</h3>
+          <ol>
+            <li><code>print(ds)</code> や <code>ds.chunks</code> で chunk がどう切られているか見る。</li>
+            <li>まず 1 ファイル、1 変数、1 年、1 地域で試す。</li>
+            <li>遅いセルでは「どこで実体化しているか」を探す。</li>
+            <li>同じ遅延 object に対して、ループ内で何度も <code>compute</code> 相当の操作をしていないか見る。</li>
+            <li>中間結果が十分小さいなら、その時点で <code>load()</code> して以後は NumPy / pandas で処理する。</li>
+            <li>大きい中間結果を何度も使うなら、cluster とメモリ量を見ながら <code>persist()</code> を検討する。</li>
+          </ol>
+
+          <h3>まとめ</h3>
+          <p>Dask を効果的に使うとは、Dask object を最後まで保つことではありません。むしろ、<strong>Dask に任せる範囲を「大きくて並列化できる部分」に限定し、小さくなったら早めに通常の配列へ戻す</strong>ことです。xarray/NetCDF の notebook では、変数選択、空間サブセット、サイト抽出をまとめて Dask にやらせ、抽出後の小さな時系列を <code>load()</code> してから季節別・bin 別の細かい Python 処理へ進む、という設計にすると失敗しにくくなります。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://docs.dask.org/en/stable/best-practices.html">Dask Documentation: Best Practices</a></li>
+            <li id="ref-2"><a href="https://docs.dask.org/en/stable/array-best-practices.html">Dask Documentation: Array Best Practices</a></li>
+            <li id="ref-3"><a href="https://docs.dask.org/en/stable/array-chunks.html">Dask Documentation: Chunks</a></li>
+            <li id="ref-4"><a href="https://docs.dask.org/en/stable/dataframe-best-practices.html">Dask Documentation: Dask DataFrames Best Practices</a></li>
+            <li id="ref-5"><a href="https://docs.xarray.dev/en/stable/user-guide/dask.html">Xarray Documentation: Parallel Computing with Dask</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>rsync コマンドの使い方は？ | k-notes</title>
+    <meta name="description" content="rsync の基本構文、末尾スラッシュの違い、ローカルコピー、SSH 経由の同期、--dry-run と --delete の安全な使い方を整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>rsync コマンドの使い方は？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-07-10">2026-07-10</time></p>
+          <p>カテゴリ: productivity</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>rsyncコマンドの使い方は？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><code>rsync</code> は、ローカルまたはリモートのファイルを効率よくコピー、同期するコマンドです。公式 manpage では、高速で多用途なファイルコピー用ツールであり、コピー元とコピー先の差分だけを送る delta-transfer algorithm が特徴だと説明されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <p>まず覚える基本形は、次の 2 つです。</p>
+
+          <p>コード例（言語名: shell）:</p>
+          <pre><code class="language-shell"># コピー元ディレクトリの「中身」をコピー先へ同期する
+rsync -av source/ dest/
+
+# 実行前に、何が起きるかだけ確認する
+rsync -avn source/ dest/</code></pre>
+
+          <p><code>-a</code> は archive mode、<code>-v</code> は詳細表示、<code>-n</code> は dry run です。archive mode は再帰コピーに加えて、シンボリックリンク、権限、時刻、所有者、グループなどを保つための複数オプションをまとめたものです。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup> 実務では、まず <code>rsync -avn ...</code> で確認し、問題なければ <code>n</code> を外して実行する癖を付けると安全です。</p>
+
+          <h3>末尾のスラッシュが一番重要</h3>
+          <p><code>rsync</code> で最も間違えやすいのは、コピー元の末尾に <code>/</code> を付けるかどうかです。公式 manpage は、コピー元末尾の <code>/</code> は「そのディレクトリの中身をコピーする」という意味に近く、付けない場合は「ディレクトリ名ごとコピーする」と考えられる、と説明しています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>コマンド</th>
+                <th>結果</th>
+                <th>使う場面</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="コマンド"><code>rsync -av source/ dest/</code></td>
+                <td data-label="結果"><code>source</code> の中身が <code>dest/</code> に入る。</td>
+                <td data-label="使う場面">フォルダの中身だけを同期したい。</td>
+              </tr>
+              <tr>
+                <td data-label="コマンド"><code>rsync -av source dest/</code></td>
+                <td data-label="結果"><code>dest/source/</code> が作られる。</td>
+                <td data-label="使う場面">フォルダ名ごとコピーしたい。</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>迷ったら、「コピー先に <code>source</code> というディレクトリ名を作りたいか」を考えます。作りたくないなら、コピー元を <code>source/</code> にします。</p>
+
+          <h3>ローカルでフォルダを同期する</h3>
+          <p>同じ PC 内で、作業ディレクトリを外付けディスクや別フォルダへコピーする場合は、両方とも普通のパスで指定します。</p>
+
+          <p>コード例（言語名: shell）:</p>
+          <pre><code class="language-shell"># まず確認する
+rsync -avn ~/work/project/ /Volumes/Backup/project/
+
+# 表示内容に問題がなければ実行する
+rsync -av ~/work/project/ /Volumes/Backup/project/</code></pre>
+
+          <p>コピー先が存在しない場合は作成されます。ただし、親ディレクトリが存在しない場合の挙動は環境やオプションに依存するため、最初はコピー先の親ディレクトリを先に作っておくのが分かりやすいです。</p>
+
+          <h3>SSH 経由で別マシンへ送る</h3>
+          <p>別マシンへ送る場合は、コピー先を <code>user@host:/path/</code> の形で書きます。公式 manpage は、リモート shell 経由の push と pull の構文を示しており、現代的な rsync は通常 SSH を通信に使うと説明しています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <p>コード例（言語名: shell）:</p>
+          <pre><code class="language-shell"># 手元からサーバーへ送る
+rsync -av ~/work/project/ user@example.com:/home/user/project/
+
+# サーバーから手元へ持ってくる
+rsync -av user@example.com:/home/user/project/ ~/work/project/</code></pre>
+
+          <p>SSH のポートを指定したい場合は、<code>-e</code> で SSH コマンドを渡します。</p>
+
+          <p>コード例（言語名: shell）:</p>
+          <pre><code class="language-shell">rsync -av -e 'ssh -p 2222' ./data/ user@example.com:/data/project/</code></pre>
+
+          <h3>ミラーリングには --delete を使う</h3>
+          <p>普通の <code>rsync -av</code> は、コピー元から消えたファイルをコピー先から自動では消しません。コピー先をコピー元と同じ状態にそろえたい場合は、<code>--delete</code> を付けます。公式 manpage でも <code>--delete</code> は「コピー先ディレクトリの余分なファイルを削除する」オプションとして説明されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <p>コード例（言語名: shell）:</p>
+          <pre><code class="language-shell"># 必ず dry run で削除予定を確認する
+rsync -av --delete --dry-run source/ dest/
+
+# 問題なければ実行する
+rsync -av --delete source/ dest/</code></pre>
+
+          <p><code>--delete</code> は便利ですが、コピー元やコピー先を間違えると大きく消します。初回、外付けディスク、共有サーバー、本番データでは、必ず <code>--dry-run</code> と組み合わせて削除対象を確認します。</p>
+
+          <h3>よく使うオプション</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>オプション</th>
+                <th>意味</th>
+                <th>使いどころ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="オプション"><code>-a</code></td>
+                <td data-label="意味">archive mode。</td>
+                <td data-label="使いどころ">ディレクトリを普通に同期する基本。</td>
+              </tr>
+              <tr>
+                <td data-label="オプション"><code>-v</code></td>
+                <td data-label="意味">詳細表示。</td>
+                <td data-label="使いどころ">何が転送されたか見たい。</td>
+              </tr>
+              <tr>
+                <td data-label="オプション"><code>-n</code> / <code>--dry-run</code></td>
+                <td data-label="意味">変更せずに試算する。</td>
+                <td data-label="使いどころ">初回実行、<code>--delete</code> 使用時。</td>
+              </tr>
+              <tr>
+                <td data-label="オプション"><code>-h</code></td>
+                <td data-label="意味">サイズを読みやすく表示する。</td>
+                <td data-label="使いどころ">人間がログを見る。</td>
+              </tr>
+              <tr>
+                <td data-label="オプション"><code>--progress</code></td>
+                <td data-label="意味">転送中の進捗を表示する。</td>
+                <td data-label="使いどころ">大きなファイルのコピー。</td>
+              </tr>
+              <tr>
+                <td data-label="オプション"><code>--exclude='pattern'</code></td>
+                <td data-label="意味">指定パターンを除外する。</td>
+                <td data-label="使いどころ">cache、生成物、巨大ファイルを送らない。</td>
+              </tr>
+              <tr>
+                <td data-label="オプション"><code>-z</code></td>
+                <td data-label="意味">転送データを圧縮する。</td>
+                <td data-label="使いどころ">低速なネットワーク越しの転送。高速 LAN や圧縮済みファイルでは不要なこともある。</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>除外パターンを書く</h3>
+          <p><code>--exclude</code> は、転送したくないファイルやディレクトリを指定します。公式 manpage では、<code>--exclude=PATTERN</code> は filter rule の簡易形で、複数指定したい場合はオプションを繰り返すか、<code>--exclude-from=FILE</code> を使うと説明されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <p>コード例（言語名: shell）:</p>
+          <pre><code class="language-shell">rsync -av \
+  --exclude='.git/' \
+  --exclude='node_modules/' \
+  --exclude='outputs/' \
+  ./project/ /Volumes/Backup/project/</code></pre>
+
+          <p>除外ルールは後から見直しやすいように、バックアップ用スクリプトや設定ファイルにまとめると事故を減らせます。</p>
+
+          <h3>実務での安全な手順</h3>
+          <ol>
+            <li>コピー元とコピー先を絶対パスで書く。</li>
+            <li>コピー元末尾の <code>/</code> の意味を確認する。</li>
+            <li>まず <code>-n</code> または <code>--dry-run</code> を付けて実行する。</li>
+            <li>表示された転送、削除、除外の内容を読む。</li>
+            <li>問題がなければ <code>-n</code> だけ外して本実行する。</li>
+          </ol>
+
+          <p>最初に使う定型は、次で十分です。</p>
+
+          <p>コード例（言語名: shell）:</p>
+          <pre><code class="language-shell"># 中身を同期。削除はしない
+rsync -avh --dry-run source/ dest/
+rsync -avh source/ dest/
+
+# 完全なミラーにする。削除予定を必ず確認する
+rsync -avh --delete --dry-run source/ dest/
+rsync -avh --delete source/ dest/</code></pre>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://download.samba.org/pub/rsync/rsync.1">rsync(1) manpage</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
