@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>気象のf面近似はいつ使う？ | k-notes</title>
+    <meta name="description" content="f面近似を使える条件を、ロスビー数とコリオリパラメータの相対変化から判断し、β面・球面との使い分けを整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>気象のf面近似はいつ使う？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-07-23">2026-07-23</time></p>
+          <p>カテゴリ: meteorology</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>気象のf面近似はいつ使う？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><strong>対象領域が基準緯度の近くに限られ、コリオリパラメータ \(f\) の南北変化が、知りたい現象に影響しないとき</strong>にf面近似を使います。中緯度の局地的・領域的な現象について、地球の回転は残しつつ、緯度による回転効果の違いを省きたい場合に適しています。</p>
+
+          <p>反対に、ロスビー波、テレコネクション、熱帯低気圧のβドリフトなど、\(f\) の南北勾配そのものが現象を生む場合は、領域が比較的狭くてもf面ではなくβ面を使います。赤道付近では基準値 \(f_0\) がほぼゼロになるため、通常のf面ではなく赤道β面を使うのが基本です。</p>
+
+          <h3>f面近似で何を一定にするのか</h3>
+          <p>緯度を \(\varphi\)、地球の自転角速度を \(\Omega\) とすると、コリオリパラメータは</p>
+
+          <p>
+            \[
+              f = 2\Omega \sin\varphi
+            \]
+          </p>
+
+          <p>です。f面近似では、基準緯度 \(\varphi_0\) における値 \(f_0\) を領域全体で使います。</p>
+
+          <p>
+            \[
+              f \approx f_0 = 2\Omega \sin\varphi_0
+            \]
+          </p>
+
+          <p>つまり、球面上の一部を局所的な平面として扱い、その平面内では回転の強さを一定にする近似です。American Meteorological Society の気象学用語集も、f面を「局所的な平面で \(f\) を一定とする近似」と定義しています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup> MIT の大気・海洋流体力学講義では、長い時間スケールまたは大きな空間スケールで緯度依存性が重要になり、一定とみなせる場合にf面近似を使うと整理されています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>判断1: そもそも地球の回転は重要か</h3>
+          <p>代表風速を \(U\)、現象の水平スケールを \(L\) とすると、ロスビー数は</p>
+
+          <p>
+            \[
+              \mathrm{Ro} = \frac{U}{|f_0|L}
+            \]
+          </p>
+
+          <p>です。大まかには、\(\mathrm{Ro}\lesssim 1\) なら回転の影響を無視できず、\(f\) をどう扱うか考える意味があります。特に \(\mathrm{Ro}\ll 1\) では地衡風近似が有力になります。一方、\(\mathrm{Ro}\gg 1\) ならコリオリ力自体が相対的に小さく、f面かβ面かという選択は現象の第一近似では重要でないことがあります。MIT の講義でも、加速度項とコリオリ項の比としてロスビー数を導入し、回転が重要になる条件を示しています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>判断2: 領域内の \(f\) の変化を無視できるか</h3>
+          <p>基準緯度からの北向き距離を \(y\)、地球半径を \(a\) とすると、基準緯度の近くでは</p>
+
+          <p>
+            \[
+              f \approx f_0 + \beta y,
+              \qquad
+              \beta = \frac{2\Omega\cos\varphi_0}{a}
+            \]
+          </p>
+
+          <p>と一次近似できます。これがβ面近似です。f面を使えるかは、領域の中心から端までの最大南北距離を \(L_y\) として、次の相対変化で判断できます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <p>
+            \[
+              \varepsilon_f
+              = \frac{\beta L_y}{|f_0|}
+              = \frac{L_y}{a|\tan\varphi_0|}
+              \ll 1
+            \]
+          </p>
+
+          <p>\(\varepsilon_f\) は、領域の端で \(f\) が中心値からどれくらい変わるかの目安です。例えば北緯45度を中心とする南北幅1000 kmの領域では、\(L_y=500\ \mathrm{km}\) なので \(\varepsilon_f\approx 0.079\)、端での変化は約8%です。8%を許容できる理想化ならf面を使えますが、β効果を調べるなら小さく見えても捨てられません。許容誤差は目的次第であり、「何km以下なら必ずf面」という一律の境界はありません。</p>
+
+          <h3>f面が向いている例</h3>
+          <ul>
+            <li><strong>局所的な地衡風・傾度風の基本解析:</strong> 狭い領域で \(f\) の緯度変化より、圧力傾度力とコリオリ力の釣り合いを見たいとき。</li>
+            <li><strong>慣性振動や地衡風調節:</strong> 一つの基準緯度における回転応答を単純化して調べるとき。</li>
+            <li><strong>理想化した対流・渦・熱帯低気圧の数値実験:</strong> 一様な環境で、回転率だけを制御変数にしたいとき。NOAA GFDL の回転放射対流平衡実験も、緯度に依存しない一定の \(f\) を与えるf面設定を用いています。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></li>
+            <li><strong>局所的な境界層・エクマン応答:</strong> 一地点付近の鉛直構造に集中し、広域の南北変化を扱わないとき。</li>
+          </ul>
+
+          <h3>f面を使わない方がよい例</h3>
+          <ul>
+            <li><strong>ロスビー波・惑星波・テレコネクション:</strong> 復元機構や分散関係に \(\beta\) が入るため、f面では本質が消えます。NOAA GFDL の解説でも、ロスビー波に現れる \(\beta\) は惑星渦度の北向き勾配として説明されています。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></li>
+            <li><strong>熱帯低気圧のβドリフト:</strong> \(f\) の緯度勾配が移動に寄与します。f面の理想実験ではこの勾配がなく、GFDL の実験でもそのため極向きドリフトが表現されないと説明されています。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></li>
+            <li><strong>大きな南北スケールや長時間の発展:</strong> 領域内の \(f\) の差が大きい、または小さな差の効果が時間とともに蓄積するとき。</li>
+            <li><strong>赤道付近:</strong> \(f_0\approx 0\) なので、一定の \(f_0\) では赤道をまたぐ回転効果を表せません。通常は \(f\approx \beta y\) とする赤道β面を使います。</li>
+            <li><strong>全球・半球規模:</strong> 平面近似だけでなく球面幾何そのものが重要になるため、球面上の方程式を使います。</li>
+          </ul>
+
+          <h3>f面・β面・球面の使い分け</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>モデル</th>
+                <th>\(f\) の扱い</th>
+                <th>選ぶ場面</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="モデル">f面</td>
+                <td data-label="f の扱い">\(f=f_0\)</td>
+                <td data-label="選ぶ場面">局所的な領域で、β効果を無視または意図的に除外したい。</td>
+              </tr>
+              <tr>
+                <td data-label="モデル">β面</td>
+                <td data-label="f の扱い">\(f=f_0+\beta y\)</td>
+                <td data-label="選ぶ場面">局所平面は保ちつつ、惑星渦度の南北勾配を残したい。</td>
+              </tr>
+              <tr>
+                <td data-label="モデル">球面</td>
+                <td data-label="f の扱い">\(f=2\Omega\sin\varphi\)</td>
+                <td data-label="選ぶ場面">全球・半球規模、広い緯度帯、球面幾何が本質的。</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>地衡風近似とは別の仮定</h3>
+          <p>f面近似は「\(f\) を一定にする」という<strong>幾何・係数の近似</strong>です。地衡風近似は「水平圧力傾度力とコリオリ力がほぼ釣り合う」という<strong>力学的な近似</strong>です。したがって、f面上で非地衡風運動を解くことも、β面上で準地衡風運動を扱うこともできます。この二つを同じ仮定として扱わないことが重要です。</p>
+
+          <h3>最短の判断基準</h3>
+          <ol>
+            <li>\(\mathrm{Ro}\lesssim 1\) で、回転を残す必要があるか確認する。</li>
+            <li>\(\beta L_y/|f_0|\ll 1\) か確認する。</li>
+            <li>ロスビー波やβドリフトなど、目的の現象が \(\beta\) を必要としないか確認する。</li>
+          </ol>
+          <p>2と3の両方を満たせばf面、局所平面のまま \(\beta\) が必要ならβ面、緯度範囲や幾何が大きければ球面、という順で選ぶと整理しやすくなります。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://glossary.ametsoc.org/wiki/f-plane/">American Meteorological Society, Glossary of Meteorology: f-plane</a></li>
+            <li id="ref-2"><a href="https://ocw.mit.edu/courses/12-800-fluid-dynamics-of-the-atmosphere-and-ocean-fall-2004/63da77dcb61a8b0ece8f3d028f81bc53_lecture16.pdf">MIT OpenCourseWare: Lecture 16, Fluid Dynamics of the Atmosphere and Ocean</a></li>
+            <li id="ref-3"><a href="https://www.gfdl.noaa.gov/blog_held/43-rotating-radiative-convective-equilibrium/">NOAA Geophysical Fluid Dynamics Laboratory: Rotating radiative-convective equilibrium</a></li>
+            <li id="ref-4"><a href="https://www.gfdl.noaa.gov/blog_held/57-teleconnections-and-stationary-rossby-waves/">NOAA Geophysical Fluid Dynamics Laboratory: Teleconnections and stationary Rossby waves</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
