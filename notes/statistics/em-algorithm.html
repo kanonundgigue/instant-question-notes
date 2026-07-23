@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EMアルゴリズムとは？ | k-notes</title>
+    <meta name="description" content="EMアルゴリズムを、潜在変数、EステップとMステップ、観測データ尤度、混合ガウスモデルの例、収束時の注意点から整理する。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>EMアルゴリズムとは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-07-23">2026-07-23</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>EMアルゴリズムとは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>EMアルゴリズム（Expectation-Maximization algorithm、期待値最大化法）は、<strong>観測できない潜在変数や欠損データを含む確率モデルのパラメータを、最尤法で推定するための反復アルゴリズム</strong>です。直接最大化しにくい観測データの尤度を、潜在変数まで分かっていると仮定した「完全データ」の問題に置き換え、EステップとMステップを交互に実行します。Dempster、Laird、Rubinの1977年の論文が、EステップとMステップを一般形として定式化しました。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>何が難しいのか</h3>
+          <p>観測データを \(x\)、観測できない潜在変数を \(z\)、推定したいパラメータを \(\theta\) とします。\(z\) が離散変数なら、求めたいのは観測データ対数尤度</p>
+          <p>
+            \[
+              \begin{aligned}
+                \ell(\theta)
+                &amp;= \log p(x \mid \theta) \\
+                &amp;= \log \sum_z p(x, z \mid \theta)
+              \end{aligned}
+            \]
+          </p>
+          <p>を最大にする \(\theta\) です。連続な潜在変数の場合は、和の代わりに積分になります。潜在変数について足し合わせた値の対数、つまり「logの中に和がある」形は、微分してもパラメータを解析的に解けないことがあります。一方、\(z\) まで既知とした完全データ対数尤度 \(\log p(x, z \mid \theta)\) は、最大化しやすい形になることがあります。</p>
+
+          <h3>EステップとMステップ</h3>
+          <p>\(t\) 回目のパラメータを \(\theta^{(t)}\) とすると、EMは次の2段階を繰り返します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h4>1. Eステップ（Expectation）</h4>
+          <p>
+            \[
+              Q(\theta \mid \theta^{(t)})
+              =
+              \mathbb{E}_{z \mid x,\,\theta^{(t)} }
+              \left[
+                \log p(x, z \mid \theta)
+              \right]
+            \]
+          </p>
+          <p>現在のパラメータの下で、潜在変数が各状態を取る確率を求め、完全データ対数尤度の条件付き期待値 \(Q\) を作ります。</p>
+
+          <h4>2. Mステップ（Maximization）</h4>
+          <p>
+            \[
+              \theta^{(t+1)}
+              =
+              \operatorname*{arg\,max}_{\theta}
+              Q(\theta \mid \theta^{(t)})
+            \]
+          </p>
+          <p>Eステップで作った期待完全データ対数尤度を最大にするパラメータへ更新します。</p>
+
+          <p>名前から「期待値そのものを最大化する」と読めますが、正確には、<strong>Eステップで完全データ対数尤度の条件付き期待値を計算し、Mステップでその関数を最大化する</strong>手続きです。Eステップでパラメータを更新するわけでも、Mステップで潜在変数を1つの値に確定するわけでもありません。</p>
+
+          <h3>混合ガウスモデルで考える</h3>
+          <p>代表例は混合ガウスモデルです。複数の正規分布が混ざって観測値を生成したと考えますが、各観測 \(x_i\) がどの成分から来たかを示す \(z_i\) は観測されません。有限混合分布に対するEMの定式化と性質は、RednerとWalkerによって詳しく整理されています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <ol>
+            <li><strong>初期化:</strong> 各成分 \(k\) の混合比 \(\pi_k\)、平均 \(\mu_k\)、共分散 \(\Sigma_k\) に初期値を置く。</li>
+            <li><strong>Eステップ:</strong> 観測 \(i\) が成分 \(k\) に属する事後確率、責任度 \(r_{ik}\) を計算する。</li>
+            <li><strong>Mステップ:</strong> \(r_{ik}\) を重みとして、各成分の混合比、平均、共分散を再推定する。</li>
+            <li><strong>反復:</strong> 対数尤度の増加量やパラメータの変化が十分小さくなるまで繰り返す。</li>
+          </ol>
+
+          <p>Eステップの責任度は、正規密度を \(\mathcal{N}\) と書けば、</p>
+          <p>
+            \[
+              r_{ik}
+              =
+              \frac{
+                \pi_k
+                \mathcal{N}(x_i \mid \mu_k, \Sigma_k)
+              }{
+                \displaystyle
+                \sum_{j=1}^{K}
+                \pi_j
+                \mathcal{N}(x_i \mid \mu_j, \Sigma_j)
+              }
+            \]
+          </p>
+          <p>です。0か1かに即断するのではなく、例えば「成分1に0.8、成分2に0.2」のように<strong>所属の不確実性を確率のまま保持する</strong>のがポイントです。</p>
+
+          <p>\(N_k = \sum_{i=1}^{n} r_{ik}\) と置くと、Mステップは次の重み付き推定になります。</p>
+          <ul>
+            <li>混合比を \(\pi_k^{\mathrm{new} } = N_k / n\) で更新する。</li>
+            <li>平均を \(\mu_k^{\mathrm{new} } = N_k^{-1} \sum_{i=1}^{n} r_{ik} x_i\) で更新する。</li>
+            <li>共分散を次式で更新する。</li>
+          </ul>
+          <p>
+            \[
+              \begin{aligned}
+                \Sigma_k^{\mathrm{new} }
+                &amp;=
+                \frac{1}{N_k}
+                \sum_{i=1}^{n}
+                r_{ik} \\
+                &amp;\quad {}\times
+                (x_i - \mu_k^{\mathrm{new} })
+                (x_i - \mu_k^{\mathrm{new} })^{\mathsf{T} }
+              \end{aligned}
+            \]
+          </p>
+          <p>更新された分布を使うと所属確率が変わり、その所属確率で分布を更新すると、またパラメータが変わります。この相互依存を交互更新で解くのがEMです。</p>
+
+          <h3>なぜ反復するとうまくいくのか</h3>
+          <p>通常のEMでEステップとMステップを正確に実行すると、各反復で観測データの尤度は減少しません。Mステップで改善するのは \(Q\) 関数ですが、その更新が観測データ尤度の非減少も保証するように構成されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup> ただし「尤度が下がらない」ことと、「大域的な最大値に到達する」ことは別です。</p>
+
+          <h3>収束についての注意</h3>
+          <p>EMの尤度列は単調に増え、上に有界ならある値へ収束します。しかし、一般には大域的最適解への収束は保証されず、局所最大値だけでなく鞍点などの停留点へ至る可能性もあります。また、尤度の値が収束しても、追加条件なしにパラメータ列が1点へ収束するとは限りません。Wuはこの違いを整理し、初期値を複数変えて試すことを推奨しています。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <ul>
+            <li><strong>初期値依存:</strong> 複数の初期値から実行し、最終対数尤度や解の妥当性を比較する。</li>
+            <li><strong>停止条件:</strong> パラメータ変化だけでなく、観測データ対数尤度の変化も確認する。</li>
+            <li><strong>遅い収束:</strong> 解の近くでも更新が小さく、反復回数が多くなる場合がある。</li>
+            <li><strong>混合モデルの退化:</strong> ガウス成分の分散が極端に小さくなるなど、尤度が不健全に大きくなる解へ近づくことがあるため、共分散の正則化や制約が必要になる場合がある。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></li>
+            <li><strong>モデル仮定:</strong> EMは最適化手順であって、分布の選択や欠損発生メカニズムの仮定が正しいことまでは保証しない。</li>
+          </ul>
+
+          <h3>「欠損値を埋める方法」と考えてよいか</h3>
+          <p>半分は正しく、半分は誤解です。Eステップでは欠けた量に関する条件付き期待値を使いますが、一般には欠損値を1回だけ平均で埋め、その値を確定データとして扱う方法ではありません。潜在変数の<strong>条件付き分布に関する完全データ対数尤度の期待値</strong>を反復ごとに更新し、その不確実性をパラメータ推定へ反映します。最終目的は、原則として欠損値そのものの確定ではなく、観測データの尤度に基づくパラメータ推定です。</p>
+
+          <h3>要点</h3>
+          <p>EMアルゴリズムは、<strong>潜在変数を現在のモデルで確率的に推定するEステップ</strong>と、<strong>その推定を重みとしてモデルを更新するMステップ</strong>を交互に行う最尤推定法です。混合分布、欠損データ、因子分析など、完全データなら扱いやすいモデルで力を発揮します。一方で、初期値依存、局所解、収束速度、モデル仮定は別途確認する必要があります。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://doi.org/10.1111/j.2517-6161.1977.tb01600.x">A. P. Dempster, N. M. Laird, D. B. Rubin (1977), Maximum Likelihood from Incomplete Data Via the EM Algorithm</a></li>
+            <li id="ref-2"><a href="https://doi.org/10.1137/1026034">R. A. Redner, H. F. Walker (1984), Mixture Densities, Maximum Likelihood and the EM Algorithm</a></li>
+            <li id="ref-3"><a href="https://doi.org/10.1214/aos/1176346060">C. F. Jeff Wu (1983), On the Convergence Properties of the EM Algorithm</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
