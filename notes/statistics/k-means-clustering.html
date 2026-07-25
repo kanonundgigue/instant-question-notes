@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>k-means法とは？ | k-notes</title>
-    <meta name="description" content="k-means法の目的関数、反復手順、初期値依存、苦手なデータ、前処理、クラスタ数の決め方を整理する。">
+    <meta name="description" content="k-means法を、分析の全体像、距離と目的関数、Pythonコードの実行順、実務上の判断に分けて整理する。">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
@@ -27,6 +27,7 @@
         <h1>k-means法とは？</h1>
         <div class="article-meta">
           <p>作成日: <time datetime="2026-07-25">2026-07-25</time></p>
+          <p>更新日: <time datetime="2026-07-25">2026-07-25</time></p>
           <p>カテゴリ: statistics</p>
         </div>
 
@@ -38,9 +39,45 @@
         <section aria-labelledby="answer-heading">
           <h2 id="answer-heading">回答</h2>
           <p>k-means法（k平均法）は、正解ラベルのないデータを、特徴の近い \(k\) 個のクラスタへ分ける代表的な<strong>教師なし学習</strong>の手法です。各クラスタを所属点の平均である重心によって表し、「最も近い重心への割り当て」と「重心の再計算」を交互に繰り返します。MacQueenが1967年に発表した論文で、k-meansという名称と逐次的な更新法が示されました。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+        </section>
 
-          <h3>何を最小にしているのか</h3>
-          <p>\(n\) 個のデータ点を \(x_1,\ldots,x_n\)、データ点 \(x_i\) が属するクラスタを \(c_i\)、クラスタ \(j\) の重心を \(\mu_j\) とします。k-means法は、次の<strong>クラスタ内平方和</strong>を小さくする分割を探します。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+        <section aria-labelledby="overview-heading">
+          <h2 id="overview-heading">まず全体像をつかむ</h2>
+          <p>実際の分析は、次の順序で進みます。最初は「近い点をまとめ、各集団を平均点で代表させる処理」と捉えれば十分です。</p>
+          <ol>
+            <li><strong>データを用意する:</strong> 1行を1個のデータ点、1列を1個の特徴量として並べる。</li>
+            <li><strong>尺度をそろえる:</strong> 必要に応じて各列を標準化し、特定の列だけが距離を支配するのを防ぐ。</li>
+            <li><strong>条件を決める:</strong> クラスタ数 \(k\)、初期化方法、試行回数などを指定する。</li>
+            <li><strong>割り当てと更新を繰り返す:</strong> 各点を最寄りの重心へ割り当て、所属点の平均へ重心を移動する。</li>
+            <li><strong>結果を確認する:</strong> 各点のクラスタ番号、重心、目的関数、反復回数を調べる。</li>
+          </ol>
+
+          <h3>4点だけの例</h3>
+          <p>2次元の点 \((1,1)\)、\((1,2)\)、\((8,8)\)、\((9,8)\) を \(k=2\) で分けるとします。適切な初期値から始めれば、前半2点と後半2点に分かれ、重心はそれぞれ \((1,1.5)\) と \((8.5,8)\) になります。これが「近い点同士をまとめ、集団を平均点で代表させる」という全体像です。</p>
+        </section>
+
+        <section aria-labelledby="mechanism-heading">
+          <h2 id="mechanism-heading">仕組みを詳しく見る</h2>
+
+          <h3>1. 近さはユークリッド距離で測る</h3>
+          <p>ユークリッド距離は、座標空間における2点間の<strong>直線距離</strong>です。\(p\) 個の特徴量を持つ2点を \(x=(x_1,\ldots,x_p)\)、\(y=(y_1,\ldots,y_p)\) とすると、ユークリッド距離 \(d_{\mathrm{E} }\) は次のように定義されます。</p>
+          <p>
+            \[
+              d_{\mathrm{E} }(x,y)
+              =
+              \left\lVert x-y \right\rVert_2
+              =
+              \sqrt{
+                \sum_{r=1}^{p}
+                (x_r-y_r)^2
+              }
+            \]
+          </p>
+          <p>各特徴量について「2点の差を二乗する、すべて足す、平方根を取る」という計算です。例えば \(x=(1,2)\)、\(y=(4,6)\) なら、距離は \(\sqrt{(1-4)^2+(2-6)^2}=5\) です。</p>
+          <p>各座標の差をそのまま使うため、単位や数値幅が異なる特徴量を混ぜると、数値幅の大きい特徴量が距離を支配します。この問題への対処が、後述する標準化です。距離尺度そのものの違いは、関連記事「<a href="vector-distance-measures.html">代表的なベクトル間距離は何を意味する？</a>」でも整理しています。</p>
+
+          <h3>2. 目的関数 \(J\) を小さくする</h3>
+          <p>\(n\) 個のデータ点を \(x_1,\ldots,x_n\)、データ点 \(x_i\) が属するクラスタを \(c_i\)、クラスタ \(j\) の重心を \(\mu_j\) とします。k-means法では、最小化したい<strong>目的関数を \(J\)</strong> と書きます。\(J\) は、各点と所属クラスタの重心との二乗距離を合計した<strong>クラスタ内平方和</strong>です。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
           <p>
             \[
               J
@@ -51,22 +88,23 @@
               \right\rVert_2^2
             \]
           </p>
-          <p>各データ点から所属クラスタの重心までのユークリッド距離を二乗し、すべて足した量です。したがってk-means法でいう「似ている」は、基本的に<strong>特徴量空間でユークリッド距離が近い</strong>ことを意味します。目的関数の値はinertiaとも呼ばれ、小さいほどクラスタ内の点が重心の近くにまとまっています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>k-means法は、この \(J\) を小さくする分割を探します。scikit-learnでは目的関数の値をinertiaと呼びます。小さいほど、各クラスタ内の点が重心の近くにまとまっています。ユークリッド距離の二乗を使うため、大きなずれや外れ値の影響は強くなります。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
 
-          <h3>計算の流れ</h3>
+          <h3>3. 割り当てと重心更新を交互に行う</h3>
           <ol>
-            <li><strong>クラスタ数を決める:</strong> 分けたい数 \(k\) を指定する。</li>
-            <li><strong>初期化する:</strong> \(k\) 個の初期重心を置く。</li>
-            <li><strong>割り当てる:</strong> 各データ点を、ユークリッド距離が最も小さい重心のクラスタへ割り当てる。</li>
-            <li><strong>更新する:</strong> 各クラスタに割り当てられた点の平均を取り、新しい重心にする。</li>
-            <li><strong>反復する:</strong> 割り当てや重心がほとんど変わらなくなるまで、手順3と4を繰り返す。</li>
+            <li>\(k\) 個の初期重心を置く。</li>
+            <li>各データ点を、最も近い重心のクラスタへ割り当てる。</li>
+            <li>各クラスタの所属点の平均を計算し、新しい重心にする。</li>
+            <li>割り当てや重心がほとんど変わらなくなるまで、手順2と3を繰り返す。</li>
           </ol>
-          <p>割り当てを固定すれば平均が平方和を最小にし、重心を固定すれば最も近い重心への割り当てが平方和を最小にします。そのため、2つの操作を交互に行うたびに目的関数は増加しません。ただし、到達する解は初期重心に依存し、大域的な最小値ではなく局所的な最小値になることがあります。公式文書でも、異なる初期値による複数回の実行やk-means++による初期化が案内されています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>各データ点がどのクラスタに属するかを固定した場合、各クラスタの重心を所属点の平均に置くと平方和が最小になります。反対に、重心位置を固定した場合、各点を最も近い重心へ割り当てると平方和が最小になります。したがって、2つの操作を交互に繰り返すと、目的関数の値は同じか小さくなり、増えることはありません。</p>
+          <p>ただし、到達する解は初期重心に依存し、大域的な最小値ではなく局所的な最小値になることがあります。そのため、k-means++で初期化し、異なる初期値から複数回実行して結果を比較します。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+        </section>
 
-          <h3>簡単な例</h3>
-          <p>2次元の点 \((1,1)\)、\((1,2)\)、\((8,8)\)、\((9,8)\) を \(k=2\) で分けるとします。適切な初期値から始めれば、前半2点と後半2点に分かれ、重心はそれぞれ \((1,1.5)\) と \((8.5,8)\) になります。近い点同士をまとめ、その集団を平均点で代表させる、という直感に対応します。</p>
+        <section aria-labelledby="python-heading">
+          <h2 id="python-heading">Python例を実行順に読む</h2>
 
-          <h3>Pythonでの最小例</h3>
+          <h3>コード全体</h3>
           <pre><code class="language-python">from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
@@ -77,18 +115,163 @@ data = [
     [9.0, 8.0],
 ]
 
-scaled = StandardScaler().fit_transform(data)
+scaler = StandardScaler()
+scaled = scaler.fit_transform(data)
+
 model = KMeans(n_clusters=2, n_init=10, random_state=42)
 labels = model.fit_predict(scaled)
 
 print(labels)
-print(model.cluster_centers_)</code></pre>
-          <p><code>labels</code> の0や1はクラスタの識別番号にすぎず、大小や優劣の意味はありません。実行や初期値が変わると、同じ分割でも番号が入れ替わることがあります。<code>random_state</code> は結果を再現しやすくし、<code>n_init=10</code> は異なる初期値から10回試して、目的関数が最も小さい結果を選びます。</p>
+print(model.cluster_centers_)
+print(model.inertia_)
+print(model.n_iter_)</code></pre>
 
-          <h3>前処理が重要な理由</h3>
-          <p>k-means法は距離に基づくため、特徴量の単位と尺度が結果へ直接影響します。例えば「年齢」と「年収」を生の数値のまま使うと、数値の桁が大きい年収が距離を支配しやすくなります。平均を0、分散を1にそろえる標準化は代表的な対処ですが、外れ値に敏感であり、常に自動的に適切になるわけではありません。変数の意味に応じて、標準化、変換、外れ値処理、特徴量選択を検討します。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <h3>1. 入力データを行と列で読む</h3>
+          <p><code>data</code> は4行2列です。4行は4個のデータ点、2列は各点を表す2個の特徴量です。k-means法は、この2列を座標軸とする空間で点同士の距離を測ります。</p>
 
-          <h3>得意な場合と苦手な場合</h3>
+          <h3>2. <code>StandardScaler</code> で列の尺度をそろえる</h3>
+          <p><code>fit_transform(data)</code> は、各列を独立に処理します。まず <code>fit</code> が平均、分散、標準偏差を計算して記憶し、次に <code>transform</code> が各値から同じ列の平均を引き、標準偏差で割ります。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <p>各行を \(i\)、各列を \(r\)、列 \(r\) の平均を \(\bar{x}_r\)、標準偏差を \(s_r\) とすると、元の値 \(x_{ir}\) は次の標準得点 \(z_{ir}\) に変換されます。</p>
+          <p>
+            \[
+              z_{ir}
+              =
+              \frac{x_{ir}-\bar{x}_r}{s_r}
+            \]
+          </p>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>統計量</th>
+                <th>第1列</th>
+                <th>第2列</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="統計量">平均 <code>mean_</code></td>
+                <td data-label="第1列">4.75</td>
+                <td data-label="第2列">4.75</td>
+              </tr>
+              <tr>
+                <td data-label="統計量">分散 <code>var_</code></td>
+                <td data-label="第1列">14.1875</td>
+                <td data-label="第2列">10.6875</td>
+              </tr>
+              <tr>
+                <td data-label="統計量">標準偏差 <code>scale_</code></td>
+                <td data-label="第1列">約3.7666</td>
+                <td data-label="第2列">約3.2692</td>
+              </tr>
+            </tbody>
+          </table>
+          <p><code>StandardScaler</code> の分散は <code>numpy.std(..., ddof=0)</code> 相当で計算されます。例えば先頭行 \([1.0,1.0]\) は、第1列が \((1.0-4.75)/3.7666\)、第2列が \((1.0-4.75)/3.2692\) なので、約 \([-0.9956,-1.1471]\) になります。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <pre><code class="language-text">[
+    [-0.9956, -1.1471],
+    [-0.9956, -0.8412],
+    [ 0.8628,  0.9941],
+    [ 1.1283,  0.9941],
+]</code></pre>
+          <p>変換後は各列の平均が0、分散が1になります。新しいデータにも同じ基準を使う場合は <code>scaler.transform(new_data)</code> とします。新しいデータに再び <code>fit_transform</code> を使うと、平均と標準偏差が再計算され、異なる座標系になるため注意が必要です。</p>
+
+          <h3>3. <code>KMeans</code> の計算条件を設定する</h3>
+          <p><code>model = KMeans(...)</code> は、クラスタリングをまだ実行せず、計算条件を持つオブジェクトを作ります。Notebook上で <code>model</code> の内容を表示すると現れる「Parameters」は、学習結果ではなくこの計算条件です。</p>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>パラメータ</th>
+                <th>表示値</th>
+                <th>意味</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="パラメータ"><code>n_clusters</code></td>
+                <td data-label="表示値"><code>2</code></td>
+                <td data-label="意味">作るクラスタと重心の数。</td>
+              </tr>
+              <tr>
+                <td data-label="パラメータ"><code>n_init</code></td>
+                <td data-label="表示値"><code>10</code></td>
+                <td data-label="意味">異なる初期重心から10回実行し、inertiaが最小の結果を採用する。</td>
+              </tr>
+              <tr>
+                <td data-label="パラメータ"><code>random_state</code></td>
+                <td data-label="表示値"><code>42</code></td>
+                <td data-label="意味">乱数を固定し、結果を再現しやすくする。</td>
+              </tr>
+              <tr>
+                <td data-label="パラメータ"><code>init</code></td>
+                <td data-label="表示値"><code>'k-means++'</code></td>
+                <td data-label="意味">初期重心が互いに離れやすくなるように選ぶ。</td>
+              </tr>
+              <tr>
+                <td data-label="パラメータ"><code>max_iter</code></td>
+                <td data-label="表示値"><code>300</code></td>
+                <td data-label="意味">1回の実行で許す最大反復回数。</td>
+              </tr>
+              <tr>
+                <td data-label="パラメータ"><code>tol</code></td>
+                <td data-label="表示値"><code>0.0001</code></td>
+                <td data-label="意味">重心の変化が十分小さいと判定する収束許容値。</td>
+              </tr>
+              <tr>
+                <td data-label="パラメータ"><code>verbose</code></td>
+                <td data-label="表示値"><code>0</code></td>
+                <td data-label="意味">計算途中の詳しいログを表示しない。</td>
+              </tr>
+              <tr>
+                <td data-label="パラメータ"><code>copy_x</code></td>
+                <td data-label="表示値"><code>True</code></td>
+                <td data-label="意味">入力データを変更せず、コピーを使う。</td>
+              </tr>
+              <tr>
+                <td data-label="パラメータ"><code>algorithm</code></td>
+                <td data-label="表示値"><code>'lloyd'</code></td>
+                <td data-label="意味">標準的なLloyd法を使う。</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>各パラメータの定義と既定値は、scikit-learnの <code>KMeans</code> APIに定められています。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup> 設定だけを辞書で確認する場合は <code>model.get_params()</code> を使います。</p>
+
+          <h3>4. <code>fit_predict</code> で学習し、結果を読む</h3>
+          <p><code>model.fit_predict(scaled)</code> は、標準化済みデータで重心を学習し、各点のクラスタ番号を返します。学習後の結果は、末尾にアンダースコアが付く属性で確認します。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>学習後の属性</th>
+                <th>意味</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="学習後の属性"><code>model.labels_</code></td>
+                <td data-label="意味">各点のクラスタ番号。変数 <code>labels</code> と同じ内容。</td>
+              </tr>
+              <tr>
+                <td data-label="学習後の属性"><code>model.cluster_centers_</code></td>
+                <td data-label="意味">標準化後の特徴量空間における各クラスタの重心。</td>
+              </tr>
+              <tr>
+                <td data-label="学習後の属性"><code>model.inertia_</code></td>
+                <td data-label="意味">二乗距離の合計。目的関数 \(J\) に対応する。</td>
+              </tr>
+              <tr>
+                <td data-label="学習後の属性"><code>model.n_iter_</code></td>
+                <td data-label="意味">採用された実行が収束までに行った反復回数。</td>
+              </tr>
+            </tbody>
+          </table>
+          <p><code>labels</code> の0や1は識別番号にすぎず、大小や優劣の意味はありません。同じ分割でも、初期値によって番号が入れ替わることがあります。つまり、<strong><code>model</code> のParametersは「どの条件で計算したか」</strong>、<strong>末尾が <code>_</code> の属性は「計算して何が得られたか」</strong>を表します。</p>
+        </section>
+
+        <section aria-labelledby="practice-heading">
+          <h2 id="practice-heading">使うときに判断すること</h2>
+
+          <h3>標準化と外れ値を確認する</h3>
+          <p>k-means法は距離に基づくため、特徴量の単位と尺度が結果へ直接影響します。例えば年齢と年収を生の値で使うと、数値の桁が大きい年収が距離を支配しやすくなります。標準化は代表的な対処ですが、<code>StandardScaler</code> 自体も外れ値に敏感です。変数の意味に応じて、標準化、変換、外れ値処理、特徴量選択を検討します。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+
+          <h3>データの形がk-means向きか確認する</h3>
           <table class="mobile-table">
             <thead>
               <tr>
@@ -101,42 +284,44 @@ print(model.cluster_centers_)</code></pre>
               <tr>
                 <td data-label="比較">得意</td>
                 <td data-label="データの特徴">丸くまとまり、広がりが近いクラスタ</td>
-                <td data-label="理由">重心からの二乗ユークリッド距離で表しやすい</td>
+                <td data-label="理由">重心からの二乗距離で表しやすい。</td>
               </tr>
               <tr>
                 <td data-label="比較">苦手</td>
                 <td data-label="データの特徴">細長い、曲がった、入れ子状のクラスタ</td>
-                <td data-label="理由">重心からの距離だけでは形を捉えにくい</td>
+                <td data-label="理由">重心からの距離だけでは形を捉えにくい。</td>
               </tr>
               <tr>
                 <td data-label="比較">苦手</td>
                 <td data-label="データの特徴">密度、分散、点数が大きく異なるクラスタ</td>
-                <td data-label="理由">平方和を下げる分割と、期待する集団が一致しないことがある</td>
+                <td data-label="理由">平方和を下げる分割と期待する集団が一致しにくい。</td>
               </tr>
               <tr>
                 <td data-label="比較">苦手</td>
                 <td data-label="データの特徴">外れ値を含むデータ</td>
-                <td data-label="理由">平均と二乗距離が外れ値に引かれる</td>
+                <td data-label="理由">平均と二乗距離が外れ値に引かれる。</td>
               </tr>
             </tbody>
           </table>
-          <p>公式の比較例でも、異方的な分布、分散が異なる集団、サイズが不均衡な集団では、直感に反する分割が起こり得ることが示されています。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup> ノイズを含む任意形状の集団ならDBSCAN、階層構造を見たいなら階層的クラスタリング、楕円形の分布や所属確率を扱いたいなら混合ガウスモデルなど、目的に応じて別手法も検討します。</p>
+          <p>公式の比較例でも、異方的な分布、分散が異なる集団、サイズが不均衡な集団では、直感に反する分割が起こり得ることが示されています。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup> 任意形状の集団ならDBSCAN、階層構造なら階層的クラスタリング、楕円形の分布や所属確率なら混合ガウスモデルなども候補になります。</p>
 
-          <h3>クラスタ数 \(k\) はどう決めるか</h3>
-          <p>唯一の正解が自動的に決まるとは限りません。よく使われる判断材料は次のとおりです。</p>
+          <h3>クラスタ数 \(k\) を比較する</h3>
+          <p>唯一の正解が自動的に決まるとは限りません。次の判断材料を組み合わせます。</p>
           <ul>
             <li><strong>業務・科学的な意味:</strong> 分けたクラスタを説明し、利用できる数か。</li>
             <li><strong>エルボー法:</strong> \(k\) を増やしたとき、クラスタ内平方和の改善が急に緩やかになる折れ曲がりを見る。</li>
-            <li><strong>シルエット係数:</strong> 同じクラスタ内での近さと、最も近い別クラスタからの離れ具合を比較する。値は \(-1\) から \(1\) の範囲で、高いほど分離が明瞭であることを示す。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></li>
+            <li><strong>シルエット係数:</strong> クラスタ内での近さと、最も近い別クラスタからの離れ具合を比較する。値は \(-1\) から \(1\) の範囲で、高いほど分離が明瞭であることを示す。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></li>
             <li><strong>安定性:</strong> 初期値や標本を変えても似た分割になるかを確認する。</li>
           </ul>
-          <p>inertiaは \(k\) を増やせば原則として小さくなり、\(k=n\) なら0にできます。そのため、inertiaが最小になる \(k\) をそのまま選ぶことはできません。指標だけでなく、分析目的とクラスタの解釈可能性を合わせて判断します。</p>
+          <p>inertiaは \(k\) を増やせば原則として小さくなり、\(k=n\) なら0にできます。そのため、inertiaが最小になる \(k\) をそのまま選ぶのではなく、分析目的と解釈可能性も合わせて判断します。</p>
 
-          <h3>分類との違い</h3>
-          <p>教師ありの分類は、既知の正解ラベルを学習して新しいデータのラベルを予測します。k-means法は正解ラベルを使わず、入力データ内の距離構造からグループを作ります。したがって、得られたクラスタが現実の既知カテゴリと一致する保証はなく、クラスタへ意味のある名前を付ける作業は分析者側に残ります。</p>
+          <h3>教師ありの分類と混同しない</h3>
+          <p>教師ありの分類は、既知の正解ラベルを学習して新しいデータのラベルを予測します。k-means法は正解ラベルを使わず、入力データ内の距離構造からグループを作ります。得られたクラスタが現実の既知カテゴリと一致する保証はなく、クラスタへ意味のある名前を付ける作業は分析者側に残ります。</p>
+        </section>
 
-          <h3>まとめ</h3>
-          <p>k-means法は、データを \(k\) 個に分け、各点と所属クラスタの重心との二乗ユークリッド距離の合計を小さくする手法です。高速で理解しやすい一方、\(k\) の指定、初期値依存、尺度、外れ値、クラスタ形状に注意が必要です。実際に使うときは、<strong>特徴量の尺度を確認し、複数の初期値を試し、複数の \(k\) とクラスタの解釈を比較する</strong>ところまでを一連の分析として扱います。</p>
+        <section aria-labelledby="summary-heading">
+          <h2 id="summary-heading">まとめ</h2>
+          <p>k-means法は、<strong>尺度を確認したデータを用意し、\(k\) と初期条件を決め、最寄りの重心への割り当てと重心更新を繰り返し、目的関数 \(J\) を小さくする</strong>手法です。Pythonコードも、<code>data</code>、<code>StandardScaler</code>、<code>KMeans</code>、<code>fit_predict</code>、学習後の属性という順で読むと、全体の流れと細部を分けて理解できます。</p>
         </section>
 
         <section class="references" aria-labelledby="references-heading">
@@ -145,8 +330,9 @@ print(model.cluster_centers_)</code></pre>
             <li id="ref-1"><a href="https://digicoll.lib.berkeley.edu/record/113015?v=pdf">J. MacQueen (1967), Some Methods for Classification and Analysis of Multivariate Observations</a></li>
             <li id="ref-2"><a href="https://scikit-learn.org/stable/modules/clustering.html#k-means">scikit-learn User Guide: K-means</a></li>
             <li id="ref-3"><a href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html">scikit-learn API Reference: StandardScaler</a></li>
-            <li id="ref-4"><a href="https://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_assumptions.html">scikit-learn: Demonstration of k-means assumptions</a></li>
-            <li id="ref-5"><a href="https://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html">scikit-learn: Selecting the number of clusters with silhouette analysis</a></li>
+            <li id="ref-4"><a href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html">scikit-learn API Reference: KMeans</a></li>
+            <li id="ref-5"><a href="https://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_assumptions.html">scikit-learn: Demonstration of k-means assumptions</a></li>
+            <li id="ref-6"><a href="https://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html">scikit-learn: Selecting the number of clusters with silhouette analysis</a></li>
           </ol>
         </section>
       </article>
