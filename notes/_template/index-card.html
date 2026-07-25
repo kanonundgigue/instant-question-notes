@@ -1,0 +1,12 @@
+<!--
+  index.html の「最近追加・更新した記事」とカテゴリ別セクションへ同じカードを入れる。
+  更新日がない新規記事では、更新日の p を削除する。
+  href は index.html から見た相対パスにする。
+-->
+<article class="note-card">
+  <p class="note-card__category">{{表示用カテゴリ名}}</p>
+  <h3><a href="notes/{{category}}/{{slug}}.html">{{記事タイトル}}</a></h3>
+  <p class="note-card__summary">{{記事の短い説明}}</p>
+  <p class="note-card__date">作成日: <time datetime="{{YYYY-MM-DD}}">{{YYYY-MM-DD}}</time></p>
+  <p class="note-card__date note-card__date--updated">更新日: <time datetime="{{YYYY-MM-DD}}">{{YYYY-MM-DD}}</time></p>
+</article>

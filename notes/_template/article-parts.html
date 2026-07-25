@@ -1,0 +1,50 @@
+<!--
+  article.html の「回答」section 内へ、必要な部品だけコピーする。
+  コピー後は見出し ID、data-label、引用番号を記事内容に合わせる。
+-->
+
+<!-- 手順 -->
+<h3>{{手順の見出し}}</h3>
+<ol>
+  <li>{{手順1}}</li>
+  <li>{{手順2}}</li>
+  <li>{{手順3}}</li>
+</ol>
+
+<!-- 注意点 -->
+<h3>{{注意点の見出し}}</h3>
+<ul>
+  <li><strong>{{短いラベル}}:</strong> {{注意点の説明}}</li>
+  <li><strong>{{短いラベル}}:</strong> {{注意点の説明}}</li>
+</ul>
+
+<!-- コード例: language は python / shell / fortran のいずれかにする -->
+<p>コード例（言語名: {{python|shell|fortran}}）:</p>
+<pre><code class="language-{{python|shell|fortran}}">{{コード例}}</code></pre>
+
+<!--
+  2〜3列のモバイル対応表。
+  各 td の data-label は同じ列の th と一致させる。
+-->
+<table class="mobile-table">
+  <thead>
+    <tr>
+      <th>{{見出し1}}</th>
+      <th>{{見出し2}}</th>
+      <th>{{見出し3}}</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td data-label="{{見出し1}}">{{内容1}}</td>
+      <td data-label="{{見出し2}}">{{内容2}}</td>
+      <td data-label="{{見出し3}}">{{内容3}}</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 本文中の引用。同じ資料には同じ番号を再利用する -->
+<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup>
+
+<!-- 参照一覧の項目 -->
+<li id="ref-1"><a href="{{一次情報のURL}}">{{一次情報のタイトル}}</a></li>

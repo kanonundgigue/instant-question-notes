@@ -29,16 +29,26 @@
 
         <section aria-labelledby="answer-heading">
           <h2 id="answer-heading">回答</h2>
-          <p>{{調査に基づく回答を書く}}<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>{{最初の段落だけで結論が分かる回答を書く}}<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
 
-          <p>コード例（言語名: {{言語名}}）:</p>
-          <pre><code class="language-{{python|shell|fortran}}">{{コード例}}</code></pre>
+          <h3>要点</h3>
+          <ul>
+            <li>{{最重要の要点}}</li>
+            <li>{{判断や実行に必要な要点}}</li>
+            <li>{{注意点または例外}}</li>
+          </ul>
+
+          <h3>{{詳しく説明する項目}}</h3>
+          <p>{{根拠、手順、比較などを書く}}</p>
+
+          <h3>まとめ</h3>
+          <p>{{結論と、読者が次に取る行動を短くまとめる}}</p>
         </section>
 
         <section class="references" aria-labelledby="references-heading">
           <h2 id="references-heading">参照</h2>
           <ol>
-            <li id="ref-1"><a href="https://example.com/">一次情報のタイトル</a></li>
+            <li id="ref-1"><a href="{{一次情報のURL}}">{{一次情報のタイトル}}</a></li>
           </ol>
         </section>
       </article>

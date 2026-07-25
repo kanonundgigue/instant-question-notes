@@ -1,0 +1,22 @@
+<!-- 新カテゴリを作る場合だけ使う。既存カテゴリでは不要。 -->
+
+<!-- index.html のカテゴリ一覧へ追加する項目 -->
+<li>
+  <a class="category-card__title" href="#{{category}}">{{カテゴリ表示名}}</a>
+  <span class="category-card__meta">{{記事数}} 件の記事</span>
+</li>
+
+<!-- index.html のカテゴリ別セクション -->
+<section class="topic-section" id="{{category}}" aria-labelledby="{{category}}-heading">
+  <div class="section__header section__header--split">
+    <div>
+      <p class="site-kicker">{{category}}</p>
+      <h2 id="{{category}}-heading">{{カテゴリ表示名}}</h2>
+    </div>
+    <p>{{カテゴリの短い説明}}</p>
+  </div>
+
+  <div class="note-grid">
+    <!-- index-card.html のカードを日付降順で入れる -->
+  </div>
+</section>

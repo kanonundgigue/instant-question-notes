@@ -20,6 +20,10 @@ instant-question-notes/
 ├── notes/
 │   ├── _template/
 │   │   ├── article.html
+│   │   ├── article-parts.html
+│   │   ├── index-card.html
+│   │   ├── category-blocks.html
+│   │   ├── README.md
 │   │   └── article-protected.html
 │   ├── private/
 │   │   └── index.html
@@ -90,6 +94,8 @@ instant-question-notes/
 既存の `notes/<category>/index.html` は過去の URL 互換のため残します。ただし、新しい記事追加時にカテゴリページを追加または更新することは必須ではありません。
 
 ## 記事本文と引用
+
+新規記事は `notes/_template/article.html` を骨格にし、必要な構造だけ `notes/_template/article-parts.html` から追加します。トップページ用のカードは `notes/_template/index-card.html`、新カテゴリの導線とセクションは `notes/_template/category-blocks.html` を使います。詳しいコピー手順と置換漏れの確認方法は `notes/_template/README.md` を参照します。
 
 記事には次の要素を入れます。
 
