@@ -166,7 +166,14 @@ print(precipitation.shape)</code></pre>
           </figure>
           <details class="code-details">
             <summary>図1の描画コードを見る</summary>
-            <pre><code>def plot_input_cycles(
+            <pre><code>from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+
+def plot_input_cycles(
     temperature: pd.DataFrame,
     precipitation: pd.DataFrame,
     output_path: Path,
@@ -201,6 +208,9 @@ print(precipitation.shape)</code></pre>
 
           <h3>5. 24個の特徴量へ変換して標準化する</h3>
           <p>各地点を、気温12か月と <code>log1p</code> 変換した降水量12か月の計24変数へ変えます。さらに各列を平均0・分散1へ標準化します。図2では赤が10地点平均より大きい値、青が小さい値です。左半分の気温列には、通年正側の地点と冬に負側へ下がる地点という大きなパターンが見えます。</p>
+          <h4><code>log1p</code> 変換とは？</h4>
+          <p><code>np.log1p(x)</code> は、値 <code>x</code> に1を足してから自然対数を取る関数で、<code>np.log(1 + x)</code> と同じ計算を小さい値でも精度よく行います。<sup class="citation"><a href="#ref-9" aria-label="参照 9">[9]</a></sup> 降水量が0の月は変換後も0になるため、0を含む降水量にもそのまま使えます。</p>
+          <p>たとえば、0、9、99 mmはおよそ0、2.30、4.61へ変わります。元の値は10倍ずつ増えていますが、変換後の差はほぼ同じです。このように大きな降水量の差を圧縮し、少数の多雨地点・多雨月が距離計算を支配しにくくします。変換後の値はmmではないため、図や結果の解釈では元の降水量を使います。</p>
           <pre><code>import numpy as np
 from sklearn.preprocessing import StandardScaler
 
@@ -220,7 +230,14 @@ scaled = StandardScaler().fit_transform(features)</code></pre>
           </figure>
           <details class="code-details">
             <summary>図2の描画コードを見る</summary>
-            <pre><code>def plot_standardized_heatmap(
+            <pre><code>from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+
+def plot_standardized_heatmap(
     features: pd.DataFrame,
     scaled: np.ndarray,
     output_path: Path,
@@ -261,7 +278,15 @@ print("累積寄与率:", pca.explained_variance_ratio_.sum())</code></pre>
           </figure>
           <details class="code-details">
             <summary>図3の描画コードを見る</summary>
-            <pre><code>def plot_pca_before_clustering(
+            <pre><code>from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from sklearn.decomposition import PCA
+
+
+def plot_pca_before_clustering(
     features: pd.DataFrame,
     scaled: np.ndarray,
     output_path: Path,
@@ -334,10 +359,18 @@ print("シルエット係数:", silhouette_score(scores, labels))</code></pre>
           </figure>
           <details class="code-details">
             <summary>図4の描画コードを見る</summary>
-            <pre><code>def plot_cluster_result(
+            <pre><code>from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+
+# ClusterResultは完全版スクリプト前半で定義する独自クラス
+def plot_cluster_result(
     temperature: pd.DataFrame,
     precipitation: pd.DataFrame,
-    result: ClusterResult,
+    result: "ClusterResult",
     output_path: Path,
 ) -&gt; None:
     """PC得点の2群と、各群の平均季節変化を描く。"""
@@ -445,9 +478,17 @@ print("事前グループとのARI:", adjusted_rand_score(
           </figure>
           <details class="code-details">
             <summary>図5の描画コードを見る</summary>
-            <pre><code>def plot_feature_sensitivity(
-    monthly_result: ClusterResult,
-    summary_result: ClusterResult,
+            <pre><code>from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+
+# ClusterResultは完全版スクリプト前半で定義する独自クラス
+def plot_feature_sensitivity(
+    monthly_result: "ClusterResult",
+    summary_result: "ClusterResult",
     station_names: pd.Index,
     output_path: Path,
 ) -&gt; None:
@@ -570,6 +611,7 @@ print("事前グループとのARI:", adjusted_rand_score(
             <li id="ref-6"><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.adjusted_rand_score.html">adjusted_rand_score - scikit-learn API Reference</a></li>
             <li id="ref-7"><a href="https://power.larc.nasa.gov/docs/services/api/temporal/monthly/">Monthly and Annual API - NASA POWER</a></li>
             <li id="ref-8"><a href="https://power.larc.nasa.gov/docs/methodology/data/sources/">Data Sources - NASA POWER</a></li>
+            <li id="ref-9"><a href="https://numpy.org/doc/stable/reference/generated/numpy.log1p.html">numpy.log1p - NumPy API Reference</a></li>
           </ol>
         </section>
       </article>
