@@ -1,4 +1,4 @@
-"""NASA POWER月別気候値による10地点クラスタリングの段階演習。"""
+"""NASA POWER年月別データによる10地点クラスタリングの段階演習。"""
 
 from __future__ import annotations
 
@@ -26,6 +26,8 @@ N_CLUSTERS = 2
 N_COMPONENTS = 2
 N_INIT = 50
 RANDOM_STATE = 42
+START_YEAR = 1991
+END_YEAR = 2020
 OVERWRITE = False
 MAKE_PLOTS = True
 FIGURE_DPI = 180
@@ -37,7 +39,7 @@ _SCRIPT_DIR = Path(__file__).resolve().parent
 _DEFAULT_INPUT = (
     _SCRIPT_DIR.parent
     / "data"
-    / "nasa-power-10-locations-monthly-climatology-1991-2020.csv"
+    / "nasa-power-10-locations-monthly-1991-2020.csv"
 )
 _PROJECT_ROOT = _SCRIPT_DIR.parents[2]
 _DEFAULT_OUTPUT_DIR = _PROJECT_ROOT / "outputs" / "nasa-power-clustering"
@@ -93,14 +95,14 @@ def configure_matplotlib() -> None:
     )
 
 
-def load_climatology(input_path: Path) -> pd.DataFrame:
-    """CSVを読み、地点・月の重複と欠測を検査する。"""
+def load_monthly_data(input_path: Path) -> pd.DataFrame:
+    """年月別CSVを読み、期間、重複、欠測を検査する。"""
     require_files([input_path], "演習用CSV")
-    data = pd.read_csv(input_path)
+    data = pd.read_csv(input_path, parse_dates=["date"])
     required_columns = {
         "station",
         "known_group",
-        "month",
+        "date",
         "temp_c",
         "precip_mm",
     }
@@ -108,33 +110,63 @@ def load_climatology(input_path: Path) -> pd.DataFrame:
     if missing_columns:
         joined = ", ".join(sorted(missing_columns))
         raise ValueError(f"CSVに必要な列がありません: {joined}")
-    if data.duplicated(["station", "month"]).any():
-        raise ValueError("同じ地点・月の行が重複しています。")
-    month_counts = data.groupby("station")["month"].nunique()
-    if not (month_counts == 12).all():
-        raise ValueError("12か月そろっていない地点があります。")
+    if data.duplicated(["station", "date"]).any():
+        raise ValueError("同じ地点・年月の行が重複しています。")
     if data[["temp_c", "precip_mm"]].isna().any().any():
         raise ValueError("気温または降水量に欠測があります。")
-    return data.sort_values(["station", "month"]).reset_index(drop=True)
+
+    coverage = data.groupby("station")["date"].agg(["min", "max", "nunique"])
+    expected_months = (END_YEAR - START_YEAR + 1) * 12
+    if not (coverage["nunique"] == expected_months).all():
+        raise ValueError("360か月そろっていない地点があります。")
+    if coverage["min"].nunique() != 1 or coverage["max"].nunique() != 1:
+        raise ValueError("地点間で解析期間が一致していません。")
+    return data.sort_values(["station", "date"]).reset_index(drop=True)
+
+
+def make_climatology(data: pd.DataFrame) -> pd.DataFrame:
+    """年月別データから地点・暦月ごとの30年平均を作る。"""
+    monthly_data = data.copy()
+    monthly_data["month"] = monthly_data["date"].dt.month
+    return (
+        monthly_data.groupby(
+            ["station", "month"],
+            as_index=False,
+        )
+        .agg(
+            temp_c=("temp_c", "mean"),
+            precip_mm=("precip_mm", "mean"),
+        )
+        .sort_values(["station", "month"])
+        .reset_index(drop=True)
+    )
 
 
 def make_monthly_tables(
     data: pd.DataFrame,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series]:
-    """地点×月の気温表、降水量表、確認用ラベルを作る。"""
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """地点×月の気温表と降水量表を作る。"""
     temperature = data.pivot(index="station", columns="month", values="temp_c")
     precipitation = data.pivot(
         index="station",
         columns="month",
         values="precip_mm",
     )
+    return temperature, precipitation
+
+
+def make_known_group(
+    data: pd.DataFrame,
+    station_names: pd.Index,
+) -> pd.Series:
+    """答え合わせ専用の既知グループを地点順に並べる。"""
     known_group = (
         data[["station", "known_group"]]
         .drop_duplicates()
         .set_index("station")
-        .loc[temperature.index, "known_group"]
+        .loc[station_names, "known_group"]
     )
-    return temperature, precipitation, known_group
+    return known_group
 
 
 def make_monthly_features(
@@ -524,8 +556,10 @@ def main() -> None:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     configure_matplotlib()
 
-    data = load_climatology(args.input)
-    temperature, precipitation, known_group = make_monthly_tables(data)
+    raw_data = load_monthly_data(args.input)
+    climatology = make_climatology(raw_data)
+    temperature, precipitation = make_monthly_tables(climatology)
+    known_group = make_known_group(raw_data, temperature.index)
     monthly_features = make_monthly_features(temperature, precipitation)
     summary_features = make_summary_features(temperature, precipitation)
     monthly_result = fit_clusters(

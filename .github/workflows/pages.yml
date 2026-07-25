@@ -38,6 +38,8 @@ jobs:
           rsync -a \
             --exclude='_template/' \
             --exclude='_drafts/' \
+            --exclude='__pycache__/' \
+            --exclude='*.pyc' \
             --exclude='*.draft.html' \
             --exclude='PROTECTED_NOTES.local.md' \
             notes/ _site/notes/

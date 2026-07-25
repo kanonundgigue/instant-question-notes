@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>気温・降水量から10地点の気候帯をクラスタリングする方法 | k-notes</title>
-    <meta name="description" content="NASA POWERの演習用CSVをダウンロードし、入力確認、標準化、PCA、k-means、特徴量感度を5つの図で段階的に学ぶ。">
+    <meta name="description" content="NASA POWERの年月別CSVを読み、共通期間の確認、暦月平均、可視化、標準化、PCA、k-meansを順番に学ぶ初学者向け演習。">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
@@ -32,15 +32,40 @@
           <p><strong>各地点を「月平均気温12個＋月降水量12個」のベクトルに変換し、標準化、主成分分析（PCA）、<code>k-means</code> の順に処理して、クラスタ数を2に固定する</strong>方法が簡単です。ケッペン区分の閾値も、既知の気候帯ラベルも学習には使いません。</p>
           <p>ただし、地点数が10しかないため、得られるのは汎用的な気候分類モデルではなく、<strong>今回の10地点の中で似た季節変化を持つ地点を2群に分けた結果</strong>です。シルエット係数、別手法との一致、期間を分けた再計算によって、分割が安定しているかを必ず確認します。</p>
 
-          <h3>推奨する最小構成</h3>
+          <h3>この演習で行うこと</h3>
           <ol>
-            <li>全地点で同じ解析期間を使い、各地点・各月の気温平均と降水量合計を作る。</li>
-            <li>複数年について暦月ごとに平均し、1地点あたり24変数の月別気候値にする。</li>
-            <li>降水量に <code>log1p</code> 変換を施し、気温と降水量の全変数を標準化する。</li>
-            <li>PCAで2〜3成分に圧縮する。</li>
-            <li><code>k-means</code> を <code>n_clusters=2</code> で実行する。</li>
-            <li>シルエット係数、階層クラスタリングとの一致、期間分割による安定性を調べる。</li>
+            <li>年月別CSVを読み、列と行数を確認する。</li>
+            <li>10地点の期間が同じで、各地点に360か月あることを確認する。</li>
+            <li>30年間を暦月ごとに平均し、10地点×12か月の月別気候値を作る。</li>
+            <li>折れ線グラフを描き、分類前の季節変化を見る。</li>
+            <li>気温12変数と降水量12変数を作り、標準化する。</li>
+            <li>PCAで2成分へ圧縮し、<code>k-means</code> で2群に分ける。</li>
+            <li>特徴量を変えても結論が保たれるか確認する。</li>
           </ol>
+
+          <h3>0. 演習ファイルを準備する</h3>
+          <ul class="resource-links">
+            <li><a href="data/nasa-power-10-locations-monthly-1991-2020.csv" download>年月別CSVをダウンロード</a></li>
+            <li><a href="examples/nasa-power-clustering-exercise.py" download>全解析・描画スクリプトをダウンロード</a></li>
+            <li><a href="examples/download-nasa-power-monthly-data.py" download>NASA POWER取得スクリプトをダウンロード</a></li>
+          </ul>
+          <p>まず、年月別CSVと全解析・描画スクリプトを同じフォルダへ保存します。CSVは10地点×30年×12か月の<strong>3,600行</strong>で、列は <code>station</code>、<code>known_group</code>、<code>date</code>、<code>temp_c</code>、<code>precip_mm</code> です。</p>
+          <p><code>known_group</code> は最後の答え合わせだけに使います。気温・降水量の集計、PCA、k-meansへは入力しません。取得元まで再現したい場合だけ、3番目のNASA POWER取得スクリプトを使います。</p>
+
+          <h4>コードは同じノートブックで上から実行する</h4>
+          <p>段階1〜8の短いコードは、Jupyter Notebookや学校で指定されたPythonノートブックの<strong>同じノートブック</strong>へ、1ブロックずつ貼り付けて上から実行します。前の段階で作った <code>data</code> や <code>climatology</code> を次の段階でも使うため、途中でカーネルを再起動した場合は段階1から実行し直します。</p>
+          <p>手元にJupyter環境がない場合、<code>uv</code> を導入済みなら、CSVを置いたフォルダで次のコマンドを実行して起動できます。</p>
+          <pre><code>uv run \
+  --with pandas \
+  --with numpy \
+  --with scikit-learn \
+  --with matplotlib \
+  --with jupyter \
+  jupyter lab</code></pre>
+          <p>ブラウザで新しいPythonノートブックを作り、CSVと同じフォルダに保存してから段階1へ進みます。</p>
+
+          <details class="code-details">
+            <summary>処理の理由を先に読みたい場合の補足</summary>
 
           <h3>まず「地点×特徴量」の表に変える</h3>
           <p>生の時系列をそのまま1本の長い入力にすると、欠測、観測期間、年々変動の違いまで距離に混ざります。最初の解析では、全地点に共通する期間から月別気候値を作る方が解釈しやすくなります。WMOの標準平年値は連続する30年間の平均として定義されていますが、手元の期間が短ければ、共通して利用できる期間で暦月平均を作り、「このデータ期間内の平均」であることを明記します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
@@ -71,86 +96,58 @@
           <h3>なぜ降水量を変換し、全変数を標準化するのか</h3>
           <p>降水量は少数の多雨月・多雨地点が大きな値を取りやすいため、<code>log1p</code> で極端な差を緩めます。その後、各変数を平均0・分散1へ標準化すると、単位と変動幅の大きい変数だけがユークリッド距離を支配することを防げます。scikit-learnの資料も、分散の桁が大きく異なる特徴量は学習目的を支配し得ること、標準化は外れ値に敏感であることを注意点として挙げています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
           <p>したがって、観測ミスや極端な外れ値を先に確認します。正当な豪雨を機械的に削除するのではなく、<code>StandardScaler</code> と <code>RobustScaler</code> の両方で結果が変わるかを見るのが安全です。</p>
+          </details>
 
-          <h3>Pythonによる最小例</h3>
-          <p>次の例は、CSVが1地点・1年月につき1行で、<code>station</code>、<code>date</code>、<code>temp_c</code>、<code>precip_mm</code> の4列を持つと仮定します。気温は月平均、降水量は月合計です。</p>
+          <h3>1. CSVを読み、最初の5行を見る</h3>
+          <p>まずは機械学習を始めず、ファイルを正しく読めたかだけを確認します。CSVとPythonファイルを同じフォルダへ置き、次のコードを上から順に実行してください。</p>
+          <pre><code>import pandas as pd
 
-          <pre><code>import numpy as np
-import pandas as pd
-from sklearn.cluster import AgglomerativeClustering, KMeans
-from sklearn.decomposition import PCA
-from sklearn.metrics import adjusted_rand_score, silhouette_score
-from sklearn.preprocessing import StandardScaler
+csv_path = "nasa-power-10-locations-monthly-1991-2020.csv"
+data = pd.read_csv(csv_path, parse_dates=["date"])
 
-# CSV: station, date, temp_c, precip_mm
-data = pd.read_csv("monthly_climate.csv", parse_dates=["date"])
-data["month"] = data["date"].dt.month
+print(data.shape)
+print(data.head())</code></pre>
+          <p><code>(3600, 5)</code> と表示され、その後に次のような5行が出れば読み込み成功です。</p>
+          <pre><code>station,known_group,date,temp_c,precip_mm
+Bangkok,Tropical,1991-01-01,28.45,1.24
+Bangkok,Tropical,1991-02-01,29.30,9.52
+Bangkok,Tropical,1991-03-01,31.46,17.67</code></pre>
 
-# 同じ地点・同じ暦月を複数年について平均する
+          <h3>2. 全地点に同じ360か月があるか確認する</h3>
+          <p>地点によって期間が違うと、気候差に観測期間の差が混ざります。地点別の開始日、終了日、年月数を表示します。</p>
+          <pre><code>coverage = (
+    data.groupby("station")["date"]
+    .agg(start="min", end="max", months="nunique")
+)
+print(coverage)
+
+if not (coverage["months"] == 360).all():
+    raise ValueError("360か月そろっていない地点があります。")
+if coverage["start"].nunique() != 1 or coverage["end"].nunique() != 1:
+    raise ValueError("地点間で解析期間が一致していません。")</code></pre>
+          <p>10地点すべてで開始が <code>1991-01-01</code>、終了が <code>2020-12-01</code>、月数が <code>360</code> になれば次へ進みます。</p>
+
+          <h3>3. 30年間を暦月ごとに平均する</h3>
+          <p><code>date</code> から月番号を取り出し、たとえば全30年の1月を平均して「代表的な1月」を作ります。これを12か月・10地点について行います。</p>
+          <pre><code>data["month"] = data["date"].dt.month
+
 climatology = (
-    data.groupby(["station", "month"], as_index=False)
-    .agg(temp_c=("temp_c", "mean"), precip_mm=("precip_mm", "mean"))
+    data.groupby(
+        ["station", "month"],
+        as_index=False,
+    )
+    .agg(
+        temp_c=("temp_c", "mean"),
+        precip_mm=("precip_mm", "mean"),
+    )
 )
 
-# 10地点 × 12か月の表を、気温と降水量について作る
-temperature = climatology.pivot(
-    index="station", columns="month", values="temp_c"
-)
-precipitation = climatology.pivot(
-    index="station", columns="month", values="precip_mm"
-)
+print(climatology.shape)
+print(climatology.head())</code></pre>
+          <p>結果は <code>(120, 4)</code>、つまり10地点×12か月になります。<code>known_group</code> はここでも使っていません。ここまでが前処理です。次から、この120行を図にして内容を確認します。</p>
 
-if temperature.isna().any().any() or precipitation.isna().any().any():
-    raise ValueError("欠測月があります。補完方法を決めてから解析してください。")
-
-temperature.columns = [
-    f"temp_{int(month):02d}" for month in temperature.columns
-]
-precipitation.columns = [
-    f"precip_{int(month):02d}" for month in precipitation.columns
-]
-
-# 降水量だけ対数変換し、気温と結合する
-features = temperature.join(np.log1p(precipitation))
-
-# 尺度をそろえて、まず2主成分へ圧縮する
-scaled = StandardScaler().fit_transform(features)
-pca = PCA(n_components=2)
-scores = pca.fit_transform(scaled)
-
-# 2群にクラスタリングする
-kmeans = KMeans(
-    n_clusters=2,
-    n_init=50,
-    random_state=42,
-)
-labels = kmeans.fit_predict(scores)
-
-result = pd.DataFrame(
-    {
-        "station": features.index,
-        "cluster": labels,
-        "pc1": scores[:, 0],
-        "pc2": scores[:, 1],
-    }
-)
-
-print(result.sort_values(["cluster", "station"]))
-print("2主成分の累積寄与率:", pca.explained_variance_ratio_.sum())
-print("シルエット係数:", silhouette_score(scores, labels))
-
-# 別の簡単な手法でも同じ2群になるか確認する
-ward_labels = AgglomerativeClustering(
-    n_clusters=2,
-    linkage="ward",
-).fit_predict(scores)
-print(
-    "階層クラスタリングとのARI:",
-    adjusted_rand_score(labels, ward_labels),
-)</code></pre>
-
-          <p><code>k-means</code> は各点から所属クラスタ中心までの二乗距離を小さくする分割を求めます。局所解に入る可能性があるため、初期値を変えた複数回の実行が有効です。この例では結果を再現可能にする <code>random_state</code> と、50回の初期化を明示しています。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
-          <p>2主成分の累積寄与率が低い場合は、クラスタリングに使う主成分を3〜4個へ増やし、図示だけを第1・第2主成分にします。ただし、寄与率の閾値を結果を見ながら何度も選び直すと恣意性が増すため、採用条件を先に決めて記録します。</p>
+          <details class="code-details">
+            <summary>結果の読み方と安定性を先に確認したい場合の補足</summary>
 
           <h3>結果をどう読むか</h3>
           <ul>
@@ -169,25 +166,22 @@ print(
             <li><strong>特徴量を変える:</strong> 月別24変数と要約6〜8変数で、結論が大きく変わらないか。</li>
           </ol>
           <p>既知の2つの気候帯ラベルがある場合も、ラベルは上の処理に入力せず、解析を固定した後にARIなどで外部評価します。ARIはクラスタ番号の入れ替わりを問題にせず、2つの分割の一致を測れます。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup> これは「正解ラベルを使わずに見つけられたか」の確認であり、クラスタリング自体の学習ではありません。</p>
+          </details>
 
-          <h3>NASA POWERのオープンデータで段階演習</h3>
-          <p>ここからは、NASA POWERの月別APIから取得した1991〜2020年の2 m気温 <code>T2M</code> と補正降水量 <code>PRECTOTCORR</code> を使い、入力確認から答え合わせまでを5段階でなぞります。POWERの気象変数はMERRA-2同化モデルに由来するため、これは地上観測所ではなく、各都市座標に対応する<strong>格子気候データの演習</strong>です。<sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup><sup class="citation"><a href="#ref-8" aria-label="参照 8">[8]</a></sup></p>
+          <h3>4. 月別気候値を図で確認する</h3>
+          <p>この演習データは、NASA POWERの月別APIから取得した1991〜2020年の2 m気温 <code>T2M</code> と補正降水量 <code>PRECTOTCORR</code> です。POWERの気象変数はMERRA-2同化モデルに由来するため、地上観測所ではなく、各都市座標に対応する<strong>格子気候データ</strong>です。<sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup><sup class="citation"><a href="#ref-8" aria-label="参照 8">[8]</a></sup></p>
+          <p>まず、前の段階で作った120行の <code>climatology</code> を、地点を行、月を列とする2つの表へ変えます。</p>
+          <pre><code>temperature = climatology.pivot(
+    index="station", columns="month", values="temp_c"
+)
+precipitation = climatology.pivot(
+    index="station", columns="month", values="precip_mm"
+)
 
-          <h4>演習ファイルをダウンロード</h4>
-          <ul class="resource-links">
-            <li><a href="data/nasa-power-10-locations-monthly-climatology-1991-2020.csv" download>演習用CSVをダウンロード</a></li>
-            <li><a href="examples/nasa-power-clustering-exercise.py" download>全解析・描画スクリプトをダウンロード</a></li>
-          </ul>
-          <p>CSVは10地点×12か月の120行で、列は <code>station</code>、<code>known_group</code>、<code>month</code>、<code>temp_c</code>、<code>precip_mm</code> です。<code>known_group</code> は最後の答え合わせ専用で、標準化、PCA、k-meansの入力には使いません。降水量はAPIの平均日量に各年月の日数を掛けて月合計へ直し、30年間について暦月平均した値です。</p>
-          <p>2ファイルを同じフォルダへ保存した場合は、次の1コマンドで図5枚と結果CSVを作れます。初回だけ必要なPythonパッケージを <code>uv</code> が取得します。</p>
-          <pre><code>uv run --with numpy --with pandas --with scikit-learn --with matplotlib \
-  nasa-power-clustering-exercise.py \
-  --input nasa-power-10-locations-monthly-climatology-1991-2020.csv \
-  --output-dir outputs \
-  --overwrite</code></pre>
-
-          <h4>段階1: まず生の季節変化を見る</h4>
-          <p>分類前に全地点の月別線グラフを描きます。熱帯側5地点は気温の年較差が小さく、中緯度側は冬と夏の差が大きいことが見えます。一方、降水の季節変化は地点ごとにかなり異なります。東京は中緯度側の中では温暖・多雨で、境界例になりそうだと予想できます。</p>
+print(temperature.shape)
+print(precipitation.shape)</code></pre>
+          <p>どちらも <code>(10, 12)</code> になれば成功です。分類前に折れ線グラフを描くと、熱帯側5地点は気温の年較差が小さく、中緯度側は冬と夏の差が大きいことが見えます。一方、降水の季節変化は地点ごとにかなり異なります。東京は中緯度側の中では温暖・多雨で、境界例になりそうだと予想できます。</p>
+          <p>以下の「図の描画コード」は完全版スクリプトから関数単位で抜き出しています。初回は図と読み取り方を確認し、関数を含めて実行するときは完全版スクリプトを使うと迷いません。</p>
           <figure class="climate-chart" aria-labelledby="input-cycles-caption">
             <figcaption id="input-cycles-caption">図1　分類前の10地点の月平均気温と月降水量</figcaption>
             <img src="../../images/nasa-power-01-input-seasonal-cycles.png" alt="10地点それぞれについて、1月から12月までの月平均気温と月降水量を上下2段の折れ線グラフで示す。">
@@ -227,20 +221,20 @@ print(
     plt.close(fig)</code></pre>
           </details>
 
-          <h4>段階2: 24個の特徴量へ変換して標準化する</h4>
+          <h3>5. 24個の特徴量へ変換して標準化する</h3>
           <p>各地点を、気温12か月と <code>log1p</code> 変換した降水量12か月の計24変数へ変えます。さらに各列を平均0・分散1へ標準化します。図2では赤が10地点平均より大きい値、青が小さい値です。左半分の気温列には、通年正側の地点と冬に負側へ下がる地点という大きなパターンが見えます。</p>
-          <pre><code>temperature = data.pivot(
-    index="station", columns="month", values="temp_c"
-)
-precipitation = data.pivot(
-    index="station", columns="month", values="precip_mm"
-)
+          <pre><code>import numpy as np
+from sklearn.preprocessing import StandardScaler
 
-temperature.columns = [f"T{month:02d}" for month in temperature.columns]
-precipitation.columns = [
-    f"logP{month:02d}" for month in precipitation.columns
+temperature_features = temperature.copy()
+precipitation_features = np.log1p(precipitation)
+temperature_features.columns = [
+    f"T{int(month):02d}" for month in temperature.columns
 ]
-features = temperature.join(np.log1p(precipitation))
+precipitation_features.columns = [
+    f"logP{int(month):02d}" for month in precipitation.columns
+]
+features = temperature_features.join(precipitation_features)
 scaled = StandardScaler().fit_transform(features)</code></pre>
           <figure class="climate-chart" aria-labelledby="feature-heatmap-caption">
             <figcaption id="feature-heatmap-caption">図2　標準化後の地点×24特徴量</figcaption>
@@ -274,8 +268,15 @@ scaled = StandardScaler().fit_transform(features)</code></pre>
     plt.close(fig)</code></pre>
           </details>
 
-          <h4>段階3: PCAで圧縮し、まだ色を付けずに配置を見る</h4>
+          <h3>6. PCAで圧縮し、まだ色を付けずに配置を見る</h3>
           <p>24次元の標準化データをPCAで2次元へ圧縮します。第1主成分の寄与率は <strong>65.0%</strong>、第2主成分は <strong>19.0%</strong>、累積で <strong>84.0%</strong> です。右図にはまだクラスタ色を付けていません。この時点で左右方向に大きな分離がある一方、東京が両側の中間に位置することを確認します。</p>
+          <pre><code>from sklearn.decomposition import PCA
+
+pca = PCA(n_components=2)
+scores = pca.fit_transform(scaled)
+
+print(pca.explained_variance_ratio_)
+print("累積寄与率:", pca.explained_variance_ratio_.sum())</code></pre>
           <figure class="climate-chart" aria-labelledby="pca-before-caption">
             <figcaption id="pca-before-caption">図3　主成分の寄与率とクラスタ付与前のPCA得点</figcaption>
             <img src="../../images/nasa-power-03-pca-before-clustering.png" alt="左に主成分ごとの寄与率と累積寄与率、右にクラスタ色を付けていない10地点の第1・第2主成分得点を示す。">
@@ -330,13 +331,25 @@ scaled = StandardScaler().fit_transform(features)</code></pre>
     plt.close(fig)</code></pre>
           </details>
 
-          <h4>段階4: k-meansで2群に分ける</h4>
+          <h3>7. k-meansで2群に分ける</h3>
           <p>PCA得点に <code>n_clusters=2</code> のk-meansを適用します。クラスタ番号は任意なので、ここでは結果を読みやすくするため、年平均気温が高い方を「通年高温群」と呼びます。右側には各群に入った地点の気温・降水量を平均し、分類後に初めて群の特徴を描きます。</p>
-          <pre><code>pca = PCA(n_components=2)
-scores = pca.fit_transform(scaled)
+          <pre><code>from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+
 labels = KMeans(
     n_clusters=2, n_init=50, random_state=42
-).fit_predict(scores)</code></pre>
+).fit_predict(scores)
+
+cluster_result = pd.DataFrame(
+    {
+        "station": features.index,
+        "cluster": labels,
+        "pc1": scores[:, 0],
+        "pc2": scores[:, 1],
+    }
+)
+print(cluster_result.sort_values(["cluster", "station"]))
+print("シルエット係数:", silhouette_score(scores, labels))</code></pre>
           <figure class="climate-chart" aria-labelledby="nasa-power-demo-caption">
             <figcaption id="nasa-power-demo-caption">図4　PCA得点の2群と、分類後に求めた各群の平均季節変化</figcaption>
             <img src="../../images/nasa-power-climate-clustering-demo.png" alt="左に10地点のPCA得点とk-meansの2群、右に各群の月平均気温と月降水量を示す。東京は通年高温群側に分類されている。">
@@ -419,8 +432,35 @@ labels = KMeans(
             </tbody>
           </table>
 
-          <h4>段階5: 特徴量を変えて分類の感度を見る</h4>
+          <h3>8. 特徴量を変えて分類の感度を見る</h3>
           <p>次に同じデータを、年平均気温、気温年較差、年降水量、降水量の月間変動係数という4変数へ要約して再計算します。要約4変数では東京が中緯度側へ移り、事前グループと5地点ずつ一致しました。</p>
+          <pre><code>from sklearn.metrics import adjusted_rand_score
+
+summary_features = pd.DataFrame(
+    {
+        "annual_temp": temperature.mean(axis=1),
+        "temp_range": temperature.max(axis=1) - temperature.min(axis=1),
+        "log_annual_precip": np.log1p(precipitation.sum(axis=1)),
+        "precip_cv": precipitation.std(axis=1) / precipitation.mean(axis=1),
+    }
+)
+summary_scaled = StandardScaler().fit_transform(summary_features)
+summary_scores = PCA(n_components=2).fit_transform(summary_scaled)
+summary_labels = KMeans(
+    n_clusters=2, n_init=50, random_state=42
+).fit_predict(summary_scores)
+
+# known_groupを使うのは、クラスタリング終了後の答え合わせだけ
+known_group = (
+    data[["station", "known_group"]]
+    .drop_duplicates()
+    .set_index("station")
+    .loc[summary_features.index, "known_group"]
+)
+known_numeric = (known_group == "Mid-latitude").astype(int)
+print("事前グループとのARI:", adjusted_rand_score(
+    known_numeric, summary_labels
+))</code></pre>
           <figure class="climate-chart" aria-labelledby="feature-sensitivity-caption">
             <figcaption id="feature-sensitivity-caption">図5　月別24特徴量と要約4特徴量による分類の比較</figcaption>
             <img src="../../images/nasa-power-05-feature-sensitivity.png" alt="左に月別24特徴量、右に要約4特徴量で計算したPCA得点と2群を並べ、東京の所属が変わることを示す。">
@@ -497,6 +537,15 @@ labels = KMeans(
             </tbody>
           </table>
           <p>東京が移ったことは計算ミスではありません。クラスタは既存の気候帯名を再現するものではなく、<strong>選んだ特徴量における近さ</strong>を表します。ただし、答え合わせ後に最もARIが高い特徴量だけを採用すると10地点への過適合になります。この比較は感度診断として使い、分類したい気候差を先に定義します。</p>
+
+          <h3>9. 全段階をまとめて再実行する</h3>
+          <p>上の短いコードを1つずつ確認した後、配布した完全版スクリプトで同じ処理をまとめて再実行できます。CSVとスクリプトを同じフォルダへ置き、そのフォルダで次を実行します。</p>
+          <pre><code>uv run --with numpy --with pandas --with scikit-learn --with matplotlib \
+  nasa-power-clustering-exercise.py \
+  --input nasa-power-10-locations-monthly-1991-2020.csv \
+  --output-dir outputs \
+  --overwrite</code></pre>
+          <p><code>outputs</code> フォルダに図5枚と <code>cluster-assignments.csv</code> が作られます。途中で分からなくなった場合は、前の段階へ戻り、各 <code>print</code> の形と値を確認してください。</p>
 
           <h3>条件によって変える点</h3>
           <ul>
