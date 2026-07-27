@@ -45,6 +45,7 @@
 - ローカル運用では、指示されない限りコミットしない。
 - `pushして` / `公開して` と明示された場合だけ `main` に直接 push する。
 - push 前に `git status` で対象差分を確認し、無関係な差分を含めない。
+- `index.html` を編集する前に `git pull` を実行し、リモートの最新状態を取り込んでから作業する。複数環境（ローカル / Codex 等）からの編集による衝突・上書きを防ぐため。
 - `git pull`, `git merge`, `git rebase`, `git checkout <branch>`, `git reset`, `git restore`, `git switch` などローカル変更が上書きされ得るコマンドの前には、必ず `git status` を確認し、未コミット変更があれば先に `git add` + `git commit -m "WIP: auto-save before <操作名>"` を行う。
 - コミットメッセージは、新規記事なら `add: <カテゴリ>/<スラッグ> <記事タイトル>`、既存記事修正なら `fix: <対象> <内容>`、構成変更なら `chore: <内容>`。
 
