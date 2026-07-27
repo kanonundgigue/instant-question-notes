@@ -15,7 +15,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.cluster.hierarchy import dendrogram, fcluster, linkage
 from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
 
@@ -108,6 +108,7 @@ _CLUSTER_EVALUATION_FILENAME = "cluster_evaluation.csv"
 _CONSENSUS_FILENAME = "consensus_matrices.csv"
 _CONTRIBUTION_FIGURE_FILENAME = "isotope_contribution_scatter.png"
 _CLUSTER_FIGURE_FILENAME = "contribution_cluster_heatmap.png"
+_DENDROGRAM_FIGURE_FILENAME = "contribution_cluster_dendrogram.png"
 
 
 @dataclass(frozen=True)
@@ -995,6 +996,73 @@ def save_cluster_figure(
     plt.close(fig)
 
 
+def save_dendrogram_figure(
+    consensus: pd.DataFrame,
+    evaluation: pd.DataFrame,
+    output_path: Path,
+) -> None:
+    """推奨Kの共所属プロファイルからWard法デンドログラムを描く。"""
+    recommended_k = int(
+        evaluation.loc[evaluation["recommended"], "n_clusters"].iloc[0]
+    )
+    selected = consensus.loc[
+        consensus["n_clusters"] == recommended_k
+    ].copy()
+    station_ids = sorted(
+        set(selected["station_id_1"]) | set(selected["station_id_2"])
+    )
+    station_index = {
+        station_id: index for index, station_id in enumerate(station_ids)
+    }
+    consensus_matrix = np.eye(len(station_ids), dtype=float)
+    for row in selected.itertuples(index=False):
+        first = station_index[row.station_id_1]
+        second = station_index[row.station_id_2]
+        consensus_matrix[first, second] = row.coassignment_probability
+        consensus_matrix[second, first] = row.coassignment_probability
+
+    standardized_profiles = StandardScaler().fit_transform(consensus_matrix)
+    hierarchy = linkage(
+        standardized_profiles,
+        method="ward",
+        metric="euclidean",
+    )
+    lower_distance = hierarchy[len(station_ids) - recommended_k - 1, 2]
+    upper_distance = hierarchy[len(station_ids) - recommended_k, 2]
+    cut_distance = float((lower_distance + upper_distance) / 2.0)
+
+    fig, ax = plt.subplots(
+        figsize=(10.0, 6.0),
+        constrained_layout=True,
+    )
+    dendrogram(
+        hierarchy,
+        labels=station_ids,
+        orientation="right",
+        color_threshold=cut_distance,
+        above_threshold_color="0.35",
+        leaf_font_size=8,
+        ax=ax,
+    )
+    ax.axvline(
+        cut_distance,
+        color="0.35",
+        linewidth=0.9,
+        linestyle="--",
+    )
+    ax.set_title(
+        f"Ward dendrogram of GNIP consensus profiles (K={recommended_k})",
+        loc="left",
+        fontweight="bold",
+    )
+    ax.set_xlabel("Ward distance between standardized consensus profiles")
+    ax.set_ylabel("GNIP station")
+    ax.grid(False)
+    ax.grid(axis="x", alpha=0.25)
+    fig.savefig(output_path)
+    plt.close(fig)
+
+
 def run_analysis(
     gnip_path: Path,
     temperature_path: Path | None,
@@ -1054,6 +1122,11 @@ def run_analysis(
             assignments,
             evaluation,
             output_dir / _CLUSTER_FIGURE_FILENAME,
+        )
+        save_dendrogram_figure(
+            consensus,
+            evaluation,
+            output_dir / _DENDROGRAM_FIGURE_FILENAME,
         )
     print(
         f"解析地点数={features['station_id'].nunique()}, "
@@ -1142,6 +1215,7 @@ def main() -> None:
             [
                 args.output_dir / _CONTRIBUTION_FIGURE_FILENAME,
                 args.output_dir / _CLUSTER_FIGURE_FILENAME,
+                args.output_dir / _DENDROGRAM_FIGURE_FILENAME,
             ]
         )
     run_or_skip(
