@@ -36,6 +36,24 @@ OVERWRITE = False
 MAKE_PLOTS = True
 FIGURE_DPI = 180
 EPSILON = 1.0e-12
+MAP_LABEL_FONTSIZE = 6.5
+MAP_LABEL_MAXIMUM_LENGTH = 24
+MAP_LABEL_PLACEMENTS = {
+    "CA_7129901": (-6.0, 10.0, "right", "bottom"),
+    "CA_7140801": (-6.0, 5.0, "right", "bottom"),
+    "CA_7162800": (-6.0, 11.0, "right", "bottom"),
+    "CA_7162801": (-6.0, -10.0, "right", "top"),
+    "CA_7170201": (8.0, 12.0, "left", "bottom"),
+    "CA_7181600": (-6.0, 6.0, "right", "bottom"),
+    "CA_7182400": (6.0, 11.0, "left", "bottom"),
+    "CA_7185001": (-6.0, -10.0, "right", "top"),
+    "CA_7186601": (6.0, 8.0, "left", "bottom"),
+    "CA_7189200": (6.0, 8.0, "left", "bottom"),
+    "CA_7191400": (6.0, -9.0, "left", "top"),
+    "CA_SITE_SABLE_ISLAND": (8.0, -14.0, "left", "top"),
+    "US_7222071": (6.0, 8.0, "left", "bottom"),
+    "US_7257201": (6.0, -9.0, "left", "top"),
+}
 
 COLUMN_ALIASES = {
     "station_id": (
@@ -1315,6 +1333,50 @@ def save_cluster_map_figure(
             linewidth=0.7,
             label=f"Cluster {int(cluster)} (n={len(group)})",
             zorder=3,
+        )
+
+    station_labels = dict(
+        locations[["station_id", "site_name"]].itertuples(
+            index=False,
+            name=None,
+        )
+    )
+    map_labels = compact_station_labels(
+        locations["station_id"].tolist(),
+        station_labels,
+        maximum_length=MAP_LABEL_MAXIMUM_LENGTH,
+    )
+    label_coordinates = data_crs._as_mpl_transform(ax)
+    for row, label in zip(locations.itertuples(index=False), map_labels):
+        offset_x, offset_y, horizontal_alignment, vertical_alignment = (
+            MAP_LABEL_PLACEMENTS.get(
+                row.station_id,
+                (6.0, 5.0, "left", "bottom"),
+            )
+        )
+        ax.annotate(
+            label,
+            xy=(row.longitude, row.latitude),
+            xycoords=label_coordinates,
+            xytext=(offset_x, offset_y),
+            textcoords="offset points",
+            ha=horizontal_alignment,
+            va=vertical_alignment,
+            fontsize=MAP_LABEL_FONTSIZE,
+            color="0.18",
+            bbox={
+                "boxstyle": "round,pad=0.12",
+                "facecolor": "white",
+                "edgecolor": "none",
+                "alpha": 0.78,
+            },
+            arrowprops={
+                "arrowstyle": "-",
+                "color": "0.35",
+                "linewidth": 0.35,
+            },
+            annotation_clip=True,
+            zorder=4,
         )
 
     ax.set_title(
