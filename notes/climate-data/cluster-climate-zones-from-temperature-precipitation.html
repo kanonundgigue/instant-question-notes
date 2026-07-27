@@ -9,6 +9,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
   </head>
   <body>
     <main class="page">
@@ -18,7 +27,7 @@
         <h1>気温・降水量から10地点の気候帯をクラスタリングする方法</h1>
         <div class="article-meta">
           <p>作成日: <time datetime="2026-07-25">2026-07-25</time></p>
-          <p>更新日: <time datetime="2026-07-25">2026-07-25</time></p>
+          <p>更新日: <time datetime="2026-07-27">2026-07-27</time></p>
           <p>カテゴリ: climate-data</p>
         </div>
 
@@ -159,7 +168,7 @@ precipitation = climatology.pivot(
 print(temperature.shape)
 print(precipitation.shape)</code></pre>
           <p>どちらも <code>(10, 12)</code> になれば成功です。分類前に折れ線グラフを描くと、熱帯側5地点は気温の年較差が小さく、中緯度側は冬と夏の差が大きいことが見えます。一方、降水の季節変化は地点ごとにかなり異なります。東京は中緯度側の中では温暖・多雨で、境界例になりそうだと予想できます。</p>
-          <p>以下の「図の描画コード」は完全版スクリプトから関数単位で抜き出しています。初回は図と読み取り方を確認し、関数を含めて実行するときは完全版スクリプトを使うと迷いません。</p>
+          <p>以下の描画コードは、ここまでのノートブックで作った変数を直接受け取る版です。各コード末尾の呼び出しまで実行するとPNGを保存します。完全版スクリプトは、同じ処理をまとめて実行するためのものです。</p>
           <figure class="climate-chart" aria-labelledby="input-cycles-caption">
             <figcaption id="input-cycles-caption">図1　分類前の10地点の月平均気温と月降水量</figcaption>
             <img src="../../images/nasa-power-01-input-seasonal-cycles.png" alt="10地点それぞれについて、1月から12月までの月平均気温と月降水量を上下2段の折れ線グラフで示す。">
@@ -203,7 +212,14 @@ def plot_input_cycles(
         loc="upper center", bbox_to_anchor=(0.5, 1.34), ncol=5, fontsize=8
     )
     fig.savefig(output_path, bbox_inches="tight")
-    plt.close(fig)</code></pre>
+    plt.close(fig)
+
+
+plot_input_cycles(
+    temperature=temperature,
+    precipitation=precipitation,
+    output_path=Path("figure1.png"),
+)</code></pre>
           </details>
 
           <h3>5. 24個の特徴量へ変換して標準化する</h3>
@@ -260,7 +276,14 @@ def plot_standardized_heatmap(
     colorbar = fig.colorbar(image, ax=ax, shrink=0.9)
     colorbar.set_label("Standardized value")
     fig.savefig(output_path, bbox_inches="tight")
-    plt.close(fig)</code></pre>
+    plt.close(fig)
+
+
+plot_standardized_heatmap(
+    features=features,
+    scaled=scaled,
+    output_path=Path("figure2.png"),
+)</code></pre>
           </details>
 
           <h3>6. PCAで圧縮し、まだ色を付けずに配置を見る</h3>
@@ -272,6 +295,87 @@ scores = pca.fit_transform(scaled)
 
 print(pca.explained_variance_ratio_)
 print("累積寄与率:", pca.explained_variance_ratio_.sum())</code></pre>
+          <h4>PC1とPC2は何を表すのか</h4>
+          <p>PC1とPC2は気温や降水量そのものではなく、標準化した24特徴量を重み付きで足し合わせた新しい座標軸です。PC1は10地点のばらつきが最も大きく見える向き、PC2はPC1と直交する向きのうち、次にばらつきが大きく見える向きです。<code>pca.components_</code> に入る<strong>主成分係数</strong>は各特徴量の重みで、絶対値が大きいほどその軸の向きへ強く寄与すると読みます。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <pre><code>loading_table = pd.DataFrame(
+    pca.components_.T,
+    index=features.columns,
+    columns=["PC1", "PC2"],
+)
+print(loading_table.round(3))
+
+climate_summary = pd.DataFrame(
+    {
+        "annual_temp": temperature.mean(axis=1),
+        "temp_range": temperature.max(axis=1) - temperature.min(axis=1),
+        "annual_precip": precipitation.sum(axis=1),
+        "precip_cv": precipitation.std(axis=1) / precipitation.mean(axis=1),
+    }
+)
+pca_scores = pd.DataFrame(
+    scores,
+    index=features.index,
+    columns=["PC1", "PC2"],
+)
+print(
+    pca_scores.join(climate_summary)
+    .corr()
+    .loc[["PC1", "PC2"], climate_summary.columns]
+    .round(3)
+)</code></pre>
+          <p><code>loading_table.round(3)</code> の実行結果は次のようになります。ここで <code>T01</code> は1月の気温、<code>logP01</code> は <code>log1p</code> 変換後の1月降水量です。</p>
+          <pre><code>          PC1    PC2
+T01     0.228  0.058
+T02     0.228  0.029
+T03     0.229  0.006
+T04     0.236 -0.022
+T05     0.242 -0.039
+T06     0.244 -0.077
+T07     0.226 -0.139
+T08     0.215 -0.153
+T09     0.245 -0.061
+T10     0.248  0.003
+T11     0.243  0.042
+T12     0.235  0.068
+logP01  0.117  0.399
+logP02  0.109  0.385
+logP03  0.171  0.284
+logP04  0.207  0.146
+logP05  0.242 -0.077
+logP06  0.191 -0.213
+logP07  0.125 -0.290
+logP08  0.113 -0.317
+logP09  0.168 -0.296
+logP10  0.219 -0.023
+logP11  0.170  0.270
+logP12  0.104  0.358</code></pre>
+          <p>さらに、PC得点と年平均気温・気温年較差・年降水量・降水量の月間変動係数との相関は、同じコードの後半で次のように出ます。</p>
+          <pre><code>     annual_temp  temp_range  annual_precip  precip_cv
+PC1        0.956      -0.758          0.909      0.211
+PC2        0.005      -0.342          0.159     -0.689</code></pre>
+          <p>次の表は、これらの出力をそのまま転載したものではなく、学習者が読みやすいように<strong>符号、値の範囲、季節的なまとまり、相関</strong>を要約したものです。たとえばPC1の「0.215〜0.248」は <code>T01</code>〜<code>T12</code> のPC1列の最小値・最大値、PC1の「0.104〜0.242」は <code>logP01</code>〜<code>logP12</code> のPC1列の最小値・最大値から来ています。PC2の冬雨・夏雨の説明は、<code>logP01</code>、<code>logP02</code>、<code>logP12</code> などが正で、<code>logP06</code>〜<code>logP09</code> が負になることから読んでいます。「年平均気温との相関は0.956、年降水量とは0.909」は、上の相関表のPC1行にある <code>annual_temp</code> と <code>annual_precip</code> の値です。</p>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>軸</th>
+                <th>このデータで大きかった主成分係数</th>
+                <th>図3・図4での読み方</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="軸">PC1（65.0%）</td>
+                <td data-label="このデータで大きかった主成分係数">12か月の気温がすべて正（0.215〜0.248）。降水量も全月が正（0.104〜0.242）</td>
+                <td data-label="図3・図4での読み方">右ほど通年で暖かく多雨、左ほど寒候季があり相対的に少雨。年平均気温との相関は0.956、年降水量とは0.909</td>
+              </tr>
+              <tr>
+                <td data-label="軸">PC2（19.0%）</td>
+                <td data-label="このデータで大きかった主成分係数">11〜4月の降水量が正、6〜9月の降水量が負。気温の主成分係数は比較的小さい</td>
+                <td data-label="図3・図4での読み方">上ほど冬雨寄り、下ほど夏雨寄り。年平均気温との相関は0.005で、主に降水の季節配分を表す</td>
+              </tr>
+            </tbody>
+          </table>
+          <p><strong>軸の正負には絶対的な意味はありません。</strong>PCAの計算結果では軸全体の符号が反転することがあり、その場合は図の左右または上下が入れ替わります。地点間の距離やクラスタリング結果は変わらないため、「PC1は常に右ほど高温」と覚えず、その解析で得た主成分係数を見て解釈します。</p>
           <figure class="climate-chart" aria-labelledby="pca-before-caption">
             <figcaption id="pca-before-caption">図3　主成分の寄与率とクラスタ付与前のPCA得点</figcaption>
             <img src="../../images/nasa-power-03-pca-before-clustering.png" alt="左に主成分ごとの寄与率と累積寄与率、右にクラスタ色を付けていない10地点の第1・第2主成分得点を示す。">
@@ -331,13 +435,20 @@ def plot_pca_before_clustering(
         f"PC2 ({full_pca.explained_variance_ratio_[1] * 100:.1f}%)"
     )
     fig.savefig(output_path, bbox_inches="tight")
-    plt.close(fig)</code></pre>
+    plt.close(fig)
+
+
+plot_pca_before_clustering(
+    features=features,
+    scaled=scaled,
+    output_path=Path("figure3.png"),
+)</code></pre>
           </details>
 
           <h3>7. k-meansで2群に分ける</h3>
           <p>PCA得点に <code>n_clusters=2</code> のk-meansを適用します。クラスタ番号は任意なので、ここでは結果を読みやすくするため、年平均気温が高い方を「通年高温群」と呼びます。右側には各群に入った地点の気温・降水量を平均し、分類後に初めて群の特徴を描きます。</p>
           <pre><code>from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score
+from sklearn.metrics import silhouette_samples, silhouette_score
 
 labels = KMeans(
     n_clusters=2, n_init=50, random_state=42
@@ -352,7 +463,26 @@ cluster_result = pd.DataFrame(
     }
 )
 print(cluster_result.sort_values(["cluster", "station"]))
-print("シルエット係数:", silhouette_score(scores, labels))</code></pre>
+point_silhouette = pd.Series(
+    silhouette_samples(scores, labels),
+    index=features.index,
+    name="silhouette",
+)
+print(point_silhouette.sort_values())
+print("平均シルエット係数:", silhouette_score(scores, labels))</code></pre>
+          <h4>シルエット係数とは？</h4>
+          <p>ある地点 \(i\) について、同じクラスタ内の他地点までの平均距離を \(a(i)\)、最も近い別クラスタまでの平均距離を \(b(i)\) とします。地点ごとのシルエット係数は次のように計算します。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup><sup class="citation"><a href="#ref-10" aria-label="参照 10">[10]</a></sup></p>
+          <p>
+            \[
+              s(i)=\frac{b(i)-a(i)}{\max\{a(i),b(i)\} }
+            \]
+          </p>
+          <ul>
+            <li><strong>1に近い:</strong> 自分のクラスタ内では近く、別クラスタから十分に離れている。</li>
+            <li><strong>0に近い:</strong> 2群の境界付近にあり、どちらへ入っても距離があまり変わらない。</li>
+            <li><strong>負:</strong> 現在のクラスタより、別クラスタの方が近い可能性がある。</li>
+          </ul>
+          <p><code>silhouette_score</code> は、この地点別係数の平均です。今回の平均は<strong>0.510</strong>ですが、東京は<strong>0.040</strong>でほぼ境界でした。他の9地点は0.358〜0.694です。したがって「全体として2群は見えるが、東京の所属には強い確信を持てない」と読みます。0.5以上なら常に合格、という普遍的な閾値ではありません。</p>
           <figure class="climate-chart" aria-labelledby="nasa-power-demo-caption">
             <figcaption id="nasa-power-demo-caption">図4　PCA得点の2群と、分類後に求めた各群の平均季節変化</figcaption>
             <img src="../../images/nasa-power-climate-clustering-demo.png" alt="左に10地点のPCA得点とk-meansの2群、右に各群の月平均気温と月降水量を示す。東京は通年高温群側に分類されている。">
@@ -366,15 +496,15 @@ import numpy as np
 import pandas as pd
 
 
-# ClusterResultは完全版スクリプト前半で定義する独自クラス
 def plot_cluster_result(
     temperature: pd.DataFrame,
     precipitation: pd.DataFrame,
-    result: "ClusterResult",
+    scores: np.ndarray,
+    labels: np.ndarray,
     output_path: Path,
 ) -&gt; None:
     """PC得点の2群と、各群の平均季節変化を描く。"""
-    colors = np.where(result.labels == 0, "#c75b39", "#31688e")
+    colors = np.where(labels == 0, "#c75b39", "#31688e")
     fig = plt.figure(figsize=(11, 7.2), constrained_layout=True)
     grid = fig.add_gridspec(2, 2, width_ratios=[1.15, 1])
     ax_scatter = fig.add_subplot(grid[:, 0])
@@ -382,13 +512,13 @@ def plot_cluster_result(
     ax_precip = fig.add_subplot(grid[1, 1])
 
     ax_scatter.scatter(
-        result.scores[:, 0], result.scores[:, 1],
+        scores[:, 0], scores[:, 1],
         c=colors, s=75, edgecolor="white"
     )
     for index, station in enumerate(temperature.index):
         ax_scatter.annotate(
             station,
-            (result.scores[index, 0], result.scores[index, 1]),
+            (scores[index, 0], scores[index, 1]),
             xytext=(5, 5), textcoords="offset points", fontsize=9
         )
     ax_scatter.set_title("PCA scores and k-means clusters")
@@ -401,7 +531,7 @@ def plot_cluster_result(
         (1, "#31688e", "Cool-season cluster"),
     ]
     for label, color, name in cluster_styles:
-        members = temperature.index[result.labels == label]
+        members = temperature.index[labels == label]
         ax_temp.plot(
             months, temperature.loc[members].mean(axis=0),
             marker="o", color=color, label=name
@@ -417,9 +547,19 @@ def plot_cluster_result(
     ax_precip.set_ylabel("Precipitation (mm/month)")
     ax_temp.legend(fontsize=8)
     fig.savefig(output_path, bbox_inches="tight")
-    plt.close(fig)</code></pre>
+    plt.close(fig)
+
+
+plot_cluster_result(
+    temperature=temperature,
+    precipitation=precipitation,
+    scores=scores,
+    labels=labels,
+    output_path=Path("figure4.png"),
+)</code></pre>
           </details>
 
+          <p>図4左の横軸と縦軸は、段階6で解釈したものと同じPC1・PC2です。2群の主な分離は横方向のPC1、つまり通年の暖かさ・湿潤さで生じています。縦方向のPC2は降水季節性を補足し、冬雨寄りのジャカルタ・ロンドン・パリは上側、夏雨寄りのバンコク・ソウルは下側へ配置されます。東京はPC1がほぼ中央にあり、地点別シルエット係数も0に近いため、特徴量を変えると所属が変わりやすい地点です。</p>
           <p>月別24特徴量の結果は、シルエット係数 <strong>0.510</strong> でした。熱帯側5地点とロンドン、パリ、ニューヨーク、ソウルは事前グループと一致しましたが、<strong>東京だけが通年高温群側</strong>に入り、事前グループとのARIは <strong>0.597</strong> でした。</p>
           <table class="mobile-table">
             <thead>
@@ -483,12 +623,18 @@ print("事前グループとのARI:", adjusted_rand_score(
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from sklearn.metrics import adjusted_rand_score, silhouette_score
 
 
-# ClusterResultは完全版スクリプト前半で定義する独自クラス
 def plot_feature_sensitivity(
-    monthly_result: "ClusterResult",
-    summary_result: "ClusterResult",
+    monthly_scores: np.ndarray,
+    monthly_labels: np.ndarray,
+    monthly_silhouette: float,
+    monthly_ari: float,
+    summary_scores: np.ndarray,
+    summary_labels: np.ndarray,
+    summary_silhouette: float,
+    summary_ari: float,
     station_names: pd.Index,
     output_path: Path,
 ) -&gt; None:
@@ -502,31 +648,58 @@ def plot_feature_sensitivity(
         1, 2, figsize=(11, 4.8), constrained_layout=True
     )
     panels = [
-        ("24 monthly features", monthly_result),
-        ("4 summary features", summary_result),
+        (
+            "24 monthly features",
+            monthly_scores,
+            monthly_labels,
+            monthly_silhouette,
+            monthly_ari,
+        ),
+        (
+            "4 summary features",
+            summary_scores,
+            summary_labels,
+            summary_silhouette,
+            summary_ari,
+        ),
     ]
-    for ax, (title, result) in zip(axes, panels, strict=True):
-        colors = np.where(result.labels == 0, "#c75b39", "#31688e")
+    for ax, panel in zip(axes, panels, strict=True):
+        title, panel_scores, panel_labels, panel_silhouette, panel_ari = panel
+        colors = np.where(panel_labels == 0, "#c75b39", "#31688e")
         ax.scatter(
-            result.scores[:, 0], result.scores[:, 1],
+            panel_scores[:, 0], panel_scores[:, 1],
             c=colors, s=70, edgecolor="white"
         )
         for index, station in enumerate(station_names):
             ax.annotate(
                 station,
-                (result.scores[index, 0], result.scores[index, 1]),
+                (panel_scores[index, 0], panel_scores[index, 1]),
                 xytext=label_offsets.get(station, (5, 5)),
                 textcoords="offset points",
                 fontsize=8,
             )
         ax.set_title(
             f"{title}\n"
-            f"Silhouette={result.silhouette:.3f}, ARI={result.ari:.3f}"
+            f"Silhouette={panel_silhouette:.3f}, ARI={panel_ari:.3f}"
         )
         ax.set_xlabel("PC1")
         ax.set_ylabel("PC2")
     fig.savefig(output_path, bbox_inches="tight")
-    plt.close(fig)</code></pre>
+    plt.close(fig)
+
+
+plot_feature_sensitivity(
+    monthly_scores=scores,
+    monthly_labels=labels,
+    monthly_silhouette=silhouette_score(scores, labels),
+    monthly_ari=adjusted_rand_score(known_numeric, labels),
+    summary_scores=summary_scores,
+    summary_labels=summary_labels,
+    summary_silhouette=silhouette_score(summary_scores, summary_labels),
+    summary_ari=adjusted_rand_score(known_numeric, summary_labels),
+    station_names=features.index,
+    output_path=Path("figure5.png"),
+)</code></pre>
           </details>
 
           <table class="mobile-table">
@@ -564,12 +737,12 @@ def plot_feature_sensitivity(
           <ul>
             <li><strong>クラスタ番号に意味はない:</strong> <code>0</code> と <code>1</code> は入れ替わっても同じ分割です。</li>
             <li><strong>クラスタ中心を元の単位で比較する:</strong> 各群について12か月の平均気温・降水量を描き、「高温群」「夏雨群」などデータに即した名前を後から付けます。</li>
-            <li><strong>PCA負荷量を見る:</strong> どの月の気温・降水量が群分けに効いたかを確認します。</li>
+            <li><strong>PCAの主成分係数を見る:</strong> どの月の気温・降水量が群分けに効いたかを確認します。</li>
             <li><strong>地図上でも確認する:</strong> 緯度・経度を学習に入れなくても、結果が地理的に不自然に飛び散っていないかを診断します。</li>
           </ul>
 
           <h3>10地点だから必要な安定性確認</h3>
-          <p>シルエット係数は、各地点について同じクラスタ内の近さと最寄りの別クラスタからの離れ方を比較します。1に近いほど分離が明瞭、0付近は群が重なり、負値は別クラスタの方が近いことを示します。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup> ただし10地点では、1地点の外れ値だけで高い値になることもあるため、単独の合否基準にはしません。原論文も、遠い外れ値が強いクラスタ構造に見える例に注意を促しています。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></p>
+          <p>段階7で計算したシルエット係数は、平均値だけでなく地点別の値も確認します。ただし10地点では、1地点の外れ値だけで高い値になることもあるため、単独の合否基準にはしません。原論文も、遠い外れ値が強いクラスタ構造に見える例に注意を促しています。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></p>
           <p>最低限、次の3点を確認します。</p>
           <ol>
             <li><strong>手法を変える:</strong> k-meansとWard法の階層クラスタリングで、ほぼ同じ2群になるか。</li>
@@ -612,6 +785,7 @@ def plot_feature_sensitivity(
             <li id="ref-7"><a href="https://power.larc.nasa.gov/docs/services/api/temporal/monthly/">Monthly and Annual API - NASA POWER</a></li>
             <li id="ref-8"><a href="https://power.larc.nasa.gov/docs/methodology/data/sources/">Data Sources - NASA POWER</a></li>
             <li id="ref-9"><a href="https://numpy.org/doc/stable/reference/generated/numpy.log1p.html">numpy.log1p - NumPy API Reference</a></li>
+            <li id="ref-10"><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.silhouette_score.html">silhouette_score - scikit-learn API Reference</a></li>
           </ol>
         </section>
       </article>
