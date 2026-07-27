@@ -47,6 +47,12 @@ COLUMN_ALIASES = {
         "wmo_id",
         "site_id",
     ),
+    "site_name": (
+        "site_name",
+        "station_name",
+        "site",
+        "name",
+    ),
     "date": (
         "date",
         "sample_date",
@@ -108,6 +114,8 @@ _CLUSTER_EVALUATION_FILENAME = "cluster_evaluation.csv"
 _CONSENSUS_FILENAME = "consensus_matrices.csv"
 _CONTRIBUTION_FIGURE_FILENAME = "isotope_contribution_scatter.png"
 _CLUSTER_FIGURE_FILENAME = "contribution_cluster_heatmap.png"
+_CLUSTER_DIAGNOSTICS_FIGURE_FILENAME = "cluster_number_diagnostics.png"
+_CONSENSUS_FIGURE_FILENAME = "cluster_consensus_matrix.png"
 _DENDROGRAM_FIGURE_FILENAME = "contribution_cluster_dendrogram.png"
 
 
@@ -240,14 +248,25 @@ def normalize_gnip_table(path: Path) -> pd.DataFrame:
     """GNIP公式エクスポートまたは正規化表を標準列へ変換する。"""
     raw = read_table_flexibly(path)
     station_column = find_column(raw.columns, "station_id")
+    site_name_column = find_column(raw.columns, "site_name", required=False)
     latitude_column = find_column(raw.columns, "latitude")
     longitude_column = find_column(raw.columns, "longitude")
     precipitation_column = find_column(raw.columns, "precip_mm")
     isotope_column = find_column(raw.columns, "delta18o")
     temperature_column = find_column(raw.columns, "temp_c", required=False)
+    station_ids = raw[station_column].astype(str).str.strip()
+    if site_name_column is None:
+        site_names = station_ids
+    else:
+        site_names = raw[site_name_column].astype(str).str.strip()
+        site_names = site_names.mask(
+            site_names.isin({"", "nan", "None"}),
+            station_ids,
+        )
     normalized = pd.DataFrame(
         {
-            "station_id": raw[station_column].astype(str).str.strip(),
+            "station_id": station_ids,
+            "site_name": site_names,
             "date": parse_monthly_date(raw),
             "latitude": pd.to_numeric(
                 raw[latitude_column],
@@ -343,6 +362,7 @@ def load_analysis_data(
         raise ValueError("同一地点IDに複数の緯度・経度があります。")
     analysis_columns = [
         "station_id",
+        "site_name",
         "date",
         "latitude",
         "longitude",
@@ -905,6 +925,31 @@ def configure_matplotlib() -> None:
     )
 
 
+def compact_station_labels(
+    station_ids: Sequence[str],
+    station_labels: dict[str, str],
+    maximum_length: int = 28,
+) -> list[str]:
+    """図中で地点を識別できる範囲に保ちながら長い地点名を縮める。"""
+    original = [
+        station_labels.get(station_id, station_id)
+        for station_id in station_ids
+    ]
+    base = [label.split("(", 1)[0].strip() for label in original]
+    base_counts = pd.Series(base).value_counts()
+    compact: list[str] = []
+    for full_label, base_label in zip(original, base):
+        label = (
+            full_label
+            if base_counts.get(base_label, 0) > 1
+            else base_label
+        )
+        if len(label) > maximum_length:
+            label = f"{label[: maximum_length - 1].rstrip()}…"
+        compact.append(label)
+    return compact
+
+
 def save_contribution_figure(
     contributions: pd.DataFrame,
     output_path: Path,
@@ -945,6 +990,7 @@ def save_cluster_figure(
     features: pd.DataFrame,
     assignments: pd.DataFrame,
     evaluation: pd.DataFrame,
+    station_labels: dict[str, str],
     output_path: Path,
 ) -> None:
     """推奨Kの標準化寄与特徴をクラスタ順ヒートマップにする。"""
@@ -980,10 +1026,13 @@ def save_cluster_figure(
     ax.set_yticks(np.arange(len(merged)))
     ax.set_yticklabels(
         [
-            f"C{cluster} {station}"
-            for cluster, station in zip(
+            f"C{cluster} {station_label}"
+            for cluster, station_label in zip(
                 merged["cluster"],
-                merged["station_id"],
+                compact_station_labels(
+                    merged["station_id"].tolist(),
+                    station_labels,
+                ),
             )
         ]
     )
@@ -996,18 +1045,67 @@ def save_cluster_figure(
     plt.close(fig)
 
 
-def save_dendrogram_figure(
-    consensus: pd.DataFrame,
+def save_cluster_diagnostics_figure(
     evaluation: pd.DataFrame,
     output_path: Path,
 ) -> None:
-    """推奨Kの共所属プロファイルからWard法デンドログラムを描く。"""
-    recommended_k = int(
-        evaluation.loc[evaluation["recommended"], "n_clusters"].iloc[0]
+    """候補クラスタ数ごとの分離度と安定性を3指標で描く。"""
+    diagnostics = (
+        ("silhouette", "(a) Silhouette coefficient", True),
+        (
+            "mean_membership_confidence",
+            "(b) Mean membership confidence",
+            True,
+        ),
+        ("pac_0p1_0p9", "(c) Ambiguous-pair fraction (PAC)", False),
     )
-    selected = consensus.loc[
-        consensus["n_clusters"] == recommended_k
-    ].copy()
+    recommended = evaluation["recommended"].astype(bool)
+    fig, axes = plt.subplots(
+        1,
+        len(diagnostics),
+        figsize=(11.0, 3.6),
+        sharex=True,
+        constrained_layout=True,
+    )
+    for axis_index, (ax, (column, title, higher_is_better)) in enumerate(
+        zip(axes, diagnostics)
+    ):
+        ax.plot(
+            evaluation["n_clusters"],
+            evaluation[column],
+            color="0.55",
+            marker="o",
+            linewidth=1.3,
+            zorder=1,
+        )
+        ax.scatter(
+            evaluation.loc[recommended, "n_clusters"],
+            evaluation.loc[recommended, column],
+            s=90,
+            facecolors="none",
+            edgecolors="#c44e52",
+            linewidth=2.0,
+            label="Recommended K",
+            zorder=2,
+        )
+        ax.set_title(title, loc="left", fontweight="bold")
+        ax.set_xlabel("Number of clusters (K)")
+        ax.set_ylabel("Higher is better" if higher_is_better else "Lower is better")
+        ax.set_xticks(evaluation["n_clusters"])
+        ax.grid(False)
+        ax.grid(axis="y", alpha=0.25)
+        if axis_index == 0:
+            ax.legend(loc="best")
+    fig.savefig(output_path)
+    plt.close(fig)
+
+
+def build_consensus_matrix(
+    consensus: pd.DataFrame,
+    n_clusters: int,
+) -> tuple[list[str], np.ndarray]:
+    """ロング形式の共所属率を地点順と対称行列へ変換する。"""
+    selected = consensus.loc[consensus["n_clusters"] == n_clusters]
     station_ids = sorted(
         set(selected["station_id_1"]) | set(selected["station_id_2"])
     )
@@ -1020,6 +1118,84 @@ def save_dendrogram_figure(
         second = station_index[row.station_id_2]
         consensus_matrix[first, second] = row.coassignment_probability
         consensus_matrix[second, first] = row.coassignment_probability
+    return station_ids, consensus_matrix
+
+
+def save_consensus_figure(
+    consensus: pd.DataFrame,
+    assignments: pd.DataFrame,
+    evaluation: pd.DataFrame,
+    station_labels: dict[str, str],
+    output_path: Path,
+) -> None:
+    """推奨Kの地点間共所属率をクラスタ順の行列として描く。"""
+    recommended_k = int(
+        evaluation.loc[evaluation["recommended"], "n_clusters"].iloc[0]
+    )
+    station_ids, consensus_matrix = build_consensus_matrix(
+        consensus,
+        recommended_k,
+    )
+    station_index = {
+        station_id: index for index, station_id in enumerate(station_ids)
+    }
+    selected_assignments = assignments.loc[
+        assignments["n_clusters"] == recommended_k,
+        ["station_id", "cluster", "membership_confidence"],
+    ].sort_values(
+        ["cluster", "membership_confidence"],
+        ascending=[True, False],
+    )
+    ordered_ids = selected_assignments["station_id"].tolist()
+    order = [station_index[station_id] for station_id in ordered_ids]
+    ordered_matrix = consensus_matrix[np.ix_(order, order)]
+    labels = compact_station_labels(ordered_ids, station_labels)
+
+    fig, ax = plt.subplots(
+        figsize=(9.5, 6.0),
+        constrained_layout=True,
+    )
+    image = ax.imshow(
+        ordered_matrix,
+        cmap="viridis",
+        vmin=0.0,
+        vmax=1.0,
+    )
+    ax.set_xticks(np.arange(len(labels)))
+    ax.set_xticklabels(labels, rotation=70, ha="right", fontsize=7)
+    ax.set_yticks(np.arange(len(labels)))
+    ax.set_yticklabels(labels, fontsize=7)
+    ax.set_title(
+        f"Station coassignment across year bootstraps (K={recommended_k})",
+        loc="left",
+        fontweight="bold",
+    )
+    ax.grid(False)
+    fig.colorbar(
+        image,
+        ax=ax,
+        label="Coassignment probability",
+        fraction=0.03,
+        pad=0.02,
+    )
+    fig.savefig(output_path)
+    plt.close(fig)
+
+
+def save_dendrogram_figure(
+    consensus: pd.DataFrame,
+    evaluation: pd.DataFrame,
+    station_labels: dict[str, str],
+    output_path: Path,
+) -> None:
+    """推奨Kの共所属プロファイルからWard法デンドログラムを描く。"""
+    recommended_k = int(
+        evaluation.loc[evaluation["recommended"], "n_clusters"].iloc[0]
+    )
+    station_ids, consensus_matrix = build_consensus_matrix(
+        consensus,
+        recommended_k,
+    )
 
     standardized_profiles = StandardScaler().fit_transform(consensus_matrix)
     hierarchy = linkage(
@@ -1037,7 +1213,7 @@ def save_dendrogram_figure(
     )
     dendrogram(
         hierarchy,
-        labels=station_ids,
+        labels=compact_station_labels(station_ids, station_labels),
         orientation="right",
         color_threshold=cut_distance,
         above_threshold_color="0.35",
@@ -1085,6 +1261,11 @@ def run_analysis(
         features,
         bootstrap,
     )
+    station_labels = dict(
+        data[["station_id", "site_name"]]
+        .drop_duplicates("station_id")
+        .itertuples(index=False, name=None)
+    )
     output_dir.mkdir(parents=True, exist_ok=True)
     contributions.to_csv(
         output_dir / _CONTRIBUTIONS_FILENAME,
@@ -1121,11 +1302,24 @@ def run_analysis(
             features,
             assignments,
             evaluation,
+            station_labels,
             output_dir / _CLUSTER_FIGURE_FILENAME,
+        )
+        save_cluster_diagnostics_figure(
+            evaluation,
+            output_dir / _CLUSTER_DIAGNOSTICS_FIGURE_FILENAME,
+        )
+        save_consensus_figure(
+            consensus,
+            assignments,
+            evaluation,
+            station_labels,
+            output_dir / _CONSENSUS_FIGURE_FILENAME,
         )
         save_dendrogram_figure(
             consensus,
             evaluation,
+            station_labels,
             output_dir / _DENDROGRAM_FIGURE_FILENAME,
         )
     print(
@@ -1215,6 +1409,8 @@ def main() -> None:
             [
                 args.output_dir / _CONTRIBUTION_FIGURE_FILENAME,
                 args.output_dir / _CLUSTER_FIGURE_FILENAME,
+                args.output_dir / _CLUSTER_DIAGNOSTICS_FIGURE_FILENAME,
+                args.output_dir / _CONSENSUS_FIGURE_FILENAME,
                 args.output_dir / _DENDROGRAM_FIGURE_FILENAME,
             ]
         )
