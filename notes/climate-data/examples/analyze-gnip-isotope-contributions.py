@@ -117,6 +117,7 @@ _CLUSTER_FIGURE_FILENAME = "contribution_cluster_heatmap.png"
 _CLUSTER_DIAGNOSTICS_FIGURE_FILENAME = "cluster_number_diagnostics.png"
 _CONSENSUS_FIGURE_FILENAME = "cluster_consensus_matrix.png"
 _DENDROGRAM_FIGURE_FILENAME = "contribution_cluster_dendrogram.png"
+_CLUSTER_MAP_FIGURE_FILENAME = "contribution_cluster_map.png"
 
 
 @dataclass(frozen=True)
@@ -1239,6 +1240,93 @@ def save_dendrogram_figure(
     plt.close(fig)
 
 
+def save_cluster_map_figure(
+    data: pd.DataFrame,
+    assignments: pd.DataFrame,
+    evaluation: pd.DataFrame,
+    output_path: Path,
+) -> None:
+    """推奨Kの地点をクラスタ別に色分けして北米地図へ描く。"""
+    try:
+        import cartopy.crs as ccrs
+        import cartopy.feature as cfeature
+    except ImportError as error:
+        raise RuntimeError(
+            "地図の描画にはcartopyが必要です。uvの依存関係へ追加してください。"
+        ) from error
+
+    recommended_k = int(
+        evaluation.loc[evaluation["recommended"], "n_clusters"].iloc[0]
+    )
+    selected = assignments.loc[
+        assignments["n_clusters"] == recommended_k,
+        ["station_id", "cluster"],
+    ]
+    locations = (
+        data[
+            [
+                "station_id",
+                "site_name",
+                "latitude",
+                "longitude",
+            ]
+        ]
+        .drop_duplicates("station_id")
+        .merge(selected, on="station_id", validate="one_to_one")
+        .sort_values(["cluster", "station_id"])
+    )
+
+    data_crs = ccrs.PlateCarree()
+    projection = ccrs.LambertConformal(
+        central_longitude=-100,
+        central_latitude=45,
+    )
+    cluster_colors = {
+        1: "#31688e",
+        2: "#d95f02",
+        3: "#1b9e77",
+        4: "#7570b3",
+        5: "#e7298a",
+    }
+    fig = plt.figure(figsize=(11.0, 6.4), constrained_layout=True)
+    ax = fig.add_subplot(1, 1, 1, projection=projection)
+    ax.set_extent([-130, -55, 20, 75], crs=data_crs)
+    ax.add_feature(cfeature.LAND, facecolor="#f2f2f2", zorder=0)
+    ax.add_feature(cfeature.OCEAN, facecolor="#eaf2f8", zorder=0)
+    ax.add_feature(cfeature.COASTLINE, linewidth=0.55, zorder=1)
+    ax.add_feature(cfeature.LAKES, facecolor="#eaf2f8", alpha=0.8, zorder=1)
+    ax.gridlines(
+        draw_labels=False,
+        linewidth=0.35,
+        color="0.45",
+        alpha=0.45,
+        linestyle=":",
+        zorder=1,
+    )
+
+    for cluster, group in locations.groupby("cluster", sort=True):
+        ax.scatter(
+            group["longitude"],
+            group["latitude"],
+            transform=data_crs,
+            s=62,
+            color=cluster_colors[int(cluster)],
+            edgecolor="white",
+            linewidth=0.7,
+            label=f"Cluster {int(cluster)} (n={len(group)})",
+            zorder=3,
+        )
+
+    ax.set_title(
+        f"GNIP station clusters from isotope-contribution profiles (K={recommended_k})",
+        loc="left",
+        fontweight="bold",
+    )
+    ax.legend(loc="lower left", title="Consensus cluster")
+    fig.savefig(output_path)
+    plt.close(fig)
+
+
 def run_analysis(
     gnip_path: Path,
     temperature_path: Path | None,
@@ -1321,6 +1409,12 @@ def run_analysis(
             evaluation,
             station_labels,
             output_dir / _DENDROGRAM_FIGURE_FILENAME,
+        )
+        save_cluster_map_figure(
+            data,
+            assignments,
+            evaluation,
+            output_dir / _CLUSTER_MAP_FIGURE_FILENAME,
         )
     print(
         f"解析地点数={features['station_id'].nunique()}, "
@@ -1412,6 +1506,7 @@ def main() -> None:
                 args.output_dir / _CLUSTER_DIAGNOSTICS_FIGURE_FILENAME,
                 args.output_dir / _CONSENSUS_FIGURE_FILENAME,
                 args.output_dir / _DENDROGRAM_FIGURE_FILENAME,
+                args.output_dir / _CLUSTER_MAP_FIGURE_FILENAME,
             ]
         )
     run_or_skip(

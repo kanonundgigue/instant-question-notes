@@ -52,6 +52,35 @@
     document.body.appendChild(script);
   }
 
+  // 復号本文に数式区切りがある場合だけ、ローカルのMathJaxを読み込んで組版する。
+  async function enhanceMath() {
+    const source = content.textContent || "";
+    if (!source.includes("\\(") && !source.includes("\\[")) {
+      return;
+    }
+
+    if (!window.MathJax) {
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]],
+        },
+      };
+    }
+
+    if (!window.MathJax.typesetPromise) {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = resolveScriptUrl("vendor/mathjax/tex-svg.js");
+        script.addEventListener("load", resolve, { once: true });
+        script.addEventListener("error", reject, { once: true });
+        document.head.appendChild(script);
+      });
+    }
+    await window.MathJax.startup.promise;
+    await window.MathJax.typesetPromise([content]);
+  }
+
   // decrypt.js と同じディレクトリにある code-copy.js の URL を解決する。
   function resolveScriptUrl(name) {
     return new URL(name, selfUrl).href;
@@ -75,6 +104,11 @@
     try {
       const html = await window.NoteCrypto.decrypt(payload, password);
       content.innerHTML = html;
+      try {
+        await enhanceMath();
+      } catch (mathError) {
+        console.error("MathJaxの読み込みまたは組版に失敗しました。", mathError);
+      }
       content.hidden = false;
       lock.hidden = true;
       input.value = "";
