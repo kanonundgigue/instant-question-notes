@@ -376,6 +376,25 @@ PC2        0.005      -0.342          0.159     -0.689</code></pre>
             </tbody>
           </table>
           <p><strong>軸の正負には絶対的な意味はありません。</strong>PCAの計算結果では軸全体の符号が反転することがあり、その場合は図の左右または上下が入れ替わります。地点間の距離やクラスタリング結果は変わらないため、「PC1は常に右ほど高温」と覚えず、その解析で得た主成分係数を見て解釈します。</p>
+          <h4>PC3以降を使う場合もある</h4>
+          <p>あります。図で見せるためにはPC1・PC2の2次元が分かりやすい一方、クラスタリングではPC3以降も使うことがあります。たとえば「累積寄与率が90%を超えるまでのPCを使う」「PC1〜PC4を使う」と決め、k-meansにはその多次元のPCA得点を渡します。この教材では、PC1とPC2だけで累積寄与率が約84.0%あり、図4の平面上で距離と所属を説明しやすいため、主手順では2成分に固定しています。</p>
+          <pre><code>from sklearn.cluster import KMeans
+
+full_pca = PCA().fit(scaled)
+all_scores = full_pca.transform(scaled)
+cumulative_ratio = np.cumsum(full_pca.explained_variance_ratio_)
+print(cumulative_ratio.round(3))
+
+# 例: 累積寄与率が90%以上になる最小のPC数を使う
+n_components_for_clustering = np.searchsorted(
+    cumulative_ratio, 0.90
+) + 1
+scores_for_clustering = all_scores[:, :n_components_for_clustering]
+
+labels_high_dim = KMeans(
+    n_clusters=2, n_init=50, random_state=42
+).fit_predict(scores_for_clustering)</code></pre>
+          <p>高次元PCを使う利点は、PC1・PC2だけでは落ちる細かな季節性を分類に残せることです。一方で、10地点しかない演習ではPC数を増やすほど小さな差やノイズにも反応しやすくなります。そのため、PC数を増やした場合は、分類結果が大きく変わるか、シルエット係数や既知ラベルとのARIがどう変わるかを感度確認として扱います。</p>
           <figure class="climate-chart" aria-labelledby="pca-before-caption">
             <figcaption id="pca-before-caption">図3　主成分の寄与率とクラスタ付与前のPCA得点</figcaption>
             <img src="../../images/nasa-power-03-pca-before-clustering.png" alt="左に主成分ごとの寄与率と累積寄与率、右にクラスタ色を付けていない10地点の第1・第2主成分得点を示す。">
@@ -450,9 +469,24 @@ plot_pca_before_clustering(
           <pre><code>from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_samples, silhouette_score
 
-labels = KMeans(
+def relabel_by_temperature(
+    labels: np.ndarray,
+    temperature: pd.DataFrame,
+) -&gt; np.ndarray:
+    """年平均気温が高い群をクラスタ0へそろえる。"""
+    annual_temperature = temperature.mean(axis=1).to_numpy()
+    cluster_means = {
+        label: annual_temperature[labels == label].mean()
+        for label in np.unique(labels)
+    }
+    warm_label = max(cluster_means, key=cluster_means.get)
+    return np.where(labels == warm_label, 0, 1)
+
+
+raw_labels = KMeans(
     n_clusters=2, n_init=50, random_state=42
 ).fit_predict(scores)
+labels = relabel_by_temperature(raw_labels, temperature)
 
 cluster_result = pd.DataFrame(
     {
@@ -470,6 +504,42 @@ point_silhouette = pd.Series(
 )
 print(point_silhouette.sort_values())
 print("平均シルエット係数:", silhouette_score(scores, labels))</code></pre>
+          <h4>この問題で使ったユークリッド距離</h4>
+          <p>ここでk-meansが扱う1つの点は、1地点の <code>scores</code>、つまりPCA後の2次元座標 <code>PC1</code> と <code>PC2</code> です。したがって、この段階の距離は、元の気温℃や降水量mmを直接比べた距離ではありません。標準化済み24特徴量をPCAで2次元へ写した後、PC1・PC2平面上で次のユークリッド距離を計算しています。</p>
+          <p>
+            \[
+              d(i,j)=\sqrt{(x_{i1}-x_{j1})^2+(x_{i2}-x_{j2})^2}
+            \]
+          </p>
+          <p>ここで \(x_{i1}\) は地点 \(i\) のPC1得点、\(x_{i2}\) は地点 \(i\) のPC2得点です。k-meansは、各地点を近い重心へ割り当て、同じクラスタ内でこの距離の二乗和が小さくなるように重心を更新します。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+          <p>もしPC1〜PC \(m\) までをクラスタリングに使うなら、同じ考え方で次の距離になります。</p>
+          <p>
+            \[
+              d_m(i,j)=\sqrt{\sum_{k=1}^{m}(x_{ik}-x_{jk})^2}
+            \]
+          </p>
+          <p>つまり、2次元なら図4の平面上の距離、3次元以上なら画面には描きにくい多次元空間上の距離です。PCを何個使うかを変えると、この距離も変わるため、東京のような境界的な地点の所属が変わることがあります。</p>
+          <pre><code>pca_scores = pd.DataFrame(
+    scores,
+    index=features.index,
+    columns=["PC1", "PC2"],
+)
+cluster_centers = pca_scores.groupby(labels).mean().sort_index()
+distances_to_centers = pd.DataFrame(
+    np.linalg.norm(
+        scores[:, None, :] - cluster_centers.to_numpy()[None, :, :],
+        axis=2,
+    ),
+    index=features.index,
+    columns=[
+        f"distance_to_cluster_{label}"
+        for label in cluster_centers.index
+    ],
+)
+
+print(cluster_centers.round(3))
+print(distances_to_centers.round(3))</code></pre>
+          <p>この実行では、クラスタ0（通年高温群）の重心は <code>PC1=2.991, PC2=-0.029</code>、クラスタ1（寒候季あり群）の重心は <code>PC1=-4.487, PC2=0.044</code> です。たとえば東京のPCA得点はおよそ <code>PC1=-0.143, PC2=-0.762</code> で、クラスタ0重心までの距離は <code>3.219</code>、クラスタ1重心までの距離は <code>4.418</code> です。クラスタ0の方が近いため、東京は通年高温群側に入ります。ただし差が圧倒的に大きいわけではないので、後で見るシルエット係数は0に近くなります。</p>
           <h4>シルエット係数とは？</h4>
           <p>ある地点 \(i\) について、同じクラスタ内の他地点までの平均距離を \(a(i)\)、最も近い別クラスタまでの平均距離を \(b(i)\) とします。地点ごとのシルエット係数は次のように計算します。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup><sup class="citation"><a href="#ref-10" aria-label="参照 10">[10]</a></sup></p>
           <p>
@@ -585,6 +655,14 @@ plot_cluster_result(
 
           <h3>8. 特徴量を変えて分類の感度を見る</h3>
           <p>次に同じデータを、年平均気温、気温年較差、年降水量、降水量の月間変動係数という4変数へ要約して再計算します。要約4変数では東京が中緯度側へ移り、事前グループと5地点ずつ一致しました。</p>
+          <h4>ARIとは？</h4>
+          <p>ARIは <strong>Adjusted Rand Index</strong> の略で、2つの分類結果がどれくらい一致しているかを測る指標です。ここでは、機械学習で得た2群と、配布CSVに入っている事前グループ <code>known_group</code> がどの程度一致したかの<strong>答え合わせ</strong>に使います。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
+          <ul>
+            <li><strong>1.0:</strong> 2つの分け方が完全に一致している。</li>
+            <li><strong>0付近:</strong> ランダムに分けた場合と同程度の一致。</li>
+            <li><strong>負の値:</strong> ランダムより一致が悪い。</li>
+          </ul>
+          <p>クラスタ番号の <code>0</code> と <code>1</code> が入れ替わってもARIは変わりません。そのため、k-meansの「クラスタ0」「クラスタ1」という番号に意味がない場面でも、既知ラベルとの一致度を確認できます。ただし <code>known_group</code> はクラスタリングには入れず、解析が終わった後の外部評価だけに使います。</p>
           <pre><code>from sklearn.metrics import adjusted_rand_score
 
 summary_features = pd.DataFrame(
@@ -749,7 +827,7 @@ plot_feature_sensitivity(
             <li><strong>期間を変える:</strong> 観測期間を前半・後半に分け、それぞれで月別気候値から再計算して同じ地点群になるか。</li>
             <li><strong>特徴量を変える:</strong> 月別24変数と要約6〜8変数で、結論が大きく変わらないか。</li>
           </ol>
-          <p>既知の2つの気候帯ラベルがある場合も、ラベルは上の処理に入力せず、解析を固定した後にARIなどで外部評価します。ARIはクラスタ番号の入れ替わりを問題にせず、2つの分割の一致を測れます。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup> これは「正解ラベルを使わずに見つけられたか」の確認であり、クラスタリング自体の学習ではありません。</p>
+          <p>既知の2つの気候帯ラベルがある場合も、ラベルは上の処理に入力せず、解析を固定した後にARIなどで外部評価します。これは「正解ラベルを使わずに見つけられたか」の確認であり、クラスタリング自体の学習ではありません。</p>
           </details>
 
           <h3>9. 全段階をまとめて再実行する</h3>
