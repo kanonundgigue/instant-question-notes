@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CPUとGPUの違いは？計算機ユーザが性能と使い分けを判断するポイント | k-notes</title>
+    <meta name="description" content="CPUとGPUの設計、メモリ、得意な処理、性能測定の注意点を、科学計算や機械学習を行う計算機ユーザの視点で整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>CPUとGPUの違いは？計算機ユーザの視点から</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-07-31">2026-07-31</time></p>
+          <p>更新日: <time datetime="2026-07-31">2026-07-31</time></p>
+          <p>カテゴリ: productivity</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>CPUとGPUの違いは？計算機ユーザの視点から教えて</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>CPUは、分岐や依存関係のある処理を含む少数の仕事を、短い待ち時間で進めることが得意な汎用プロセッサです。GPUは、同種の計算を大量のデータへ並列に適用し、単位時間あたりの総処理量を増やすことが得意です。実際のアプリケーションは、CPUを司令塔、GPUを並列演算器として組み合わせる構成が基本です。CUDAのプログラミングモデルでも、アプリケーションはCPUで開始し、CPU側がデータ転送とGPU上の計算開始を制御する異種混合システムとして説明されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>まず押さえる要点</h3>
+          <ul>
+            <li><strong>CPUは応答時間重視:</strong> OS、入出力、逐次処理、複雑な分岐、小規模な処理に向く。</li>
+            <li><strong>GPUは総処理量重視:</strong> 行列演算、画像処理、深層学習、格子計算など、大量の要素へ似た演算を行う処理に向く。</li>
+            <li><strong>GPUが常に速いわけではない:</strong> 計算が小さい、並列化しにくい、データ転送が多い、GPUメモリに収まらない場合は利点が小さくなる。</li>
+            <li><strong>CPUコア数とGPUの演算器数は直接比較しない:</strong> 「GPUは数千コアだからCPUの数百倍」という読み方はできない。</li>
+            <li><strong>選定は実測で決める:</strong> カタログ上の演算性能ではなく、前処理・転送・計算・後処理を含む処理全体の時間を比較する。</li>
+          </ul>
+
+          <h3>設計思想の違い</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>観点</th>
+                <th>CPU</th>
+                <th>GPU</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="観点">主な目標</td>
+                <td data-label="CPU">少数の仕事を早く終える</td>
+                <td data-label="GPU">多数の仕事をまとめて処理する</td>
+              </tr>
+              <tr>
+                <td data-label="観点">並列性</td>
+                <td data-label="CPU">比較的少数の強力なコアを使う</td>
+                <td data-label="GPU">非常に多数の軽量スレッドを走らせる</td>
+              </tr>
+              <tr>
+                <td data-label="観点">制御</td>
+                <td data-label="CPU">分岐、逐次依存、異なる種類の仕事に強い</td>
+                <td data-label="GPU">同じ命令列を多数のデータへ適用すると効率がよい</td>
+              </tr>
+              <tr>
+                <td data-label="観点">メモリ利用</td>
+                <td data-label="CPU">大きなキャッシュで待ち時間を減らす</td>
+                <td data-label="GPU">高い帯域と多数スレッドで総処理量を稼ぐ</td>
+              </tr>
+              <tr>
+                <td data-label="観点">典型的な役割</td>
+                <td data-label="CPU">制御、前処理、I/O、逐次部分</td>
+                <td data-label="GPU">計算量の大きい並列部分</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>NVIDIAのBest Practices Guideは、この違いを「CPUコアは少数スレッドのレイテンシ（処理を依頼してから終わるまでの待ち時間）を小さくし、GPUは多数の軽量スレッドによるスループット（単位時間あたりの総処理量）を大きくする」と整理しています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup>ここで重要なのは、GPUの個々の演算器がCPUコアの縮小版なのではなく、両者の「コア」が異なる設計単位だという点です。</p>
+
+          <h3>では「CPUのベクトル計算」はどこに入るか</h3>
+          <p>CPUにも、1命令で複数のデータ要素を処理するSIMD（Single Instruction, Multiple Data）演算器があります。Intel CPUのSSE、AVX、AVX2、AVX-512などがその例です。たとえばAVXは256ビット、AVX-512は512ビットのベクトルレジスタを使い、複数の浮動小数点数や整数へ同じ演算を一度に適用できます。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup>これは「CPUかGPUか」という二択ではなく、CPUコア内部にもデータ並列性があることを意味します。</p>
+          <p>一方、計算機分野でいう「ベクトル計算機」または「ベクトル型スーパーコンピュータ」は、ベクトル演算を補助機能ではなく中心機能として設計した計算機を指すことがあります。たとえばNEC SX-Aurora TSUBASAのVector Engineは、大容量のベクトルレジスタと高いメモリ帯域を備え、1本のベクトル命令で多数の要素を処理します。現在のSX-Auroraは、OS機能を主に担うx86のVector Hostと、アプリケーションを実行するVector Engineを組み合わせた構成なので、一般的なCPU内SIMDとは区別した方が正確です。<sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup></p>
+
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>方式</th>
+                <th>並列化の単位</th>
+                <th>計算機ユーザから見た特徴</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="方式">CPUのスカラー処理</td>
+                <td data-label="並列化の単位">命令・スレッド</td>
+                <td data-label="計算機ユーザから見た特徴">分岐や逐次依存を含む汎用処理に強い</td>
+              </tr>
+              <tr>
+                <td data-label="方式">CPUのSIMD</td>
+                <td data-label="並列化の単位">1命令内の複数要素</td>
+                <td data-label="計算機ユーザから見た特徴">通常のCPUメモリ上で、配列ループを高速化できる</td>
+              </tr>
+              <tr>
+                <td data-label="方式">専用ベクトルプロセッサ</td>
+                <td data-label="並列化の単位">長いベクトル命令</td>
+                <td data-label="計算機ユーザから見た特徴">長い配列と高メモリ帯域を使う大規模計算に強い</td>
+              </tr>
+              <tr>
+                <td data-label="方式">GPUのSIMT</td>
+                <td data-label="並列化の単位">多数の軽量スレッド</td>
+                <td data-label="計算機ユーザから見た特徴">極めて多くの独立要素を同時処理しやすい</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>CPUのSIMDとマルチコアは併用できます。各コアが配列の一部分を担当し、そのコア内ではベクトル命令が複数要素をまとめて処理します。長く連続した配列、規則的なメモリアクセス、反復間の依存が少ないループはベクトル化しやすく、分岐や不規則アクセスが多いループは効率が下がりやすいです。Intelのコンパイラ資料でも、ループの演算内容や依存関係が自動ベクトル化の可否を左右すると説明されています。<sup class="citation"><a href="#ref-8" aria-label="参照 8">[8]</a></sup></p>
+
+          <h3>CPUベクトル計算とGPUをどう選ぶか</h3>
+          <ul>
+            <li><strong>まず最適化済みCPUライブラリを使う:</strong> NumPyや線形代数ライブラリを使う計算では、その内部でSIMDやマルチコアが利用されている場合がある。</li>
+            <li><strong>自作ループはベクトル化を確認する:</strong> CやFortranでは、コンパイラのベクトル化レポートを見て、対象ループが実際にベクトル命令へ変換されたか確認する。</li>
+            <li><strong>データがRAMにあり計算が中規模ならCPU SIMDも有力:</strong> GPUへの転送を追加せず、低い起動コストで処理できる。</li>
+            <li><strong>メモリ帯域が支配的な長い配列なら専用ベクトル機を検討する:</strong> 気象・流体・格子計算など、演算より大量データの読み書きが律速になる処理と相性がよい。</li>
+            <li><strong>独立要素が非常に多く、GPU上で計算を継続できるならGPUを検討する:</strong> 転送コストを回収できるだけの演算量と並列度が必要になる。</li>
+          </ul>
+          <p>実務上の判断順は、<strong>逐次CPU版 → CPU内SIMD → マルチコアとSIMDの併用 → GPUオフロード</strong>と考えると整理しやすくなります。専用ベクトル計算機を利用できる環境では、CPUとGPUの間にもう一つの有力な選択肢がある、と捉えます。</p>
+
+          <h3>計算はどこを通るのか</h3>
+          <p>独立GPUを使う典型的な計算では、データは次の順に移動します。</p>
+          <ol>
+            <li>ストレージからCPU側のRAMへ入力を読む。</li>
+            <li>CPUで読み込み、整形、条件分岐などの前処理を行う。</li>
+            <li>必要な配列をGPU側のVRAMへ転送する。</li>
+            <li>GPU上でカーネルと呼ばれる並列計算を実行する。</li>
+            <li>必要な結果をRAMへ戻し、CPUで保存や表示を行う。</li>
+          </ol>
+          <p>CPU側のRAMとGPU側のVRAMが物理的に分かれたシステムでは、この間の転送が必要です。一方、統合GPUやSoCでは物理メモリを共有する構成もありますが、プログラミング上のCPU側とGPU側という区別が残る場合があります。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>どのような処理が向いているか</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>処理の特徴</th>
+                <th>第一候補</th>
+                <th>例</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="処理の特徴">小規模、逐次的、分岐が多い</td>
+                <td data-label="第一候補">CPU</td>
+                <td data-label="例">ファイル処理、表形式データの整形、OS処理</td>
+              </tr>
+              <tr>
+                <td data-label="処理の特徴">同じ演算を大量の要素へ適用</td>
+                <td data-label="第一候補">GPU</td>
+                <td data-label="例">行列積、畳み込み、画像変換、格子計算</td>
+              </tr>
+              <tr>
+                <td data-label="処理の特徴">小さな計算を一度だけ実行</td>
+                <td data-label="第一候補">CPU</td>
+                <td data-label="例">小配列の集計、短いスクリプト</td>
+              </tr>
+              <tr>
+                <td data-label="処理の特徴">大きな配列を繰り返し計算</td>
+                <td data-label="第一候補">GPUを検討</td>
+                <td data-label="例">深層学習、反復的な線形代数、アンサンブル計算</td>
+              </tr>
+              <tr>
+                <td data-label="処理の特徴">外部ライブラリがGPU非対応</td>
+                <td data-label="第一候補">CPU</td>
+                <td data-label="例">GPUバックエンドのない既存コード</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>GPUが特に有利なのは、多数のデータ要素を同時に処理でき、転送したデータに対して十分な量の計算を行える場合です。逆に、転送量に対して演算が少ない処理では、GPUの演算そのものが速くても、処理全体は速くならないことがあります。GPU向けの公式ガイドも、転送時間を性能評価に含め、データを可能な限りGPU側に保持し、小さな転送を繰り返さないよう推奨しています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup><sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+
+          <h3>GPUを使っても速くならない主な理由</h3>
+          <ul>
+            <li><strong>仕事が小さすぎる:</strong> GPUへ計算を依頼する準備時間の割合が大きくなる。</li>
+            <li><strong>CPU–GPU転送が多い:</strong> ループのたびに配列を往復させると、転送が支配的になる。</li>
+            <li><strong>並列化できる部分が少ない:</strong> 逐次部分はGPUを追加しても短くならない。</li>
+            <li><strong>スレッドごとの分岐がばらばら:</strong> 同時に動くスレッドが異なる経路を通ると、GPUの並列実行効率が落ちる。</li>
+            <li><strong>VRAMが不足する:</strong> 問題を分割したりCPU側へ退避したりすると、追加の転送と管理が必要になる。</li>
+            <li><strong>必要な精度が重い:</strong> GPUや世代によって倍精度演算の性能は大きく異なるため、科学計算では単精度のピーク性能だけで選ばない。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></li>
+            <li><strong>ソフトウェアが対応していない:</strong> GPU対応ドライバ、ライブラリ、演算実装がなければ、コードを書き換えるだけでは利用できない。</li>
+          </ul>
+
+          <h3>計算機ユーザとしての選び方</h3>
+          <ol>
+            <li><strong>まずCPU版を正解の基準にする。</strong> 小さな入力で結果を確認し、再現可能な基準実装を持つ。</li>
+            <li><strong>処理時間の内訳を測る。</strong> 全体で時間を使っている箇所が行列演算なのか、I/Oや前処理なのかをプロファイラで確認する。</li>
+            <li><strong>GPU対応ライブラリを確認する。</strong> 自作GPUカーネルより先に、利用中の線形代数、機械学習、配列ライブラリに対応バックエンドがあるか調べる。</li>
+            <li><strong>問題がVRAMに収まるか見積もる。</strong> 入力だけでなく、中間配列、勾配、作業領域も必要になる。</li>
+            <li><strong>処理全体を同じ条件で測る。</strong> データ転送を含む時間と、GPU上の計算だけの時間を分けて記録する。</li>
+            <li><strong>結果の差も検証する。</strong> 浮動小数点演算は計算順序が変わると丸め結果も変わり得るため、CPU版とGPU版の完全一致だけを合格条件にしない。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></li>
+          </ol>
+
+          <h3>PythonでCPU時間とGPU時間を測る例</h3>
+          <p>次はPyTorchで同じ行列積を測る最小例です。GPUの計算だけを測った値と、CPUからGPUへの転送・結果の回収を含む値を分けます。GPU演算は通常非同期なので、単純に呼び出しの前後だけを測ると、計算完了前に時計を止めてしまいます。正確な時間測定には同期が必要です。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+          <pre><code class="language-python">from time import perf_counter
+
+import torch
+
+
+def measure_matmul(size: int = 2048, repeats: int = 5) -&gt; dict[str, float]:
+    """CPUとCUDA GPUで行列積の所要時間を測る。
+
+    Parameters
+    ----------
+    size
+        正方行列の一辺の要素数。
+    repeats
+        行列積を繰り返す回数。
+
+    Returns
+    -------
+    dict[str, float]
+        CPU、GPU計算のみ、転送込みGPU処理の秒数。
+    """
+    if not torch.cuda.is_available():
+        raise RuntimeError("CUDA対応GPUを利用できません。")
+
+    a_cpu = torch.randn(size, size, dtype=torch.float32)
+    b_cpu = torch.randn(size, size, dtype=torch.float32)
+
+    # CPU版を測る
+    _ = a_cpu @ b_cpu
+    started = perf_counter()
+    for _ in range(repeats):
+        c_cpu = a_cpu @ b_cpu
+    cpu_seconds = perf_counter() - started
+
+    # GPU上の計算だけを測る
+    a_gpu = a_cpu.to("cuda")
+    b_gpu = b_cpu.to("cuda")
+    _ = a_gpu @ b_gpu
+    torch.cuda.synchronize()
+    started = perf_counter()
+    for _ in range(repeats):
+        c_gpu = a_gpu @ b_gpu
+    torch.cuda.synchronize()
+    gpu_compute_seconds = perf_counter() - started
+
+    # CPUからの転送と結果回収を含む処理全体を測る
+    torch.cuda.synchronize()
+    started = perf_counter()
+    a_gpu = a_cpu.to("cuda")
+    b_gpu = b_cpu.to("cuda")
+    for _ in range(repeats):
+        c_gpu = a_gpu @ b_gpu
+    c_result = c_gpu.cpu()
+    gpu_end_to_end_seconds = perf_counter() - started
+
+    # 計算結果を使い、CPU版とGPU版の先頭要素も確認する
+    _ = (c_cpu[0, 0].item(), c_result[0, 0].item())
+
+    return {
+        "cpu_seconds": cpu_seconds,
+        "gpu_compute_seconds": gpu_compute_seconds,
+        "gpu_end_to_end_seconds": gpu_end_to_end_seconds,
+    }
+
+
+print(torch.cuda.get_device_name())
+print(measure_matmul())</code></pre>
+          <p>出力値はGPU、CPU、PyTorch、行列サイズによって変わるため、固定の模範値はありません。実運用では複数回測って中央値を使い、実際の入力サイズでも確認します。また、この例のGPU計算時間は「入力がすでにVRAMにある」条件です。アプリケーション全体の速さを判断するときは、転送込みの時間を無視しません。</p>
+
+          <h3>まとめ</h3>
+          <p>CPUとGPUの違いは、単純な速さではなく、CPUが複雑な少数の仕事の待ち時間を減らし、GPUが単純化できる大量の仕事の総処理量を増やすよう設計されていることです。ただしCPUもSIMD命令でベクトル計算でき、専用ベクトルプロセッサという別系統の計算機もあります。計算機ユーザは、処理の並列性、データ量、メモリ帯域、VRAM、転送回数、対応ライブラリ、必要精度を見て使い分けます。最終判断は、CPUとGPUを対立させるのではなく、CPU内ベクトル化も含めて各段階を実測し、GPUへ渡す価値があるボトルネックだけを移して行います。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html">NVIDIA CUDA Programming Guide: Programming Model</a></li>
+            <li id="ref-2"><a href="https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#differences-between-host-and-device">NVIDIA CUDA C++ Best Practices Guide: Differences between Host and Device</a></li>
+            <li id="ref-3"><a href="https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#data-transfer-between-host-and-device">NVIDIA CUDA C++ Best Practices Guide: Data Transfer Between Host and Device</a></li>
+            <li id="ref-4"><a href="https://docs.pytorch.org/docs/main/notes/cuda.html#asynchronous-execution">PyTorch Documentation: CUDA semantics — Asynchronous execution</a></li>
+            <li id="ref-5"><a href="https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#numerical-accuracy-and-precision">NVIDIA CUDA C++ Best Practices Guide: Numerical Accuracy and Precision</a></li>
+            <li id="ref-6"><a href="https://www.intel.com/content/www/us/en/support/articles/000005779/processors.html">Intel Instruction Set Extensions Technology</a></li>
+            <li id="ref-7"><a href="https://www.nec.com/en/global/solutions/hpc/sx/">NEC SX Vector Supercomputer: SX-Aurora TSUBASA</a></li>
+            <li id="ref-8"><a href="https://www.intel.com/content/www/us/en/docs/dpcpp-cpp-compiler/developer-guide-reference/2026-0/vectorization-and-loops.html">Intel oneAPI DPC++/C++ Compiler: Vectorization and Loops</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>

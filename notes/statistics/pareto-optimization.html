@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>パレート最適化とは？ | k-notes</title>
+    <meta name="description" content="パレート最適化を、支配関係、パレート最適解、パレートフロント、具体的な数値例、解を選ぶときの注意点から整理する。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>パレート最適化とは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-07-31">2026-07-31</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>パレート最適化とは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>パレート最適化は、コスト、精度、速度、安全性など<strong>複数の目的が競合する問題で、一つの総合点を最小化する代わりに、目的間の優れた妥協案をまとめて探す</strong>考え方です。ある解を改善するには少なくとも別の目的を悪化させる必要があるとき、その解をパレート最適解と呼びます。通常は一つではなく複数の解が残り、それぞれが異なるトレードオフを表します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+        </section>
+
+        <section aria-labelledby="terms-heading">
+          <h2 id="terms-heading">最初に4つの用語を区別する</h2>
+
+          <h3>目的</h3>
+          <p>良くしたい評価項目です。ここでは「費用」と「誤差」をどちらも小さくする問題を考えます。目的には最大化と最小化を混在させることもできますが、比較するときは各目的でどちらが良い方向かを明示します。</p>
+
+          <h3>支配</h3>
+          <p>解Xが解Yに対して、<strong>すべての目的で同等以上であり、少なくとも一つの目的で明確に優れている</strong>とき、「XはYを支配する」といいます。最小化問題なら、Xの値が全項目でY以下で、少なくとも一項目ではYより小さい状態です。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>パレート最適解</h3>
+          <p>実行可能な他の解に支配されていない解です。「非支配解」または「効率的な解」と呼ばれることもあります。パレート最適解をすべて集めたものが、決定変数の空間における<strong>パレート集合</strong>です。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>パレートフロント</h3>
+          <p>パレート最適解を、費用や誤差などの<strong>目的値の空間</strong>に写して並べた境界です。パレート集合が「どの設計を選んだか」を表すのに対し、パレートフロントは「その設計がどの成績を達成したか」を表します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+        </section>
+
+        <section aria-labelledby="example-heading">
+          <h2 id="example-heading">5案の数値例で支配関係を見る</h2>
+          <p>次の5案について、導入費用と予測誤差をどちらも小さくしたいとします。</p>
+
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>設計案</th>
+                <th>費用</th>
+                <th>誤差</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="設計案">A</td>
+                <td data-label="費用">80万円</td>
+                <td data-label="誤差">8%</td>
+              </tr>
+              <tr>
+                <td data-label="設計案">B</td>
+                <td data-label="費用">100万円</td>
+                <td data-label="誤差">5%</td>
+              </tr>
+              <tr>
+                <td data-label="設計案">C</td>
+                <td data-label="費用">120万円</td>
+                <td data-label="誤差">3%</td>
+              </tr>
+              <tr>
+                <td data-label="設計案">D</td>
+                <td data-label="費用">110万円</td>
+                <td data-label="誤差">6%</td>
+              </tr>
+              <tr>
+                <td data-label="設計案">E</td>
+                <td data-label="費用">90万円</td>
+                <td data-label="誤差">9%</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <ul>
+            <li><strong>DはBに支配される:</strong> Bの方が10万円安く、誤差も1ポイント小さいため、Dを選ぶ理由がありません。</li>
+            <li><strong>EはAに支配される:</strong> Aの方が10万円安く、誤差も1ポイント小さいため、Eも候補から外せます。</li>
+            <li><strong>A、B、Cは互いに支配しない:</strong> 誤差を小さくするほど費用が上がります。どれか一つを一方的に優れているとはいえません。</li>
+          </ul>
+
+          <p>したがって、この候補集合におけるパレート最適解はA、B、Cです。ただし、これは<strong>列挙した5案の中での非支配解</strong>です。調べていない設計案や探索範囲の外に、A、B、Cを支配する解が存在しないことまでは保証しません。</p>
+        </section>
+
+        <section aria-labelledby="workflow-heading">
+          <h2 id="workflow-heading">実際のパレート最適化は何をするか</h2>
+          <ol>
+            <li><strong>決定変数を決める:</strong> 設計寸法、材料、運転条件など、変更できる値を定義する。</li>
+            <li><strong>目的を決める:</strong> 費用、誤差、所要時間など、比較したい指標と良い方向を定義する。</li>
+            <li><strong>制約を決める:</strong> 予算上限、安全基準、物理法則など、必ず満たす条件を定義する。</li>
+            <li><strong>候補を探索する:</strong> 厳密法、重み付き和、制約法、進化計算などを使って解を生成する。</li>
+            <li><strong>非支配解を残す:</strong> 支配される候補を除き、パレートフロントを近似する。</li>
+            <li><strong>最後に一案を選ぶ:</strong> 予算、許容誤差、頑健性など、最適化に入れていない判断基準も含めて意思決定する。</li>
+          </ol>
+
+          <p>代表的な進化計算手法のNSGA-IIは、候補集団を非支配ランクで並べ、混雑距離を使って解の多様性を保ちながら、1回の探索で複数のパレート最適解へ近づく方法です。ただし、得られるのは有限回の計算による近似であり、真のパレートフロント全体が必ず得られるわけではありません。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+        </section>
+
+        <section aria-labelledby="selection-heading">
+          <h2 id="selection-heading">残った解からどう選ぶか</h2>
+          <p>パレート最適化だけでは、A、B、Cのどれを採用するかは決まりません。これは欠点ではなく、<strong>目的間の価値判断を計算結果から分離して見せる</strong>という役割です。たとえば次のように絞ります。</p>
+          <ul>
+            <li>予算が100万円以下なら、AとBだけを比較する。</li>
+            <li>誤差5%以下が必須なら、BとCだけを比較する。</li>
+            <li>BからCへ20万円追加して誤差を2ポイント減らす価値があるか判断する。</li>
+            <li>目的値の推定誤差や条件変化に対して、結果が安定する案を優先する。</li>
+          </ul>
+          <p>つまりパレートフロントは「自動的に正解を一つ選ぶ装置」ではなく、<strong>何を得るために何を諦めるのかを見えるようにする比較表</strong>です。</p>
+        </section>
+
+        <section aria-labelledby="cautions-heading">
+          <h2 id="cautions-heading">よくある誤解と注意点</h2>
+
+          <h3>「パレート最適」だから絶対に優秀、ではない</h3>
+          <p>極端に安いが誤差が大きい案も、極端に正確だが高額な案も、互いに支配されなければパレート最適です。実用的かどうかは、制約や許容範囲を別に確認します。</p>
+
+          <h3>目的と制約の定義が結果を決める</h3>
+          <p>測っていない安全性や保守性は、パレート最適性の判定に入りません。重要な評価軸を落とすと、計算上は非支配でも実務上は採用できない解が残ります。</p>
+
+          <h3>重み付き和には限界がある</h3>
+          <p>複数の目的に重みを掛けて足し、一つの目的関数にする方法は簡単です。しかし、目的の単位や尺度で結果が変わり、重みの決め方そのものが価値判断になります。また、パレートフロントが非凸な場合、重みを変えても到達できない非支配解があり得ます。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+
+          <h3>目的が多いほど「支配」が効きにくくなる</h3>
+          <p>目的数が増えると、多くの候補が互いに一長一短となり、非支配解が大量に残りやすくなります。その場合は、許容範囲、優先順位、参照点などを追加し、意思決定に必要な範囲へ絞ります。</p>
+        </section>
+
+        <section aria-labelledby="summary-heading">
+          <h2 id="summary-heading">まとめ</h2>
+          <p>パレート最適化とは、複数目的を無理に一つの点数へまとめず、他の解に全目的で負けている候補を除外し、異なるトレードオフを持つ非支配解を残す方法です。パレートフロントを得ることが探索の終点ではなく、そこから制約、優先順位、追加費用に見合う改善量を考えて一案を選ぶところまでが意思決定です。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://doi.org/10.1038/s41598-023-33414-6">C. S. Tan et al. (2023), Pareto optimization with small data by learning across common objective spaces</a></li>
+            <li id="ref-2"><a href="https://doi.org/10.1109/4235.996017">K. Deb, A. Pratap, S. Agarwal, T. Meyarivan (2002), A Fast and Elitist Multiobjective Genetic Algorithm: NSGA-II</a></li>
+            <li id="ref-3"><a href="https://hdl.handle.net/1911/101886">I. Das, J. E. Dennis Jr. (1996), A Closer Look at Drawbacks of Minimizing Weighted Sums of Objectives for Pareto Set Generation in Multicriteria Optimization Problems</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
