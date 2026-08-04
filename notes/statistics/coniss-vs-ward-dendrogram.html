@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CONISSのdendrogramとは？通常のWard法と何が違う？ | k-notes</title>
+    <meta name="description" content="CONISSのdendrogramの読み方を、通常のWard法との共通点、層序隣接制約、枝高、ゾーン境界の決め方に分けて整理する。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>CONISSのdendrogramとは？通常のWard法と何が違う？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-08-04">2026-08-04</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>CONISSのdendrogramとは？通常のWard法と何が違う？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><strong>CONISSのdendrogramは、深度・年代などの順序を保ったまま、隣接する試料群だけを順次結合した階層クラスタリングの樹形図</strong>です。通常のWard法と同じく、結合によるクラスタ内平方和の増加を小さくする考え方を使いますが、CONISSでは離れた層準のクラスタ同士を直接結合できません。したがって、結果の各クラスタは必ず連続した層序区間となり、花粉・珪藻・地球化学組成などの層序ゾーンを提案する用途に適します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+        </section>
+
+        <section aria-labelledby="meaning-heading">
+          <h2 id="meaning-heading">dendrogramは何を表すか</h2>
+          <p>最初は各層準の試料が1個ずつのクラスタです。アルゴリズムは2群を結合してクラスタ数を1つ減らす操作を繰り返し、最後に全試料を1群へまとめます。葉は個々の試料、枝分かれは過去の結合、内部ノードは複数試料からなる層序区間を表します。</p>
+          <p>CONISSでは、ある内部ノードに属する葉が、元の層序上でも必ず連続します。例えば深度順に1〜6の試料があるとき、1〜3を1群にすることはできますが、1・3・5だけを飛び飛びに含む群は作れません。Rパッケージ<code>rioja</code>の<code>chclust</code>も、クラスタを入力試料の順序で制約する方法としてCONISSを実装し、葉の位置に実際の深度を指定して描画できます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <figure class="climate-chart" aria-labelledby="candidate-caption">
+            <figcaption id="candidate-caption">図1　ある結合段階で候補にできるクラスタ対の違い</figcaption>
+            <svg viewBox="0 0 760 330" role="img" aria-label="通常のWard法は離れたクラスタも結合候補にできるが、CONISSは層序上で隣接するクラスタだけを候補にする模式図。">
+              <text x="28" y="32" style="font-size:18px;font-weight:700">現在の4クラスタ</text>
+              <g aria-label="深度順のクラスタ">
+                <rect x="44" y="58" width="130" height="48" rx="8" fill="#dcefeb" stroke="#26736c"/>
+                <rect x="214" y="58" width="90" height="48" rx="8" fill="#f7e4dc" stroke="#a45e45"/>
+                <rect x="344" y="58" width="130" height="48" rx="8" fill="#dcefeb" stroke="#26736c"/>
+                <rect x="514" y="58" width="90" height="48" rx="8" fill="#f7e4dc" stroke="#a45e45"/>
+                <text x="109" y="88" text-anchor="middle">[1, 2]</text>
+                <text x="259" y="88" text-anchor="middle">[3]</text>
+                <text x="409" y="88" text-anchor="middle">[4, 5]</text>
+                <text x="559" y="88" text-anchor="middle">[6]</text>
+                <text x="642" y="88">深度順 →</text>
+              </g>
+              <text x="28" y="154" style="font-size:17px;font-weight:700">通常のWard法</text>
+              <path d="M109 174 C109 226 559 226 559 174" fill="none" stroke="#a45e45" stroke-width="4"/>
+              <circle cx="109" cy="174" r="6" fill="#a45e45"/>
+              <circle cx="559" cy="174" r="6" fill="#a45e45"/>
+              <text x="334" y="249" text-anchor="middle">離れた [1, 2] と [6] も候補にできる</text>
+              <text x="28" y="286" style="font-size:17px;font-weight:700">CONISS</text>
+              <line x1="109" y1="302" x2="259" y2="302" stroke="#26736c" stroke-width="4"/>
+              <line x1="259" y1="302" x2="409" y2="302" stroke="#26736c" stroke-width="4"/>
+              <line x1="409" y1="302" x2="559" y2="302" stroke="#26736c" stroke-width="4"/>
+              <circle cx="109" cy="302" r="6" fill="#26736c"/>
+              <circle cx="259" cy="302" r="6" fill="#26736c"/>
+              <circle cx="409" cy="302" r="6" fill="#26736c"/>
+              <circle cx="559" cy="302" r="6" fill="#26736c"/>
+              <text x="642" y="308">隣接対だけ</text>
+            </svg>
+          </figure>
+        </section>
+
+        <section aria-labelledby="criterion-heading">
+          <h2 id="criterion-heading">Ward法との共通点は「結合コスト」</h2>
+          <p>各試料を特徴量ベクトル \(x_i\)、クラスタ \(C\) の重心を \(\bar{x}_C\) とします。分割全体のクラスタ内平方和 \(W\) は、各試料と所属クラスタ重心の二乗距離の合計です。</p>
+          <p>
+            \[
+              W
+              =
+              \sum_{C}
+              \sum_{i \in C}
+              \left\lVert x_i-\bar{x}_C \right\rVert_2^2
+            \]
+          </p>
+          <p>2クラスタ \(A\) と \(B\) を結合するときのコストは、結合後の \(W\) から結合前の \(W\) を引いた増分です。通常のWard法は、現時点の<strong>全クラスタ対</strong>からこの増分が最小の対を選びます。CONISSは同じ発想を使いながら、比較対象を<strong>層序上で隣接する対</strong>だけに限定します。Grimmの原著も、通常法との相違を「隣接するクラスタだけを結合候補とすること」と説明しています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup> Wardの原法は、各段階で目的関数の損失が小さい結合を選び、1群になるまで階層を作る手続きです。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+        </section>
+
+        <section aria-labelledby="difference-heading">
+          <h2 id="difference-heading">違いを一表で整理する</h2>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>観点</th>
+                <th>通常のWard法</th>
+                <th>CONISS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="観点">結合候補</td>
+                <td data-label="通常のWard法">任意の2クラスタ</td>
+                <td data-label="CONISS">層序上で隣接する2クラスタだけ</td>
+              </tr>
+              <tr>
+                <td data-label="観点">クラスタの形</td>
+                <td data-label="通常のWard法">離れた深度の試料を同じ群にできる</td>
+                <td data-label="CONISS">必ず連続した深度・年代区間になる</td>
+              </tr>
+              <tr>
+                <td data-label="観点">主な問い</td>
+                <td data-label="通常のWard法">組成が似た試料はどれか</td>
+                <td data-label="CONISS">連続記録をどこでゾーン分けできるか</td>
+              </tr>
+              <tr>
+                <td data-label="観点">向くデータ</td>
+                <td data-label="通常のWard法">順序制約のない観測群</td>
+                <td data-label="CONISS">堆積物コア、年代系列、線状トランセクト</td>
+              </tr>
+              <tr>
+                <td data-label="観点">代償</td>
+                <td data-label="通常のWard法">層序的に飛び飛びの群ができ得る</td>
+                <td data-label="CONISS">よく似た非隣接試料を直接まとめられない</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section aria-labelledby="reading-heading">
+          <h2 id="reading-heading">CONISS dendrogramの読み方</h2>
+          <ol>
+            <li><strong>葉を層序軸と対応させる。</strong> 各葉は1試料です。図が横向きなら縦軸が深度・年代、通常向きなら横軸が試料順になることがあります。</li>
+            <li><strong>低いコストでまとまる連続区間を見る。</strong> 早い段階で結合する隣接試料は、入力した組成と変換の下で比較的似ています。</li>
+            <li><strong>大きな結合コストの手前を境界候補にする。</strong> 大きく異なる隣接区間を結合すると平方和が大きく増えるため、長い枝や大きな段差の手前がゾーン境界の候補になります。</li>
+            <li><strong>切断位置を別の根拠で吟味する。</strong> 枝があること自体は、環境変化の有意性、同時性、原因を証明しません。broken-stickモデルなどの補助基準と、プロキシ曲線、年代誤差、堆積学的情報を併せて判断します。<code>rioja</code>には制約付き分類の分散をbroken-stickモデルと比較する機能もあります。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></li>
+          </ol>
+
+          <h3>枝高は年代差ではない</h3>
+          <p>古典的なCONISS図では、結合段階の<strong>total sum of squares</strong>が軸に示されます。<code>rioja::chclust(method = "coniss")</code>の高さも、各結合増分の累積として実装されています。一方、通常のWard法ではソフトウェアによって、結合増分、その平方根、累積量など表示尺度が異なり得ます。したがって、枝高を深度差・年代差・相関係数と読み替えたり、別実装の数値を軸ラベルの確認なしに直接比較したりしてはいけません。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+        </section>
+
+        <section aria-labelledby="cautions-heading">
+          <h2 id="cautions-heading">結果を左右する前処理</h2>
+          <ul>
+            <li><strong>変換:</strong> 割合データを平方根変換するか、希少分類群をどう扱うかで、優占分類群の影響が変わります。Grimmは、変換によって暗黙の非類似度係数が変わると述べています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></li>
+            <li><strong>入力変数:</strong> 分析に含めた分類群・元素・プロキシだけがゾーニングを決めます。測っていない環境変数は評価できません。</li>
+            <li><strong>試料間隔:</strong> 密に採取した区間と疎な区間が混在すると、葉の数と変化の見え方が不均衡になります。dendrogramの葉間隔を実深度で描いても、クラスタリング自体が時間間隔を重みとして使うとは限りません。</li>
+            <li><strong>制約の妥当性:</strong> 順序が科学的に重要な1本のコアにはCONISSが自然ですが、互いに独立した地点群を分類するだけなら通常のWard法の方が問いに合います。</li>
+          </ul>
+        </section>
+
+        <section aria-labelledby="summary-heading">
+          <h2 id="summary-heading">まとめ</h2>
+          <p>CONISSは、Ward型の最小分散クラスタリングに<strong>隣接制約</strong>を加えた方法です。dendrogramは、連続する層序区間がどの結合コストで統合されたかを表し、大きな段差はゾーン境界の候補になります。ただし、その境界は自動的な環境イベント認定ではありません。入力変数、変換、試料間隔、年代モデルを確認し、他の層序学的証拠と合わせて解釈する必要があります。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://doi.org/10.1016/0098-3004(87)90022-7">Grimm, E. C. (1987), CONISS: A FORTRAN 77 program for stratigraphically constrained cluster analysis by the method of incremental sum of squares</a></li>
+            <li id="ref-2"><a href="https://search.r-project.org/CRAN/refmans/rioja/html/chclust.html">rioja: Constrained hierarchical clustering</a></li>
+            <li id="ref-3"><a href="https://doi.org/10.1080/01621459.1963.10500845">Ward, J. H. (1963), Hierarchical Grouping to Optimize an Objective Function</a></li>
+            <li id="ref-4"><a href="https://stat.ethz.ch/CRAN/web/packages/adjclust/vignettes/notesCHAC.html">adjclust: Implementation notes for constrained hierarchical agglomerative clustering</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
