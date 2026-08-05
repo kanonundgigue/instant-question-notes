@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Liang information flowとは？ | k-notes</title>
+    <meta name="description" content="Liang–Kleeman information flowの定義、2変量時系列からの推定式、符号と方向の読み方、相関・Granger causality・transfer entropyとの違い、利用時の注意点を整理する。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>Liang information flowとは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-08-05">2026-08-05</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>Liang information flowとは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">最初に結論</h2>
+          <p><strong>Liang information flow（Liang–Kleeman information flow）は、ある変数が別の変数の不確実性の時間変化へ与える寄与を、Shannon entropyの変化率として測る方向付き指標です。</strong> \(X_2\) から \(X_1\) への流れを \(T_{2\to1}\) と書き、単位は通常、単位時間当たりのnatです。逆向きの \(T_{1\to2}\) とは別に計算するため、相互作用の向きと強さを区別できます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>この方法がいう「因果」は、基礎に置いた力学系の進化則と情報流に基づくものです。特に、\(X_1\) の進化則が \(X_2\) に依存しなければ \(T_{2\to1}=0\) になるという<strong>nil causality</strong>の性質が証明されています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup> ただし、有限の観測時系列へ簡便な推定式を適用した結果は、未観測変数やモデル仮定の影響を受ける統計的推定であり、介入実験と同じ意味の因果証明ではありません。</p>
+        </section>
+
+        <section aria-labelledby="intuition-heading">
+          <h2 id="intuition-heading">直感：一方を「瞬間的に固定」して比べる</h2>
+          <p>\(X_1\) の周辺entropyを \(H_1\) とします。実際の系における変化率を \(\mathrm{d}H_1/\mathrm{d}t\)、\(X_2\) の影響だけを除くため \(X_2\) を瞬間的に固定した系での変化率を \(\mathrm{d}H_{1\setminus2}/\mathrm{d}t\) とすると、情報流は概念的に次の差です。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>
+            \[
+              T_{2\to1}
+              =
+              \frac{\mathrm{d}H_1}{\mathrm{d}t}
+              -
+              \frac{\mathrm{d}H_{1\setminus2 } }{\mathrm{d}t}
+            \]
+          </p>
+          <p>したがって、単に「\(X_1\) と \(X_2\) が一緒に動くか」ではなく、<strong>\(X_2\) が存在することで \(X_1\) の不確実性の変化率がどれだけ変わるか</strong>を問います。相関係数は対称ですが、情報流は一般に \(T_{2\to1}\neq T_{1\to2}\) です。高相関でも一方向の情報流が0になる系があり、方向によって符号や大きさが異なる場合もあります。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+        </section>
+
+        <section aria-labelledby="sign-heading">
+          <h2 id="sign-heading">値の読み方</h2>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>結果</th>
+                <th>基本的な解釈</th>
+                <th>注意点</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="結果">\(T_{2\to1}&gt;0\)</td>
+                <td data-label="基本的な解釈">\(X_2\) が \(X_1\) のentropyを増やし、不確実化する方向</td>
+                <td data-label="注意点">正だから「良い影響」「正相関」という意味ではない</td>
+              </tr>
+              <tr>
+                <td data-label="結果">\(T_{2\to1}&lt;0\)</td>
+                <td data-label="基本的な解釈">\(X_2\) が \(X_1\) のentropyを減らし、安定化する方向</td>
+                <td data-label="注意点">負だから因果がないわけではない</td>
+              </tr>
+              <tr>
+                <td data-label="結果">\(T_{2\to1}=0\)</td>
+                <td data-label="基本的な解釈">理論上、\(X_2\) から \(X_1\) への情報流がない</td>
+                <td data-label="注意点">標本推定値が0付近なら検定と検出力の確認が必要</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>正負は、受け手 \(X_1\) のentropy変化への寄与の向きです。2014年の論文では、El NiñoとIndian Ocean Dipole（IOD）の解析例について、El NiñoからIODへの流れは安定化方向、IODからEl Niñoへの流れは不確実化方向と報告されています。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+        </section>
+
+        <section aria-labelledby="estimator-heading">
+          <h2 id="estimator-heading">2変量時系列からの簡便な推定式</h2>
+          <p>実務でよく引用されるのは、2変量の線形確率力学系を仮定して導かれた最尤推定量です。等間隔の観測列 \(X_1\)、\(X_2\) から \(X_1\) の時間微分列 \(\dot X_1\) を差分で作り、標本共分散を計算します。\(C_{ij}=\operatorname{cov}(X_i,X_j)\)、\(C_{i,d1}=\operatorname{cov}(X_i,\dot X_1)\) とすると、次式で推定されます。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <p>
+            \[
+              \widehat{T}_{2\to1}
+              =
+              \frac{
+                C_{11}C_{12}C_{2,d1}
+                -C_{12}^{2}C_{1,d1}
+              }{
+                C_{11}^{2}C_{22}
+                -C_{11}C_{12}^{2}
+              }
+            \]
+          </p>
+          <p>逆向きの \(\widehat{T}_{1\to2}\) は、受け手を \(X_2\) に替え、\(\dot X_2\) との共分散を用いて別に計算します。この式が簡潔なのは大きな利点ですが、厳密には線形モデルの推定式です。一般の非線形力学系に対する理論的情報流の定義そのものと、この共分散だけを使う近似的な時系列推定を区別する必要があります。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup><sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+        </section>
+
+        <section aria-labelledby="normalization-heading">
+          <h2 id="normalization-heading">生の値と正規化値</h2>
+          <p>生の \(T_{2\to1}\) は単位時間当たりのentropyであり、時系列の時間単位や対象系が異なると、そのまま相対的重要度を比較しにくいことがあります。そこで、\(X_1\) 自身によるentropy変化、\(X_2\) からの情報流、ノイズによるentropy変化の絶対値の合計に対する割合として、正規化情報流 \(\tau_{2\to1}\) が提案されています。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+          <p>生の情報流は「変化率の大きさ」、正規化値は「受け手のentropy収支に占める相対的寄与」を読むための量です。論文やソフトウェアによって正規化の定義が異なる可能性があるため、結果を見るときは \(T\) か \(\tau\) か、分母に何を含めたかを確認します。</p>
+        </section>
+
+        <section aria-labelledby="comparison-heading">
+          <h2 id="comparison-heading">相関・Granger causality・transfer entropyとの違い</h2>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>方法</th>
+                <th>主に測るもの</th>
+                <th>方向性</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="方法">相関</td>
+                <td data-label="主に測るもの">同時に変動する強さ</td>
+                <td data-label="方向性">なし</td>
+              </tr>
+              <tr>
+                <td data-label="方法">Granger causality</td>
+                <td data-label="主に測るもの">過去値を加えると予測が改善するか</td>
+                <td data-label="方向性">あり</td>
+              </tr>
+              <tr>
+                <td data-label="方法">transfer entropy</td>
+                <td data-label="主に測るもの">過去から未来への条件付き情報量</td>
+                <td data-label="方向性">あり</td>
+              </tr>
+              <tr>
+                <td data-label="方法">Liang information flow</td>
+                <td data-label="主に測るもの">受け手のentropy変化率への寄与</td>
+                <td data-label="方向性">あり</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>Liang information flowは、力学系に基づいて「変数を瞬間的に固定した場合との差」から導く点が特徴です。transfer entropyと同じものの別名ではありません。また、標準的な2変量推定式は明示的な遅延次数を探索する形ではなく、時間微分を近似する差分幅が解析スケールに関わります。</p>
+        </section>
+
+        <section aria-labelledby="workflow-heading">
+          <h2 id="workflow-heading">実データで使うときの流れ</h2>
+          <ol>
+            <li><strong>問いと方向を決める：</strong>\(X_2\to X_1\) と \(X_1\to X_2\) を混同せず、両方向を計算する。</li>
+            <li><strong>時間軸を整える：</strong>等間隔化、欠測処理、単位、差分幅を明示する。不必要な補間は新しい自己相関を作り得る。</li>
+            <li><strong>定常性と時間スケールを点検する：</strong>トレンド、季節性、レジーム変化をどう扱ったかを記録し、妥当な複数処理で感度を見る。</li>
+            <li><strong>情報流と不確実性を推定する：</strong>\(\widehat T\) だけでなく、標準誤差、信頼区間または帰無分布を求める。</li>
+            <li><strong>候補となる第三変数を含める：</strong>共通原因が疑われる場合は、2変量だけで結論せず多変量解析や物理モデルと照合する。</li>
+            <li><strong>頑健性を確認する：</strong>期間、差分幅、前処理、外れ値、時間分解能を変えて、向きと符号が保たれるか調べる。</li>
+          </ol>
+        </section>
+
+        <section aria-labelledby="cautions-heading">
+          <h2 id="cautions-heading">「因果」と呼ぶときの注意点</h2>
+          <ul>
+            <li><strong>定理と推定を分ける：</strong>nil causalityは力学系上の理論的性質です。有限標本の推定値が厳密に0になることを保証するものではありません。</li>
+            <li><strong>2変量だけでは共通原因を除けない：</strong>\(Z\) が \(X_1\) と \(X_2\) の両方を駆動する場合、ペア解析を物理的な直接因果と解釈するのは危険です。多変量系へ拡張された定式化を検討します。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></li>
+            <li><strong>時間差の意味を別途調べる：</strong>非ゼロの情報流だけから、作用が何時刻遅れて伝わるかが自動的に決まるわけではありません。</li>
+            <li><strong>強い非線形・非定常性を点検する：</strong>共分散推定式の線形仮定が合わない場合、窓別解析、非線形モデル、別手法との比較が必要です。</li>
+            <li><strong>有意性と効果量を併記する：</strong>大標本では小さな流れも有意になり得ます。生の \(T\)、正規化値、不確実性を役割別に示します。</li>
+          </ul>
+          <p>したがって、最も安全な表現は「選んだ状態変数、観測期間、前処理、推定モデルの下で、\(X_2\) から \(X_1\) への方向付き情報流が検出された」です。そこから物理的因果へ進むには、既知の機構、時間順序、第三変数、別期間や別データでの再現性を合わせて評価します。</p>
+        </section>
+
+        <section aria-labelledby="summary-heading">
+          <h2 id="summary-heading">まとめ</h2>
+          <p>Liang information flowは、\(X_2\) が \(X_1\) のentropy変化率へ与える寄与 \(T_{2\to1}\) を測る、非対称な情報理論的指標です。正値は不確実化、負値は安定化への寄与を表し、0は理論上の情報流なしに対応します。</p>
+          <p>実データでは、2変量線形系の最尤推定式が共分散だけから計算できる一方、その簡便さと因果解釈の強さは別問題です。方向別の値、正規化、推定不確実性、前処理感度、未観測の共通原因を確認して使う必要があります。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://doi.org/10.3390/e15010327">Liang (2013), The Liang-Kleeman Information Flow: Theory and Applications, Entropy</a></li>
+            <li id="ref-2"><a href="https://doi.org/10.1103/PhysRevE.94.052201">Liang (2016), Information flow and causality as rigorous notions ab initio, Physical Review E</a></li>
+            <li id="ref-3"><a href="https://doi.org/10.1103/PhysRevE.90.052150">Liang (2014), Unraveling the cause-effect relation between time series, Physical Review E</a></li>
+            <li id="ref-4"><a href="https://doi.org/10.1103/PhysRevE.92.022126">Liang (2015), Normalizing the causality between time series, Physical Review E</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
