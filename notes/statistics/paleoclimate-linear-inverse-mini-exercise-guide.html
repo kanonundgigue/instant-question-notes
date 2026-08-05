@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>古気候データ同化の最小演習を一行ずつ理解する | k-notes</title>
+    <meta name="description" content="1地点のプロキシから2地域の気温場を更新し、時間相関した誤差の実効標本数を求めるPython演習を、データ同化初学者向けに数値の由来から丁寧に解説する。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>古気候データ同化の最小演習を一行ずつ理解する</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-08-05">2026-08-05</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p><code>notes/statistics/examples/paleoclimate-linear-inverse-mini-exercise.py</code> の独立解説記事がほしい。最近データ同化の勉強をはじめたばかりの学生向けに丁寧に説明してほしい。</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">最初に結論</h2>
+          <p><strong>このスクリプトは、データ同化の中心的な考え方を二つの小さな計算に分けた教材です。</strong> 演習1では、モデルがあらかじめ持つ空間的な関係を使い、1地点のプロキシから観測のない地点まで更新します。演習2では、時間的に似た誤差を独立な証拠として重複して数えないため、期間平均の標準誤差と実効標本数を求めます。</p>
+          <p>ここで使う数値は、計算の仕組みを見やすくするために作った<strong>合成値</strong>です。したがって、得られる \(0.640\,^{\circ}\mathrm{C}\) などの値は実際の古気候復元結果ではありません。ただし、観測と事前分布を誤差に応じて組み合わせる考え方は、実際の古気候データ同化でも中心になります。古気候データ同化は、気候モデルの事前情報、プロキシ観測、プロキシシステムモデル、各種の不確実性を統計的に統合する枠組みです。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+        </section>
+
+        <section aria-labelledby="position-heading">
+          <h2 id="position-heading">この演習はデータ同化のどこに位置するか</h2>
+          <p>データ同化では、観測を読む前の推定を<strong>事前値</strong>または背景値、観測を取り込んだ後の推定を<strong>解析値</strong>と呼びます。この演習1は、線形な観測式とGaussian誤差を仮定したときの解析更新を、2地域・1観測だけに縮めたものです。Bayes推定、最適内挿、Kalman filterの解析ステップは、この条件では同じ形の更新式に到達します。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <figure class="climate-chart" aria-labelledby="assimilation-flow-caption">
+            <figcaption id="assimilation-flow-caption">図1　演習1で行う「予報」ではなく「解析更新」の流れ</figcaption>
+            <svg viewBox="0 0 820 260" role="img" aria-label="事前気候場と観測を、それぞれの不確実性を考慮して解析気候場へ統合する流れ。">
+              <defs>
+                <marker id="assimilation-arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+                  <path d="M0,0 L10,4 L0,8 Z" fill="#26736c"/>
+                </marker>
+              </defs>
+              <rect x="22" y="30" width="210" height="78" rx="10" fill="#dcefeb" stroke="#26736c" stroke-width="2"/>
+              <text x="127" y="59" text-anchor="middle" style="font-weight:700">事前気候場</text>
+              <text x="127" y="85" text-anchor="middle">西 0、東 0</text>
+              <text x="127" y="101" text-anchor="middle">共分散 B</text>
+              <rect x="22" y="150" width="210" height="78" rx="10" fill="#f7e4dc" stroke="#a45e45" stroke-width="2"/>
+              <text x="127" y="179" text-anchor="middle" style="font-weight:700">西地域のプロキシ</text>
+              <text x="127" y="205" text-anchor="middle">観測 0.8、誤差分散 R</text>
+              <path d="M232 69 L363 112" stroke="#26736c" stroke-width="3" marker-end="url(#assimilation-arrow)"/>
+              <path d="M232 189 L363 146" stroke="#26736c" stroke-width="3" marker-end="url(#assimilation-arrow)"/>
+              <rect x="376" y="88" width="175" height="82" rx="10" fill="#f4eedb" stroke="#92752f" stroke-width="2"/>
+              <text x="463" y="119" text-anchor="middle" style="font-weight:700">Kalman gain</text>
+              <text x="463" y="145" text-anchor="middle">観測を反映する重み</text>
+              <path d="M551 129 L610 129" stroke="#26736c" stroke-width="3" marker-end="url(#assimilation-arrow)"/>
+              <rect x="623" y="72" width="175" height="114" rx="10" fill="#dcefeb" stroke="#26736c" stroke-width="2"/>
+              <text x="710" y="103" text-anchor="middle" style="font-weight:700">解析気候場</text>
+              <text x="710" y="130" text-anchor="middle">西 0.640</text>
+              <text x="710" y="153" text-anchor="middle">東 0.384</text>
+              <text x="710" y="174" text-anchor="middle">不確実性も更新</text>
+            </svg>
+          </figure>
+
+          <p><strong>ただし、このスクリプトは時間を進めるKalman filter全体ではありません。</strong> 予報モデルで状態を次の年代へ進める処理はなく、単一年代の静的な解析更新だけを計算します。演習2も、演習1の更新へ直接つながっているのではなく、時間相関した誤差を別に理解するための計算です。</p>
+
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>スクリプト内の部分</th>
+                <th>学ぶこと</th>
+                <th>まだ扱わないこと</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="スクリプト内の部分"><code>update_two_region_field</code></td>
+                <td data-label="学ぶこと">空間共分散を使う解析更新</td>
+                <td data-label="まだ扱わないこと">時間発展、非線形観測、多数の観測</td>
+              </tr>
+              <tr>
+                <td data-label="スクリプト内の部分"><code>correlated_mean_standard_error</code></td>
+                <td data-label="学ぶこと">時間相関と平均の不確実性</td>
+                <td data-label="まだ扱わないこと">非対角の誤差行列を解析更新へ直接入れる処理</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section aria-labelledby="vocabulary-heading">
+          <h2 id="vocabulary-heading">最初に覚える五つの記号</h2>
+          <p>年代 \(t\) の気候場を \(x\)、プロキシ観測を \(y\) とします。観測演算子 \(H\) は、気候場から「プロキシが観測するはずの量」を計算する順問題です。</p>
+          <p>
+            \[
+              y = Hx + \varepsilon
+            \]
+          </p>
+          <p>例えば \(x\) が西・東2地域の気温偏差なら、この演習の \(H=[1,0]\) は西地域だけを取り出します。現実のプロキシでは、\(H\) が季節平均、標高補正、プロキシと気候量の較正式などを含むことがあります。DASHは、古気候データ同化の要素をprior、proxy records、proxy estimates、data assimilation methodに整理し、プロキシ値を気候状態と比較可能な量へ変換する必要を説明しています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>記号</th>
+                <th>この演習での意味</th>
+                <th>値</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="記号">\(x^b\)</td>
+                <td data-label="この演習での意味">観測を入れる前の西・東の気温偏差</td>
+                <td data-label="値">\([0,0]^{\mathsf{T} }\)</td>
+              </tr>
+              <tr>
+                <td data-label="記号">\(B\)</td>
+                <td data-label="この演習での意味">事前誤差の分散と西・東の共分散</td>
+                <td data-label="値">\(\begin{bmatrix}1&amp;0.6\\0.6&amp;1\end{bmatrix}\)</td>
+              </tr>
+              <tr>
+                <td data-label="記号">\(y\)</td>
+                <td data-label="この演習での意味">西地域の合成プロキシ値</td>
+                <td data-label="値">\(0.8\,^{\circ}\mathrm{C}\)</td>
+              </tr>
+              <tr>
+                <td data-label="記号">\(H\)</td>
+                <td data-label="この演習での意味">気候場から西地域を取り出す観測演算子</td>
+                <td data-label="値">\([1,0]\)</td>
+              </tr>
+              <tr>
+                <td data-label="記号">\(R\)</td>
+                <td data-label="この演習での意味">プロキシ誤差分散</td>
+                <td data-label="値">\(0.25\,^{\circ}\mathrm{C}^2\)</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>上付きの \(b\) はbackground、更新後に使う \(a\) はanalysisを表します。どちらも「真値」ではなく、観測前後の推定値です。</p>
+        </section>
+
+        <section aria-labelledby="exercise-one-heading">
+          <h2 id="exercise-one-heading">演習1：1地点から2地域を更新する</h2>
+
+          <h3>Step 1　事前共分散を読む</h3>
+          <p>両地域の事前標準偏差を \(1\,^{\circ}\mathrm{C}\)、相関を \(0.60\) としたので、共分散行列は次のようになります。</p>
+          <p>
+            \[
+              B =
+              \begin{bmatrix}
+                1.0 &amp; 0.6 \\
+                0.6 &amp; 1.0
+              \end{bmatrix}
+            \]
+          </p>
+          <p>対角成分は各地域の分散、非対角成分は西と東がどれほど一緒に変動すると事前に考えるかを表します。ここでは正の共分散なので、西が暖かいという観測は東も暖かい方向へ更新します。この相関は観測が発見した今回の事実ではなく、<strong>更新前に与えた仮定</strong>です。</p>
+
+          <h3>Step 2　観測の新しさをinnovationで測る</h3>
+          <p>事前値から予想されるプロキシ値は \(Hx^b=0\) です。実際に与えた合成観測は \(y=0.8\) なので、innovation、すなわち観測と事前予測の差は次の値です。</p>
+          <p>
+            \[
+              y-Hx^b = 0.8-0=0.8\,^{\circ}\mathrm{C}
+            \]
+          </p>
+          <p>innovationは観測そのものではありません。すでに事前値が \(0.5\,^{\circ}\mathrm{C}\) なら、同じ観測に対するinnovationは \(0.3\,^{\circ}\mathrm{C}\) です。</p>
+
+          <h3>Step 3　Kalman gainを計算する</h3>
+          <p>解析更新で観測差を各地域へどれだけ配るかは、Kalman gain \(K\) が決めます。</p>
+          <p>
+            \[
+              K
+              =
+              BH^{\mathsf{T} }
+              \left(HBH^{\mathsf{T} }+R\right)^{-1}
+            \]
+          </p>
+          <p>この2地域・1観測の設定では、分母はスカラーになります。</p>
+          <p>
+            \[
+              \begin{aligned}
+                HBH^{\mathsf{T} }+R
+                &amp;= 1.0+0.25 \\
+                &amp;= 1.25 \\
+                K
+                &amp;=
+                \frac{1}{1.25}
+                \begin{bmatrix}
+                  1.0 \\
+                  0.6
+                \end{bmatrix} \\
+                &amp;=
+                \begin{bmatrix}
+                  0.80 \\
+                  0.48
+                \end{bmatrix}
+              \end{aligned}
+            \]
+          </p>
+          <p>西の重みが \(0.80\) なのは、事前分散 \(1.0\) に対して観測誤差分散が \(0.25\) と小さいからです。東の重みが \(0.48\) なのは、西の観測から東へ情報を運ぶ共分散 \(0.60\) があるからです。Kalman gainは、一般には \(0\) から \(1\) に限られる単純な混合比ではありません。多変量問題では負の値や1を超える値もあり得ます。</p>
+
+          <h3>Step 4　気温偏差を更新する</h3>
+          <p>解析値は、事前値へ「Kalman gainを掛けたinnovation」を加えて求めます。</p>
+          <p>
+            \[
+              \begin{aligned}
+                x^a
+                &amp;=x^b+K\left(y-Hx^b\right) \\
+                &amp;=
+                \begin{bmatrix}
+                  0 \\
+                  0
+                \end{bmatrix}
+                +
+                \begin{bmatrix}
+                  0.80 \\
+                  0.48
+                \end{bmatrix}
+                \times 0.8 \\
+                &amp;=
+                \begin{bmatrix}
+                  0.640 \\
+                  0.384
+                \end{bmatrix}
+                \,^{\circ}\mathrm{C}
+              \end{aligned}
+            \]
+          </p>
+          <p>観測のある西も \(0.8\,^{\circ}\mathrm{C}\) まで完全には動きません。プロキシに誤差があるためです。観測のない東が \(0.384\,^{\circ}\mathrm{C}\) へ動くのは、観測が東を直接見たからではなく、事前共分散が西と東を結び付けたからです。</p>
+
+          <h3>Step 5　不確実性も更新する</h3>
+          <p>データ同化では、代表値だけでなく推定の不確実性も更新します。解析誤差共分散は次式です。</p>
+          <p>
+            \[
+              \begin{aligned}
+                B^a
+                &amp;=B-KHB \\
+                &amp;=
+                \begin{bmatrix}
+                  0.200 &amp; 0.120 \\
+                  0.120 &amp; 0.712
+                \end{bmatrix}
+              \end{aligned}
+            \]
+          </p>
+          <p>対角成分の平方根を取ると、解析標準偏差は西で \(\sqrt{0.200}=0.447\,^{\circ}\mathrm{C}\)、東で \(\sqrt{0.712}=0.844\,^{\circ}\mathrm{C}\) です。直接観測された西の不確実性が大きく減り、相関を介して更新された東の不確実性も少し減りました。</p>
+
+          <figure class="climate-chart" aria-labelledby="uncertainty-caption">
+            <figcaption id="uncertainty-caption">図2　事前標準偏差と解析標準偏差の比較</figcaption>
+            <svg viewBox="0 0 760 330" role="img" aria-label="西と東について、事前標準偏差1.0度と解析後の標準偏差0.447度、0.844度を比較した棒グラフ。">
+              <g class="climate-chart__grid">
+                <line x1="105" y1="260" x2="710" y2="260"/>
+                <line x1="105" y1="150" x2="710" y2="150"/>
+                <line x1="105" y1="40" x2="710" y2="40"/>
+              </g>
+              <g class="climate-chart__axis">
+                <line x1="105" y1="40" x2="105" y2="260"/>
+                <line x1="105" y1="260" x2="710" y2="260"/>
+              </g>
+              <text x="88" y="264" text-anchor="end">0.0</text>
+              <text x="88" y="154" text-anchor="end">0.5</text>
+              <text x="88" y="44" text-anchor="end">1.0 °C</text>
+              <rect x="170" y="40" width="92" height="220" fill="rgba(164,94,69,0.30)" stroke="#a45e45"/>
+              <rect x="278" y="162" width="92" height="98" fill="rgba(38,115,108,0.55)" stroke="#26736c"/>
+              <rect x="455" y="40" width="92" height="220" fill="rgba(164,94,69,0.30)" stroke="#a45e45"/>
+              <rect x="563" y="74" width="92" height="186" fill="rgba(38,115,108,0.55)" stroke="#26736c"/>
+              <text x="216" y="282" text-anchor="middle">西・事前</text>
+              <text x="324" y="282" text-anchor="middle">西・解析</text>
+              <text x="501" y="282" text-anchor="middle">東・事前</text>
+              <text x="609" y="282" text-anchor="middle">東・解析</text>
+              <text x="216" y="31" text-anchor="middle">1.000</text>
+              <text x="324" y="153" text-anchor="middle">0.447</text>
+              <text x="501" y="31" text-anchor="middle">1.000</text>
+              <text x="609" y="65" text-anchor="middle">0.844</text>
+            </svg>
+          </figure>
+        </section>
+
+        <section aria-labelledby="code-one-heading">
+          <h2 id="code-one-heading">演習1のコードは行列式を直接展開している</h2>
+          <p>関数 <code>update_two_region_field</code> はNumPyで行列を作らず、上の式をこの設定専用のスカラー計算へ展開しています。</p>
+          <pre><code class="language-python">denominator = 1.0 + proxy_error_variance
+gain_west = 1.0 / denominator
+gain_east = spatial_correlation / denominator
+
+analysis_west = gain_west * proxy_value
+analysis_east = gain_east * proxy_value</code></pre>
+          <p><code>denominator</code> は \(HBH^{\mathsf{T} }+R\)、二つの <code>gain</code> は \(K\) の西・東成分です。事前平均が0なので、コードではinnovationを単に <code>proxy_value</code> として使えます。事前平均を0以外へ変更するなら、<code>proxy_value - prior_proxy_value</code> の形を明示する必要があります。</p>
+          <pre><code class="language-python">variance_west = 1.0 - gain_west
+variance_east = 1.0 - gain_east * spatial_correlation</code></pre>
+          <p>この2行は \(B^a=B-KHB\) の対角成分だけを直接計算しています。そのため、戻り値の <code>posterior_std</code> からは更新後の西・東間の共分散 \(0.120\) は分かりません。教材として短くするための設計であり、大規模な実装の一般形ではありません。</p>
+        </section>
+
+        <section aria-labelledby="exercise-two-heading">
+          <h2 id="exercise-two-heading">演習2：似た誤差を3個の独立情報と数えない</h2>
+          <p>次に、3年代の誤差 \(e_1,e_2,e_3\) を平均したときの不確実性を考えます。各年代の誤差標準偏差は \(\sigma=0.5\,^{\circ}\mathrm{C}\)、年代間相関はAR(1)型で、\(k\) 年代離れた誤差の相関を \(\rho^k\) とします。</p>
+          <p>
+            \[
+              \operatorname{Cov}(e_i,e_j)
+              =
+              \sigma^2\rho^{\lvert i-j\rvert}
+            \]
+          </p>
+          <p>3年代平均 \(\bar e=(e_1+e_2+e_3)/3\) の分散は、各年代の分散だけでなく、異なる年代どうしの共分散も足して求めます。</p>
+          <p>
+            \[
+              \operatorname{Var}(\bar e)
+              =
+              \frac{\sigma^2}{n^2}
+              \left[
+                n
+                +2\sum_{k=1}^{n-1}(n-k)\rho^k
+              \right]
+            \]
+          </p>
+
+          <h3>白色誤差なら平均でよく減る</h3>
+          <p>\(\rho=0\) なら共分散項はすべて0です。</p>
+          <p>
+            \[
+              \begin{aligned}
+                \operatorname{Var}(\bar e)
+                &amp;=\frac{0.5^2}{3^2}\times3 \\
+                &amp;=0.0833\,^{\circ}\mathrm{C}^2 \\
+                \operatorname{SE}(\bar e)
+                &amp;=\sqrt{0.0833} \\
+                &amp;=0.289\,^{\circ}\mathrm{C}
+              \end{aligned}
+            \]
+          </p>
+
+          <h3>赤色誤差なら平均してもあまり減らない</h3>
+          <p>\(\rho=0.8\) では、1年代差の相関が \(0.8\)、2年代差の相関が \(0.8^2=0.64\) です。</p>
+          <p>
+            \[
+              \begin{aligned}
+                n+2\sum_{k=1}^{n-1}(n-k)\rho^k
+                &amp;=3+2\left(2\times0.8+1\times0.64\right) \\
+                &amp;=7.48 \\
+                \operatorname{Var}(\bar e)
+                &amp;=\frac{0.5^2}{3^2}\times7.48 \\
+                &amp;=0.2078\,^{\circ}\mathrm{C}^2 \\
+                \operatorname{SE}(\bar e)
+                &amp;=0.456\,^{\circ}\mathrm{C}
+              \end{aligned}
+            \]
+          </p>
+          <p>3年代を平均したのに、標準誤差は元の \(0.5\,^{\circ}\mathrm{C}\) からわずかしか減りません。三つの誤差が似た方向へ持続するためです。</p>
+
+          <h3>実効標本数は「独立なら何個分か」</h3>
+          <p>スクリプトは、同じ平均分散を与える独立観測の個数を実効標本数 \(n_{\mathrm{eff} }\) として求めます。</p>
+          <p>
+            \[
+              n_{\mathrm{eff} }
+              =
+              \frac{\sigma^2}{\operatorname{Var}(\bar e)}
+            \]
+          </p>
+          <p>白色誤差では \(n_{\mathrm{eff} }=3.00\)、\(\rho=0.8\) では \(n_{\mathrm{eff} }\approx1.20\) です。これは「3年代のデータが1.2個へ消えた」という意味ではありません。<strong>期間平均の不確実性に関して、独立な1.2個の観測と同程度の情報しかない</strong>という要約です。</p>
+        </section>
+
+        <section aria-labelledby="code-two-heading">
+          <h2 id="code-two-heading">演習2のループを手で追う</h2>
+          <pre><code class="language-python">correlation_sum = float(n_years)
+for lag in range(1, n_years):
+    correlation_sum += 2.0 * (n_years - lag) * rho**lag</code></pre>
+          <p><code>n_years = 3</code> のとき、ループが数える組は次のとおりです。</p>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th><code>lag</code></th>
+                <th>年代の組</th>
+                <th>加える量</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="lag">1</td>
+                <td data-label="年代の組">1–2、2–3の2組</td>
+                <td data-label="加える量">\(2\times2\times\rho\)</td>
+              </tr>
+              <tr>
+                <td data-label="lag">2</td>
+                <td data-label="年代の組">1–3の1組</td>
+                <td data-label="加える量">\(2\times1\times\rho^2\)</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>先頭の係数2は、分散和の中で \(\operatorname{Cov}(e_i,e_j)\) と \(\operatorname{Cov}(e_j,e_i)\) の両方が現れるためです。<code>(n_years - lag)</code> は、その時間差を持つ年代ペアの数です。</p>
+          <pre><code class="language-python">variance = annual_error_std**2 * correlation_sum / n_years**2
+standard_error = sqrt(variance)
+effective_sample_size = annual_error_std**2 / variance</code></pre>
+          <p>最後の3行が、相関和を平均の分散へ変換し、平方根から標準誤差を、分散比から実効標本数を求めています。</p>
+        </section>
+
+        <section aria-labelledby="run-heading">
+          <h2 id="run-heading">実行して結果を照合する</h2>
+          <p><a href="examples/paleoclimate-linear-inverse-mini-exercise.py">演習用Pythonスクリプト</a>は標準ライブラリだけで動きます。リポジトリのルートで次を実行します。</p>
+          <pre><code class="language-shell">uv run python notes/statistics/examples/paleoclimate-linear-inverse-mini-exercise.py</code></pre>
+          <p>既定設定の出力は次のとおりです。</p>
+          <pre><code>=== 演習1: 1地点の年輪から2地域の気温場を更新 ===
+Kalman gain          : 西=0.800, 東=0.480
+更新後の気温偏差    : 西=0.640, 東=0.384 °C
+更新後の標準偏差    : 西=0.447, 東=0.844 °C
+
+=== 演習2: 3年代平均の誤差 ===
+白色誤差 rho=0.0    : 標準誤差=0.289 °C, 実効n=3.00
+赤色誤差 rho=0.8    : 標準誤差=0.456 °C, 実効n=1.20</code></pre>
+          <p>この記事の途中計算とこの出力が一致すれば、まずは計算経路を正しく追えています。</p>
+        </section>
+
+        <section aria-labelledby="experiments-heading">
+          <h2 id="experiments-heading">値を一つずつ変えて理解する</h2>
+          <ol>
+            <li><strong><code>PROXY_ERROR_VARIANCE = 1.0</code>：</strong>観測を不確かにすると、西のgainは \(0.5\)、東は \(0.3\) まで小さくなります。観測より事前値を相対的に重く見るためです。</li>
+            <li><strong><code>SPATIAL_CORRELATION = 0.0</code>：</strong>東のgainと更新量が0になります。西の観測を東へ運ぶ事前共分散がなくなるためです。</li>
+            <li><strong><code>SPATIAL_CORRELATION = -0.6</code>：</strong>東のgainが負になり、西の正のinnovationが東を負方向へ更新します。</li>
+            <li><strong><code>RED_NOISE_RHO = 0.4</code>：</strong>\(0.0\) と \(0.8\) の中間になり、相関が強いほど標準誤差が増えて実効標本数が減ることを確認できます。</li>
+            <li><strong><code>N_YEARS</code> を増やす：</strong>正の時間相関が強いと、データ数を増やしても独立な場合ほど速く不確実性が減らないことを確認できます。</li>
+          </ol>
+          <p>一度に複数の定数を変えると原因が分からなくなるため、最初は一つだけ変え、元の出力との差を予想してから実行するのがおすすめです。</p>
+        </section>
+
+        <section aria-labelledby="limits-heading">
+          <h2 id="limits-heading">この最小例から実研究へ進むときの注意</h2>
+          <ul>
+            <li><strong>合成値と実データを区別する：</strong>相関 \(0.60\)、プロキシ値 \(0.8\,^{\circ}\mathrm{C}\)、誤差分散 \(0.25\,^{\circ}\mathrm{C}^2\) は教材用設定です。実研究では、較正・検証、気候モデル、観測ネットワークなどから根拠を持って推定します。</li>
+            <li><strong>共分散が情報を遠くへ運ぶ：</strong>東地域の更新は \(B\) に強く依存します。気候モデルの共分散に偏りがあれば、その偏りも復元へ伝わります。</li>
+            <li><strong>観測演算子を省略しない：</strong>実際の年輪・サンゴ・堆積物は、年平均気温をそのまま測るとは限りません。季節感度、時間平均、非線形応答などを \(H\) で表す必要があります。</li>
+            <li><strong>演習2は演習1の \(R\) を自動更新しない：</strong>時間相関を実際の同化へ入れるには、複数年代をまとめ、非対角要素を持つ観測誤差共分散行列を構成するなどの拡張が必要です。</li>
+            <li><strong>Gaussian・線形近似には限界がある：</strong>古気候同化ではensemble Kalman filterやparticle filterなども使われます。Holocene復元の一例では、時間方向へ気候状態を進めながらプロキシを逐次同化し、観測誤差共分散 \(R\) は対角行列として実装されています。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></li>
+          </ul>
+        </section>
+
+        <section aria-labelledby="next-heading">
+          <h2 id="next-heading">次に学ぶ順番</h2>
+          <ol>
+            <li>このスクリプトの各定数を一つずつ変え、出力の符号と大きさを実行前に予想する。</li>
+            <li>NumPyで \(B\)、\(H\)、\(R\) を行列として書き、同じ結果を再現する。</li>
+            <li>西地域の事前平均を0以外にし、innovationを明示的に計算する。</li>
+            <li>東にも観測を追加し、観測が2個のときの行列計算へ拡張する。</li>
+            <li>予報モデルと時刻添字を加え、「予報 → 観測更新 → 次の予報」という逐次同化へ進む。</li>
+          </ol>
+          <p>最初の到達目標は、式を暗記することではありません。<strong>\(B\) はどの地点へ情報を運ぶか、\(H\) は何を観測と比較するか、\(R\) は観測をどれだけ信頼するか、innovationは今回どれだけ修正すべきか</strong>を、自分の言葉で説明できれば十分です。</p>
+        </section>
+
+        <section aria-labelledby="summary-heading">
+          <h2 id="summary-heading">まとめ</h2>
+          <p>演習1では、西地域の1観測が、事前共分散を介して西を \(0.640\,^{\circ}\mathrm{C}\)、東を \(0.384\,^{\circ}\mathrm{C}\) へ更新しました。同時に標準偏差も西 \(0.447\,^{\circ}\mathrm{C}\)、東 \(0.844\,^{\circ}\mathrm{C}\) へ減りました。演習2では、3年代の誤差に \(\rho=0.8\) の時間相関があると、期間平均の実効標本数が3ではなく約1.20になることを確認しました。</p>
+          <p>この二つをつなぐ要点は、<strong>データ同化は値を埋めるだけでなく、空間・時間の相関と不確実性を明示して情報の重みを決める方法である</strong>ということです。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://www.nature.com/articles/sdata201886">Steiger et al. (2018), A reconstruction of global hydroclimate and dynamical variables over the Common Era, Scientific Data</a></li>
+            <li id="ref-2"><a href="https://gmd.copernicus.org/articles/16/5653/2023/">King et al. (2023), DASH: a MATLAB toolbox for paleoclimate data assimilation, Geoscientific Model Development</a></li>
+            <li id="ref-3"><a href="https://cp.copernicus.org/articles/18/2599/2022/">Erb et al. (2022), Reconstructing Holocene temperatures in time and space using paleoclimate data assimilation, Climate of the Past</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
