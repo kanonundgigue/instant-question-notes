@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Linear Inverse Modelingとcolored noiseとは？地球科学での具体例 | k-notes</title>
+    <meta name="description" content="一般の線形逆問題と気候研究のLinear Inverse Model（LIM）を区別し、colored noise、有色雑音、赤色雑音との関係を地震波、ENSO、GNSS、層序記録の例で整理する。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>Linear Inverse Modelingとcolored noiseとは？地球科学での具体例</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-08-05">2026-08-05</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>linear inverse modeling とは？color noiseとは？地球科学での具体例を交えながら教えて</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">最初に結論</h2>
+          <p><strong>一般の線形逆問題は、観測された結果から未知の原因・構造を逆算する問題です。一方、気候力学でいうLinear Inverse Model（LIM）は、観測時系列の共分散から、気候状態を時間発展させる線形演算子と確率強制を推定するモデルです。</strong> 同じ「inverse」でも、前者は地下構造などの未知量、後者は時間発展則を推定します。LIMは、連続時間の線形確率過程を多変量気候データへ当てはめる方法として定義されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p><strong>colored noise（有色雑音）</strong>は、周波数によってパワーが異なるノイズの総称です。「color noise」より通常は「colored noise」と呼びます。白色雑音は各周波数にほぼ同じパワーを持ち、赤色雑音は低周波、つまり長い時間スケールほど強い変動を持ちます。地球科学では、気候の持続性、GNSS座標、海水準、堆積物記録などで時間相関を無視できません。</p>
+        </section>
+
+        <section aria-labelledby="two-meanings-heading">
+          <h2 id="two-meanings-heading">「linear inverse modeling」の二つの意味</h2>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>用法</th>
+                <th>何を逆算するか</th>
+                <th>地球科学の例</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="用法">一般の線形逆問題</td>
+                <td data-label="何を逆算するか">観測 \(d\) から未知モデル \(m\)</td>
+                <td data-label="地球科学の例">地震波走時から地下の速度構造、重力異常から密度分布</td>
+              </tr>
+              <tr>
+                <td data-label="用法">気候研究のLIM</td>
+                <td data-label="何を逆算するか">同時・時間差共分散から時間発展演算子 \(L\)</td>
+                <td data-label="地球科学の例">海面水温、躍層深度、風応力からENSOなどの発展と予測可能性</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>colored noiseと一緒に議論されているなら、気候研究のLIMを指す可能性が高いです。LIMは、多変量の赤色雑音を観測から経験的に推定する枠組みとも説明されます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+        </section>
+
+        <section aria-labelledby="general-inverse-heading">
+          <h2 id="general-inverse-heading">一般の線形逆問題：結果から原因を戻す</h2>
+          <p>観測ベクトルを \(d\)、未知のモデルパラメータを \(m\)、モデルから観測を計算する既知の感度行列を \(G\)、観測に含まれる誤差を \(\varepsilon\) とすると、最も基本的な形は次式です。</p>
+          <p>
+            \[
+              d = Gm + \varepsilon
+            \]
+          </p>
+          <p>\(m\) から \(d\) を計算するのが<strong>順問題</strong>、\(d\) と \(G\) から \(m\) を推定するのが<strong>逆問題</strong>です。現実の地球内部は観測点が不均一で、異なる構造が似た観測を生むため、解が一意でなかったり、微小な誤差で解が大きく変わったりします。地震波トモグラフィでも線形化した \(Gm=d\) は劣決定または不安定になりやすく、正則化が必要です。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+
+          <h3>地震波走時の2層モデル</h3>
+          <p>地震波速度 \(v_j\) の代わりにスローネス \(m_j=1/v_j\) を未知量にすると、走時は「各層を通る距離 × スローネス」の和になり、線形に書けます。2本の波線が2層をそれぞれ異なる距離だけ通る例を考えます。</p>
+          <p>
+            \[
+              \begin{bmatrix}
+                3.25 \\
+                3.50
+              \end{bmatrix}
+              =
+              \begin{bmatrix}
+                10 &amp; 5 \\
+                5 &amp; 10
+              \end{bmatrix}
+              \begin{bmatrix}
+                0.20 \\
+                0.25
+              \end{bmatrix}
+            \]
+          </p>
+          <p>距離をkm、走時を秒とすると、逆算されたスローネスは \(0.20\) と \(0.25\,\mathrm{s\,km^{-1}}\)、速度は \(5.0\) と \(4.0\,\mathrm{km\,s^{-1}}\) です。実際のトモグラフィでは層・セル・波線が何千〜何百万にも増え、波線のない領域はデータだけでは決まりません。そこで、滑らかさやモデル振幅への罰則を加えます。USGSの走時トモグラフィの実例でも、セルのスローネスと反射面形状をLaplacian演算子で正則化しています。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+          <p>データ誤差の共分散行列を \(C_d\)、滑らかさなどを測る行列を \(R\)、正則化強度を \(\lambda\) とすれば、代表的な推定は次の目的関数を最小化します。</p>
+          <p>
+            \[
+              J(m)
+              =
+              (d-Gm)^{\mathsf{T} } C_d^{-1}(d-Gm)
+              +
+              \lambda^2 \lVert Rm \rVert_2^2
+            \]
+          </p>
+          <p>第1項は観測との一致、第2項は過度に複雑な地下構造を抑える条件です。正則化後の細かな模様がすべてデータに直接分解された構造とは限らないため、解像度試験や感度試験も必要です。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></p>
+        </section>
+
+        <section aria-labelledby="climate-lim-heading">
+          <h2 id="climate-lim-heading">気候研究のLIM：観測から時間発展則を推定する</h2>
+          <p>気候LIMでは、海面水温偏差、躍層深度偏差、風応力偏差、気圧偏差などを並べた状態ベクトルを \(x(t)\) とし、その時間発展を次の線形確率微分方程式で近似します。</p>
+          <p>
+            \[
+              \frac{\mathrm{d}x}{\mathrm{d}t}
+              =
+              Lx + \xi(t)
+            \]
+          </p>
+          <p>\(L\) は減衰、成長、変数間結合を表す線形演算子、\(\xi\) は時間的に白色と仮定した未解像の高速強制です。ここでの「noise」は測器誤差だけではなく、明示的に状態へ入れなかった天気擾乱や小スケール過程も含みます。気候のゆっくりした予測可能成分と、天気に代表される速い変動の時間スケール分離を仮定するモデルです。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
+
+          <figure class="climate-chart" aria-labelledby="lim-flow-caption">
+            <figcaption id="lim-flow-caption">図1　気候LIMが観測時系列から時間発展則を推定する流れ</figcaption>
+            <svg viewBox="0 0 800 330" role="img" aria-label="気候変数の観測時系列から共分散を計算し、線形演算子とノイズ共分散を推定して予測と診断に使う流れ。">
+              <defs>
+                <marker id="lim-arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+                  <path d="M0,0 L10,4 L0,8 Z" fill="#26736c"/>
+                </marker>
+              </defs>
+              <rect x="28" y="62" width="170" height="90" rx="12" fill="#dcefeb" stroke="#26736c" stroke-width="2"/>
+              <text x="113" y="91" text-anchor="middle" style="font-weight:700">観測・モデル時系列</text>
+              <text x="113" y="119" text-anchor="middle">SST・躍層・風</text>
+              <text x="113" y="141" text-anchor="middle">EOF主成分など</text>
+              <path d="M198 107 L285 107" stroke="#26736c" stroke-width="3" marker-end="url(#lim-arrow)"/>
+              <rect x="296" y="62" width="190" height="90" rx="12" fill="#f7e4dc" stroke="#a45e45" stroke-width="2"/>
+              <text x="391" y="91" text-anchor="middle" style="font-weight:700">共分散を計算</text>
+              <text x="391" y="119" text-anchor="middle">同時共分散</text>
+              <text x="391" y="141" text-anchor="middle">時間差共分散</text>
+              <path d="M486 107 L573 107" stroke="#26736c" stroke-width="3" marker-end="url(#lim-arrow)"/>
+              <rect x="584" y="62" width="188" height="90" rx="12" fill="#dcefeb" stroke="#26736c" stroke-width="2"/>
+              <text x="678" y="91" text-anchor="middle" style="font-weight:700">LIMを推定</text>
+              <text x="678" y="119" text-anchor="middle">時間発展演算子</text>
+              <text x="678" y="141" text-anchor="middle">強制共分散</text>
+              <path d="M678 152 L678 225" stroke="#26736c" stroke-width="3" marker-end="url(#lim-arrow)"/>
+              <rect x="493" y="238" width="279" height="64" rx="12" fill="#f4eedb" stroke="#92752f" stroke-width="2"/>
+              <text x="632" y="265" text-anchor="middle" style="font-weight:700">予測・予測可能性・結合診断</text>
+              <text x="632" y="289" text-anchor="middle">例：ENSO、PDO、古気候同化</text>
+              <path d="M493 270 L263 270" stroke="#26736c" stroke-width="3" marker-end="url(#lim-arrow)"/>
+              <rect x="28" y="238" width="224" height="64" rx="12" fill="#f4eedb" stroke="#92752f" stroke-width="2"/>
+              <text x="140" y="265" text-anchor="middle" style="font-weight:700">独立期間で検証</text>
+              <text x="140" y="289" text-anchor="middle">予測誤差・ラグ整合性</text>
+            </svg>
+          </figure>
+
+          <p>時刻差 \(\tau\) の伝播行列を \(G(\tau)=\exp(L\tau)\)、同時共分散を \(C_0\)、時間差共分散を \(C_\tau\) とすると、理想的な線形Markov過程では次の関係を使えます。</p>
+          <p>
+            \[
+              \begin{aligned}
+                C_\tau &amp;= G(\tau)C_0 \\
+                G(\tau) &amp;= C_\tau C_0^{-1} \\
+                L &amp;= \frac{1}{\tau}\log\!\left(C_\tau C_0^{-1}\right)
+              \end{aligned}
+            \]
+          </p>
+          <p>つまり、物理方程式を一項ずつ組み立てる代わりに、観測された同時・時間差共分散から \(L\) を<strong>逆算</strong>します。連続時間の演算子と、強制ノイズの変数間相関まで推定する点が、単純な一変量ARモデルとの違いです。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>ENSOで何ができるか</h3>
+          <p>熱帯の海面水温、躍層深度、東西風応力を状態に含めると、LIMは東部・中部太平洋の変動が互いにどう時間発展するかを多変量の赤色雑音として表せます。観測に見える2〜7年帯のENSOパワーやNiño 3・Niño 4間の時間差相関を、LIMで再現できるかを検証した研究があります。<sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup> ここでLIMが示すのは、個々の係数が直ちに厳密な物理因果であるということではなく、選んだ状態変数と期間の共分散に整合する最良の線形確率モデルです。</p>
+          <p>計算が軽いため、気候場のアンサンブル予測や古気候データ同化の予報ステップにも使われます。GCMデータで学習したLIMを用い、海面水温などの予測と予測不確実性を低コストで生成した例があります。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
+        </section>
+
+        <section aria-labelledby="paleo-field-heading">
+          <h2 id="paleo-field-heading">詳説：プロキシ記録から気候場を復元する</h2>
+          <p><strong>古気候場復元は、少数・不均一な場所にあるプロキシから、各年代の格子状気温・降水量・海面水温などを推定する逆問題</strong>です。例えば、年輪は陸上の一地点の夏季気温、サンゴは熱帯海洋の海面水温、氷床コアは高緯度の水同位体情報を持ちます。しかし知りたい対象は、全球または大陸全体の気候場です。</p>
+
+          <h3>1. 順問題を定義する</h3>
+          <p>年代 \(t\) の格子状気候場を \(x_t\)、その年代に利用できるプロキシ観測を \(y_t\) とします。プロキシシステムモデル、または観測演算子 \(H_t\) は、格子状気候場からプロキシ値を予測します。</p>
+          <p>
+            \[
+              y_t = H_t x_t + \varepsilon_t
+            \]
+          </p>
+          <p>単純な年輪温度プロキシなら、\(H_t\) は最寄り格子の夏季気温を取り出し、切片と感度係数を掛ける線形回帰です。海底堆積物なら、季節選択性、有限幅の堆積物スライス、続成作用や生物擾乱による時間方向の平滑化まで \(H_t\) に含める方が物理的です。残った非気候成分が \(\varepsilon_t\) です。</p>
+
+          <h3>2. 気候モデルの空間共分散で情報を広げる</h3>
+          <p>同じ年代の事前気候場を \(x_t^{b}\)、その誤差共分散を \(B\) とします。\(B\) は、例えば「熱帯太平洋のある地点が暖かいとき、周辺海域や大気循環がどう共変するか」を気候モデルの長期計算やLIMアンサンブルから表します。線形・Gaussian近似での更新は次の形です。</p>
+          <p>
+            \[
+              \begin{aligned}
+                x_t^{a}
+                &amp;=
+                x_t^{b}
+                +
+                K_t\left(y_t-H_t x_t^{b}\right) \\
+                K_t
+                &amp;=
+                B H_t^{\mathsf{T} }
+                \left(
+                  H_t B H_t^{\mathsf{T} } + R
+                \right)^{-1}
+              \end{aligned}
+            \]
+          </p>
+          <p>\(x_t^{a}\) は復元後の気候場、\(K_t\) はKalman gain、\(R\) はプロキシ観測誤差共分散です。Common Eraの全球水文気候復元でも、この形のデータ同化により、気候モデル事前分布とプロキシモデル誤差をともに不確実性へ反映しています。<sup class="citation"><a href="#ref-8" aria-label="参照 8">[8]</a></sup></p>
+
+          <h3>3. 時間相関した誤差は \(R\) の非対角成分になる</h3>
+          <p>複数年代をまとめて扱うため、全時刻の \(x_t\) と \(y_t\) を縦に連結したと考えます。誤差が独立なら \(R\) は対角行列ですが、AR(1)型のプロキシ誤差なら次のように書けます。</p>
+          <p>
+            \[
+              \begin{aligned}
+                \varepsilon_t
+                &amp;=
+                \rho \varepsilon_{t-1} + u_t \\
+                u_t
+                &amp;\sim
+                \mathcal{N}\left(0,\sigma_u^2\right) \\
+                \operatorname{Cov}
+                \left(\varepsilon_t,\varepsilon_s\right)
+                &amp;=
+                \frac{\sigma_u^2}{1-\rho^2}
+                \rho^{\lvert t-s\rvert}
+              \end{aligned}
+            \]
+          </p>
+          <p>\(\rho>0\) なら、隣接年代の誤差は同じ向きへ続きます。したがって、3年連続で高いプロキシ値が出ても、それを独立な3個の証拠として数えてはいけません。各年の誤差標準偏差が \(0.5\,^\circ\mathrm{C}\) の3年平均を考えると、白色誤差なら標準誤差は \(0.5/\sqrt{3}\approx0.29\,^\circ\mathrm{C}\) です。AR(1)相関が \(\rho=0.8\) なら、同じ周辺標準偏差でも3年平均の標準誤差は約 \(0.46\,^\circ\mathrm{C}\) になり、平均しても不確実性があまり減りません。</p>
+          <p>この違いは、目的関数の観測項 \((y-Hx)^{\mathsf{T}}R^{-1}(y-Hx)\) で効きます。非対角の \(R\) は連続する残差をまとめて一つの持続的誤差として扱うため、白色雑音モデルよりプロキシへの重みを弱め、復元場の信頼区間を広げます。</p>
+
+          <h3>4. 海底堆積物コアでは「誤差」より先に時間フィルタを考える</h3>
+          <p>海底堆積物中の有孔虫殻から海面水温を復元する場合、生物擾乱は異なる年代の殻を混ぜ、有限幅のスライス採取はさらに時間平均をかけます。例えば、生物擾乱深度が10 cm、堆積速度が10 cm/kyrなら、混合の代表時間幅は約1 kyrです。瞬間の気温を観測したとはみなせません。</p>
+          <p>この場合、順問題は概念的に次のようになります。</p>
+          <p>
+            \[
+              y_t
+              =
+              \beta_0
+              +
+              \beta_1
+              \sum_k w_k x_{t-k}
+              +
+              \varepsilon_t
+            \]
+          </p>
+          <p>\(w_k\) は生物擾乱、スライス幅、年代分布が作る時間応答です。この平滑化をすべて加法的なAR(1)誤差へ押し込むより、既知の部分を \(H\) の時間畳み込みとして表し、未知の残差だけをcolored noiseとして \(R\) に入れる方が、信号の減衰とノイズを区別できます。</p>
+          <p>Proxy Spectral Error Model（PSEM）は、季節選択、有限個体の抽出、生物擾乱、スライス幅、測定誤差、較正誤差を周波数領域で分解し、誤差スペクトルから完全な時間相関構造を得る方法です。実際の海底コアと、30個体の有孔虫、1 cmスライス、100年刻みなどを想定した例が示されています。<sup class="citation"><a href="#ref-9" aria-label="参照 9">[9]</a></sup> 推定した誤差スペクトルを逆Fourier変換すれば \(R\) を構成でき、また同じスペクトルを持つ誤差アンサンブルを生成してデータ同化へ渡せます。</p>
+
+          <h3>5. 実際の復元研究では、どこまで扱われているか</h3>
+          <ul>
+            <li><strong>空間・時間に相関する真の気候場：</strong>BARCAST型の階層Bayesモデルは、真の地表気温場を空間相関したinnovationを持つ多変量AR過程として表し、プロキシ・測器観測を別のデータ階層で結びます。気候場の時間相関と観測式を分離して推定する代表例です。<sup class="citation"><a href="#ref-10" aria-label="参照 10">[10]</a></sup></li>
+            <li><strong>短期・長期記憶を持つ回帰誤差：</strong>過去1000年の北半球平均気温を復元した階層Bayes研究は、誤差を独立、短期記憶の自己回帰、長期記憶のfractional Gaussian noiseとして比較しました。これは空間場ではなく半球平均ですが、無記憶モデルが不確実性を過小評価する具体例です。<sup class="citation"><a href="#ref-11" aria-label="参照 11">[11]</a></sup></li>
+            <li><strong>LIMを使うオンライン古気候同化：</strong>LIMを高価なGCMの代わりの時間発展モデルとして使い、多数のアンサンブルとプロキシを逐次結合してCommon Eraの空間気温場を復元する例があります。ここではLIMが \(B\) の時間発展を担います。<sup class="citation"><a href="#ref-12" aria-label="参照 12">[12]</a></sup></li>
+          </ul>
+          <p><strong>重要な現状認識として、古気候データ同化の多くはプロキシ誤差の独立性を仮定し、\(R\) を対角行列にしています。</strong> Holocene気温場の同化研究も \(R\) を正の対角行列として実装しており、DASHツールボックスも一般的な誤差分散推定がプロキシ不確実性の独立を暗黙に仮定すると注意しています。<sup class="citation"><a href="#ref-13" aria-label="参照 13">[13]</a></sup><sup class="citation"><a href="#ref-14" aria-label="参照 14">[14]</a></sup> したがって、時間相関したプロキシ誤差を完全な \(R\) として空間場復元へ組み込むことは、確立済みの標準処理というより、PSEMやプロキシシステムモデルをデータ同化へ接続する発展途上の課題です。</p>
+
+          <h3>気候の記憶とプロキシ誤差の記憶を分ける</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>相関の所在</th>
+                <th>行列・モデル</th>
+                <th>意味</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="相関の所在">真の気候場</td>
+                <td data-label="行列・モデル">\(B\)、LIM、AR気候過程</td>
+                <td data-label="意味">海洋の熱慣性、テレコネクションなど実在する気候の持続性</td>
+              </tr>
+              <tr>
+                <td data-label="相関の所在">プロキシ形成</td>
+                <td data-label="行列・モデル">時間フィルタを含む \(H\)</td>
+                <td data-label="意味">生物擾乱、氷中拡散、成長期間、有限スライス幅による信号の平滑化</td>
+              </tr>
+              <tr>
+                <td data-label="相関の所在">残差誤差</td>
+                <td data-label="行列・モデル">非対角の \(R\)、AR・長期記憶モデル</td>
+                <td data-label="意味">生物学的記憶、持続的な局地影響、較正ドリフトなどの非気候成分</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>この三つを混同すると、プロキシ自身の記憶を気候の長期変動として復元したり、逆に本物の低周波気候信号をノイズとして消したりします。実装では、同じプロキシについて白色、AR(1)、べき乗型の \(R\) を比較し、\(H\) の時間フィルタ、年代不確実性、事前共分散 \(B\) も同時に感度解析するのが堅実です。</p>
+        </section>
+
+        <section aria-labelledby="colored-noise-heading">
+          <h2 id="colored-noise-heading">colored noise：周波数ごとに強さが違うノイズ</h2>
+          <p>ノイズの「色」は、パワースペクトル密度 \(S(f)\) の形を可視光の色になぞらえた呼び名です。よく使われる近似は次のべき乗則です。</p>
+          <p>
+            \[
+              S(f) \propto f^\kappa
+            \]
+          </p>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>呼び名</th>
+                <th>代表的なスペクトル</th>
+                <th>時間領域での印象</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="呼び名">白色雑音</td>
+                <td data-label="代表的なスペクトル">\(\kappa=0\)、ほぼ平坦</td>
+                <td data-label="時間領域での印象">隣り合う値が原則として独立</td>
+              </tr>
+              <tr>
+                <td data-label="呼び名">ピンク／フリッカー雑音</td>
+                <td data-label="代表的なスペクトル">\(\kappa=-1\)</td>
+                <td data-label="時間領域での印象">複数の時間スケールに持続性がある</td>
+              </tr>
+              <tr>
+                <td data-label="呼び名">赤色／Brownian雑音</td>
+                <td data-label="代表的なスペクトル">\(\kappa=-2\)</td>
+                <td data-label="時間領域での印象">ゆっくりした揺らぎが卓越する</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>ただし<strong>気候科学の「red noise」は、厳密な \(f^{-2}\) 雑音だけを意味しません</strong>。多くの場合、1次自己回帰AR(1)過程を指します。NOAAも、低周波ほどパワーが大きい線形確率過程、特にAR(1)として赤色雑音を説明しています。<sup class="citation"><a href="#ref-15" aria-label="参照 15">[15]</a></sup></p>
+          <p>AR(1)は、現在値が直前値の一部を記憶し、白色雑音で毎時刻押されるモデルです。</p>
+          <p>
+            \[
+              x_t = \phi x_{t-1} + \eta_t,
+              \qquad 0 &lt; \phi &lt; 1
+            \]
+          </p>
+          <p>\(\phi\) が大きいほど持続性が強く、スペクトルは低周波側へ偏ります。海洋の熱慣性は、高周波の天気強制を積分して海面水温に記憶を与えるため、赤色雑音が現れる直感的な例です。気候・地球物理時系列では低周波側のパワーが大きいことが多く、周期の有意性検定で白色雑音より赤色雑音を帰無仮説とする必要があります。<sup class="citation"><a href="#ref-16" aria-label="参照 16">[16]</a></sup></p>
+        </section>
+
+        <section aria-labelledby="relationship-heading">
+          <h2 id="relationship-heading">LIMとcolored noiseはどうつながるか</h2>
+          <p>LIMの確率強制 \(\xi\) は<strong>時間的に白色</strong>と仮定しますが、状態 \(x\) の応答は減衰時間と変数間結合を持つため、一般に<strong>時間相関のある多変量の赤色雑音</strong>になります。白い天気強制を、記憶を持つ海洋・陸面・雪氷が受けると、ゆっくり変動する気候応答になるという構図です。</p>
+          <p>一方、一般の線形逆問題では、colored noiseは主に観測誤差共分散 \(C_d\) に現れます。白色雑音と仮定すれば \(C_d=\sigma^2I\) ですが、時間・空間相関があるなら非対角要素を持ちます。相関を無視すると、似た情報を独立観測として重複カウントし、推定値の信頼区間を過度に狭くすることがあります。</p>
+        </section>
+
+        <section aria-labelledby="examples-heading">
+          <h2 id="examples-heading">地球科学の具体例</h2>
+
+          <h3>1. GNSSで地殻変動速度を推定する</h3>
+          <p>日々のGNSS座標へ直線を当て、プレート運動や隆起速度を求めるのも線形推定です。しかし残差にはフリッカー雑音などの時間相関があります。23地点のGPS座標時系列を調べた研究では、白色雑音とフリッカー雑音の組合せが適合し、白色雑音だけを仮定すると速度誤差を5〜11倍過小評価し得ると報告されました。<sup class="citation"><a href="#ref-17" aria-label="参照 17">[17]</a></sup> 傾き自体が似ていても、「何mm/年まで確かか」が大きく変わる例です。</p>
+
+          <h3>2. 堆積物記録から周期を探す</h3>
+          <p>堆積物コアの元素比や粒径にピークが見えても、長周期側の変動が強いcolored noiseなら、偶然に「周期らしい山」ができます。層序データの周期検出ではAR(1)を典型的なノイズモデルとし、赤色雑音背景に対してスペクトルピークの有意性を評価する必要があります。<sup class="citation"><a href="#ref-18" aria-label="参照 18">[18]</a></sup> 年代モデルの誤差、不均一な堆積速度、続成作用も、単純なAR(1)では表せない相関を加える可能性があります。</p>
+
+          <h3>3. 地震波トモグラフィで地下構造を描く</h3>
+          <p>走時残差からセルごとの速度偏差を推定します。観測が通らないセル、同じ方向の波線しかない領域、震源位置と速度構造のトレードオフがあるため、単なる逆行列では解けません。平滑化・減衰・疎性などの正則化を選び、データの空間相関も考慮します。得られた画像は「真の地下構造そのもの」ではなく、観測配置と正則化でぼかされた推定です。</p>
+
+          <h3>4. 海面水温からENSOの発展を予測する</h3>
+          <p>EOFで圧縮したSST、躍層、風の主成分から \(C_0\) と \(C_\tau\) を求め、LIMを学習します。\(L\) の非対角要素は状態変数間の時間発展上の結合を表し、伝播行列で数か月〜数年先を予測します。ただし、季節依存、極端なEl Niñoの非線形性、学習期間外の気候変化が強ければ、定常・線形という仮定は崩れます。</p>
+        </section>
+
+        <section aria-labelledby="pitfalls-heading">
+          <h2 id="pitfalls-heading">解析するときの注意点</h2>
+          <ul>
+            <li><strong>まず用語を確認する：</strong>地下構造などを解く一般のlinear inverse problemか、気候のLinear Inverse Modelかを区別する。</li>
+            <li><strong>白色雑音を既定にしない：</strong>残差の自己相関、パワースペクトル、変数間・地点間の共分散を確認する。</li>
+            <li><strong>信号とノイズを循環定義しない：</strong>トレンドを除くと赤色度が変わり、赤色雑音モデルを変えるとトレンドの不確実性も変わる。複数の妥当な信号・ノイズ分解で感度を見る。</li>
+            <li><strong>LIMの状態変数と次元を検証する：</strong>EOF打ち切り、学習ラグ \(\tau\)、学習期間により \(L\) が変わる。異なる \(\tau\) で整合するか、独立期間で予測技能があるかを確かめる。</li>
+            <li><strong>正則化を物理的事実と混同しない：</strong>滑らかな逆解析図は、地球が必ず滑らかだという観測結果ではなく、選んだ制約を含む。</li>
+            <li><strong>colored noiseは万能な残差箱ではない：</strong>未モデル化の季節性、段差、測器交換、非定常性を先に点検する。</li>
+          </ul>
+        </section>
+
+        <section aria-labelledby="summary-heading">
+          <h2 id="summary-heading">まとめ</h2>
+          <p>一般の線形逆問題は \(d=Gm+\varepsilon\) で表され、観測から未知構造を推定します。気候LIMは \(\mathrm{d}x/\mathrm{d}t=Lx+\xi\) で表され、観測された時間差共分散から線形時間発展則を推定します。colored noiseは周波数依存のあるノイズで、地球科学では低周波側が強い赤色・フリッカー型が頻繁に現れます。</p>
+          <p>両者をつなぐ実務上の要点は、<strong>相関のある変動を独立な誤差として扱わないこと</strong>です。推定値だけでなく、解像度、正則化依存性、残差共分散、独立期間での予測性能まで確認して、初めて地球科学的に解釈できる結果になります。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://journals.ametsoc.org/view/journals/mwre/147/4/mwr-d-18-0104.1.xml">Penland and Magorian (2019), The Nyquist Issue in Linear Inverse Modeling, Monthly Weather Review</a></li>
+            <li id="ref-2"><a href="https://journals.ametsoc.org/view/journals/clim/26/14/jcli-d-12-00590.1.xml">Newman (2013), An Empirical Benchmark for Decadal Forecasts of Global Surface Temperature Anomalies, Journal of Climate</a></li>
+            <li id="ref-3"><a href="https://academic.oup.com/gji/article/170/1/359/599270">Loris et al. (2007), Tomographic inversion using one-norm regularization of wavelet coefficients, Geophysical Journal International</a></li>
+            <li id="ref-4"><a href="https://www.usgs.gov/publications/nonlinear-refraction-and-reflection-travel-time-tomography">Korenaga et al. (1998), Nonlinear refraction and reflection travel time tomography, USGS Publications Warehouse</a></li>
+            <li id="ref-5"><a href="https://academic.oup.com/gji/article/205/2/1221/692880">Rawlinson and Spakman (2016), On the use of sensitivity tests in seismic tomography, Geophysical Journal International</a></li>
+            <li id="ref-6"><a href="https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2019MS001778">Perkins and Hakim (2020), Linear Inverse Modeling for Coupled Atmosphere-Ocean Ensemble Climate Prediction, Journal of Advances in Modeling Earth Systems</a></li>
+            <li id="ref-7"><a href="https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2011GL047658">Newman et al. (2011), Natural variation in ENSO flavors, Geophysical Research Letters</a></li>
+            <li id="ref-8"><a href="https://www.nature.com/articles/sdata201886">Steiger et al. (2018), A reconstruction of global hydroclimate and dynamical variables over the Common Era, Scientific Data</a></li>
+            <li id="ref-9"><a href="https://cp.copernicus.org/articles/17/825/2021/cp-17-825-2021.html">Kunz et al. (2021), A spectral approach to estimating the timescale-dependent uncertainty of paleoclimate records – Part 2, Climate of the Past</a></li>
+            <li id="ref-10"><a href="https://journals.ametsoc.org/view/journals/clim/23/10/2009jcli3015.1.xml">Tingley and Huybers (2010), A Bayesian Algorithm for Reconstructing Climate Anomalies in Space and Time. Part I, Journal of Climate</a></li>
+            <li id="ref-11"><a href="https://doi.org/10.1214/14-AOAS785">Barboza et al. (2014), Reconstructing past temperatures from natural proxies and estimated climate forcings using short- and long-memory models, Annals of Applied Statistics</a></li>
+            <li id="ref-12"><a href="https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2022MS003094">Jebri and Khodri (2023), Large Ensemble Particle Filter for Spatial Climate Reconstructions Using a Linear Inverse Model, Journal of Advances in Modeling Earth Systems</a></li>
+            <li id="ref-13"><a href="https://cp.copernicus.org/articles/18/2599/2022/">Erb et al. (2022), Reconstructing Holocene temperatures in time and space using paleoclimate data assimilation, Climate of the Past</a></li>
+            <li id="ref-14"><a href="https://gmd.copernicus.org/articles/16/5653/2023/">King et al. (2023), DASH: a MATLAB toolbox for paleoclimate data assimilation, Geoscientific Model Development</a></li>
+            <li id="ref-15"><a href="https://psl.noaa.gov/enso/glossary.html">NOAA Physical Sciences Laboratory, Climate Glossary: Noise, Red</a></li>
+            <li id="ref-16"><a href="https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2000RG000092">Ghil et al. (2002), Advanced Spectral Methods for Climatic Time Series, Reviews of Geophysics</a></li>
+            <li id="ref-17"><a href="https://agupubs.onlinelibrary.wiley.com/doi/10.1029/1998JB900033">Mao et al. (1999), Noise in GPS coordinate time series, Journal of Geophysical Research: Solid Earth</a></li>
+            <li id="ref-18"><a href="https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2011PA002195">Vaughan et al. (2011), Detecting cycles in stratigraphic data: Spectral analysis in the presence of red noise, Paleoceanography</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
