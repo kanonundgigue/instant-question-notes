@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>2つのテレコネクションパターンのjoint PC時系列からco-occurrenceを調べる方法 | k-notes</title>
+    <meta name="description" content="2つのテレコネクションPCを二変量時系列として揃え、位相別の共起率、独立時の期待値、block bootstrap、時間シフト検定、合成図で評価する方法。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>2つのテレコネクションパターンのjoint PC時系列からco-occurrenceを調べる方法</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-08-07">2026-08-07</time></p>
+          <p>カテゴリ: meteorology</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>気象のテレコネクションを調べるときに、2つのテレコネクションパターンのjoint PC時系列を作成しco-occurrenceを議論する方法は？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><strong>2本を1本の「joint PC」へ合成せず、時刻ごとの組 \(\mathbf{z}_t=(z_{A,t},z_{B,t})\) を二変量時系列として保持する</strong>のが基本です。2次元散布図で連続的な関係を確認し、正・中立・負の位相を定義して共起率を数え、独立なら期待される率と比較します。区間推定には2本を組にしたblock bootstrapを、独立性の検定には片方の時系列だけをずらす季節保持型の時間シフト検定を使います。</p>
+          <p>ここでいうco-occurrenceは因果関係ではなく、<strong>定義した時間単位と閾値のもとで二つの位相が同時に現れた頻度</strong>です。PCの抽出法、季節、領域、基準期間、符号、閾値を変えた感度解析を通過して初めて、頑健な共起として議論できます。EOFは空間パターンと対応する時系列を抽出する有力な方法ですが、直交性や領域依存性などの幾何学的制約を物理的独立性と同一視してはいけません。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>最初に「同じEOFのPC」か「別々の指数」かを区別する</h3>
+          <p>同じデータ行列を同じ期間で未回転EOF解析して得たPC同士は、構成上、標本共分散が0になります。したがって、その2本について相関がほぼ0であることは新しい気象学的発見ではありません。ただし、無相関は一般には独立を意味しないので、極端位相の同時発生や非線形な依存は残り得ます。EOFの直交性による制約は、物理モードの独立性とは別です。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>一方、別領域のEOF、別変数のEOF、既存の定義済み指数へそれぞれ射影したPCでは、ゼロ相関は保証されません。この場合は線形相関も診断になりますが、空間領域、緯度重み、フィルター、季節、基準期間を揃えないと、前処理の違いがjoint分布へ混ざります。</p>
+
+          <h3>解析前に固定する定義</h3>
+          <ol>
+            <li><strong>時間単位:</strong> 日、5日平均、月、季節平均のどれを1標本とするかを決める。同一イベントを何日も数えたくない場合は、イベント単位の集計も併記する。</li>
+            <li><strong>対象季節:</strong> 同じ暦日・月だけを揃える。冬季を年で表すときは、12月を翌年の1–2月と同じwinter yearへ割り当てる。</li>
+            <li><strong>前処理:</strong> 同じ基準期間で気候値と必要なトレンドを処理する。トレンド除去は研究質問に応じて、除去あり・なしを分けて示す。</li>
+            <li><strong>PCの向き:</strong> EOFの符号は任意なので、基準となる空間パターンとの空間相関が正になるよう符号を固定する。</li>
+            <li><strong>品質:</strong> 二つの時刻がそろう共通標本だけを使い、欠測を0や中立位相として扱わない。</li>
+          </ol>
+          <p>有限標本で近接した固有値を持つEOFは標本ごとに形が揺らぎやすく、二つのモードが混合することがあります。PCの共起を論じる前に、固有値の分離、期間分割、再解析データ間、EOF領域の変更に対するパターンの安定性を確認します。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+
+          <h3>1. 共通基準で標準化して二変量時系列を作る</h3>
+          <p>パターンAとBのPCをそれぞれ基準期間の平均 \(\mu_A,\mu_B\) と標準偏差 \(s_A,s_B\) で標準化します。</p>
+          <p>
+            \[
+              z_{A,t}=\frac{PC_{A,t}-\mu_A}{s_A},
+              \qquad
+              z_{B,t}=\frac{PC_{B,t}-\mu_B}{s_B}
+            \]
+          </p>
+          <p>得られるjoint PCは新しい単一PCではなく、各時刻を2次元位相空間へ置いた \(\mathbf{z}_t=(z_{A,t},z_{B,t})\) です。まず時系列を上下2段で描き、次に横軸 \(z_A\)、縦軸 \(z_B\) の散布図またはhexbinを描きます。周辺ヒストグラムと2次元密度を加えると、相関だけでは見えない四象限の偏りや裾の結び付きが分かります。</p>
+
+          <h3>2. 位相を定義して共起を数える</h3>
+          <p>標準化PCに共通閾値 \(\tau\) を置く例では、パターンAの正位相を次の指示関数で表せます。</p>
+          <p>
+            \[
+              I_A^+(t)=\mathbb{1}\!\left[z_{A,t}\geq\tau\right]
+            \]
+          </p>
+          <p>負位相は \(z_{A,t}\leq-\tau\)、中立は \(-\tau&lt;z_{A,t}&lt;\tau\) とし、Bも同様に定義します。閾値は事前に決め、基本値を \(\tau=1\) とするなら、0.5、1.0、1.5標準偏差などでも結論が変わらないかを確認します。分布の歪みが大きい場合は、上位・下位15%などの分位点を使う案もあります。</p>
+
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>状態</th>
+                <th>定義例</th>
+                <th>気象学的な問い</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="状態">正・正</td>
+                <td data-label="定義例">\(z_A\geq\tau, z_B\geq\tau\)</td>
+                <td data-label="気象学的な問い">両方の正位相が同時に強いか</td>
+              </tr>
+              <tr>
+                <td data-label="状態">正・負</td>
+                <td data-label="定義例">\(z_A\geq\tau, z_B\leq-\tau\)</td>
+                <td data-label="気象学的な問い">A正位相とB負位相が組になるか</td>
+              </tr>
+              <tr>
+                <td data-label="状態">単独位相</td>
+                <td data-label="定義例">Aが活動、Bが中立</td>
+                <td data-label="気象学的な問い">joint時に影響が増幅するか</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>正・正の観測共起率は、共通標本数を \(N\) として</p>
+          <p>
+            \[
+              \widehat{p}_{++}
+              =\frac{1}{N}\sum_{t=1}^{N}I_A^+(t)I_B^+(t)
+            \]
+          </p>
+          <p>です。二つが独立なら期待される共起率は \(\widehat{p}_{A+}\widehat{p}_{B+}\) なので、観測／期待比と超過率を</p>
+          <p>
+            \[
+              R_{++}=\frac{\widehat{p}_{++} }
+              {\widehat{p}_{A+}\widehat{p}_{B+} },
+              \qquad
+              E_{++}=\widehat{p}_{++}
+              -\widehat{p}_{A+}\widehat{p}_{B+}
+            \]
+          </p>
+          <p>として示します。さらに \(P(B+\mid A+)\) と \(P(B+)\) を並べると直感的です。標本数そのものも必ず示し、率だけで少数イベントを大きく見せないようにします。</p>
+
+          <h3>3. 区間推定と独立性検定は別々に行う</h3>
+          <p><strong>共起率の信頼区間</strong>では、同じ時刻の \((z_A,z_B)\) を組にしたまま、連続したblockを再標本化します。これにより、各系列の自己相関と観測された系列間の対応をある程度保ったまま、\(\widehat{p}_{++}\) の標本変動を見積もれます。弱依存する定常時系列向けには、block長をランダム化するstationary bootstrapも提案されています。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+          <p><strong>「偶然より共起が多いか」の検定</strong>では、同じpaired bootstrapを使ってはいけません。それは観測された共起を保存するからです。片方の時系列だけを循環シフトし、各系列の並びを保ちながらAとBの同時刻対応を壊します。全月データなら12か月単位、季節平均系列なら1年単位でずらし、観測統計量を帰無分布と比較します。長期トレンドや共通外力がある場合は、事前に扱いを決めるか、それらを条件としたモデルとの比較が必要です。</p>
+          <p>block長は固定の正解がありません。日別PCならイベントの持続時間や自己相関の減衰、月別PCなら数か月から1年などを候補にし、複数の長さで結論を確認します。</p>
+
+          <h3>最小のPython実装</h3>
+          <p>次は、<code>time</code>、<code>pc_a</code>、<code>pc_b</code> を持つCSVについて、正・正共起率、独立時期待率、paired moving-block bootstrap区間、循環シフト検定を計算する最小例です。<code>block_length</code> は入力の時間刻みで数えます。全月データで同じ暦月を対応させた帰無分布にする場合は <code>shift_step = 12</code>、季節平均が年1値なら <code>shift_step = 1</code> とします。</p>
+          <pre><code class="language-python">from __future__ import annotations
+
+import numpy as np
+import pandas as pd
+
+
+def joint_rate(a: np.ndarray, b: np.ndarray, threshold: float) -&gt; float:
+    """二つの正位相が同時に閾値以上となる割合を返す。"""
+    return float(np.mean((a &gt;= threshold) &amp; (b &gt;= threshold)))
+
+
+def circular_block_indices(
+    n_samples: int,
+    block_length: int,
+    rng: np.random.Generator,
+) -&gt; np.ndarray:
+    """循環moving block bootstrap用の添字を作る。"""
+    n_blocks = int(np.ceil(n_samples / block_length))
+    starts = rng.integers(0, n_samples, size=n_blocks)
+    blocks = [
+        (start + np.arange(block_length)) % n_samples
+        for start in starts
+    ]
+    return np.concatenate(blocks)[:n_samples]
+
+
+data = (
+    pd.read_csv("teleconnection_pc.csv", parse_dates=["time"])
+    .set_index("time")
+    .loc[:, ["pc_a", "pc_b"]]
+    .dropna()
+    .sort_index()
+)
+
+# 研究で定めた基準期間へ変更する。
+reference = data.loc["1981":"2010"]
+z = (data - reference.mean()) / reference.std(ddof=1)
+
+threshold = 1.0
+a = z["pc_a"].to_numpy()
+b = z["pc_b"].to_numpy()
+observed = joint_rate(a, b, threshold)
+p_a = float(np.mean(a &gt;= threshold))
+p_b = float(np.mean(b &gt;= threshold))
+expected = p_a * p_b
+ratio = observed / expected if expected &gt; 0.0 else np.nan
+
+rng = np.random.default_rng(20260807)
+n_resamples = 5000
+block_length = 10  # 自己相関とイベント持続時間から感度解析する。
+boot = np.empty(n_resamples)
+for i in range(n_resamples):
+    idx = circular_block_indices(len(z), block_length, rng)
+    boot[i] = joint_rate(a[idx], b[idx], threshold)
+ci_low, ci_high = np.quantile(boot, [0.025, 0.975])
+
+# 片方だけをずらし、同時刻対応を壊す。全月データなら12を使う。
+shift_step = 12
+allowed_shifts = np.arange(shift_step, len(z), shift_step)
+if len(allowed_shifts) == 0:
+    raise ValueError("時系列が短すぎて、指定した時間シフトを作れません。")
+
+null = np.empty(n_resamples)
+for i in range(n_resamples):
+    shift = int(rng.choice(allowed_shifts))
+    null[i] = joint_rate(a, np.roll(b, shift), threshold)
+p_value = (1 + np.sum(null &gt;= observed)) / (n_resamples + 1)
+
+print(f"共起率: {observed:.3f}")
+print(f"95% block-bootstrap区間: [{ci_low:.3f}, {ci_high:.3f}]")
+print(f"独立時期待率: {expected:.3f}")
+print(f"観測/期待比: {ratio:.2f}")
+print(f"時間シフト検定p値: {p_value:.4f}")</code></pre>
+          <p>循環シフトの候補数が少ない短い時系列では、5,000回計算しても独立な帰無標本が5,000種類あるわけではありません。その場合は取り得る全シフトを列挙し、検出力の限界を明記します。</p>
+
+          <h3>4. lagged co-occurrenceと影響の相互作用を分ける</h3>
+          <p>同時発生だけでなく、AがBに先行する仮説があるなら、\(I_A(t)I_B(t+\ell)\) からlag \(\ell\) ごとの共起率を計算します。ただし、多数のlagから最大値だけを選ぶと多重比較になるため、力学的に妥当なlag範囲を事前に定め、帰無シフトごとにlag範囲内の最大統計量を再計算します。</p>
+          <p>気温・降水量などの応答 \(Y_t\) に対して「同時に強いと単純加算以上の影響があるか」を調べる問いは、共起頻度とは別です。連続PCを用いるなら、交互作用項を持つ</p>
+          <p>
+            \[
+              Y_t=\beta_0+\beta_Az_{A,t}+\beta_Bz_{B,t}
+              +\beta_{AB}z_{A,t}z_{B,t}+\varepsilon_t
+            \]
+          </p>
+          <p>を候補にし、\(\beta_{AB}\) の不確実性をblock bootstrapなどで評価します。これは「joint位相が多いか」ではなく、「joint位相の影響が加算的でないか」を問う解析です。</p>
+
+          <h3>5. 合成図は単独位相とjoint位相を比較する</h3>
+          <p>空間場の合成は、正・正だけを描くより、Aのみ、Bのみ、AとBのjoint、全期間の4条件を同じカラースケールで並べる方が解釈しやすくなります。joint合成から単独効果の和を引いた非加算成分も候補ですが、イベント数が減るため区間幅を示します。</p>
+          <p>PCを定義した同じ高度場を合成すると、選択条件そのものがパターンを再現する循環性があります。力学の確認には使えますが、独立な影響の証拠にはなりません。降水、気温、波活動フラックスなど別の診断場を用い、格子点ごとの検定だけでなく空間場全体のfield significanceや多重比較を扱います。空間的に相関した多数の気象統計では、局所有意の個数を独立試行として扱えないことが古くから指摘されています。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></p>
+
+          <h3>最低限そろえる図と表</h3>
+          <ol>
+            <li>二つの標準化PC時系列。閾値線とjointイベントを同じ色で示す。</li>
+            <li>\(z_A\)–\(z_B\) のhexbinまたは2次元密度。閾値線、四象限、イベント数を示す。</li>
+            <li>3×3位相表。各組合せの標本数、観測率、独立時期待率、観測／期待比を示す。</li>
+            <li>基本閾値における共起率のblock-bootstrap区間と時間シフト検定の帰無分布。</li>
+            <li>Aのみ、Bのみ、jointの合成図。サンプル数とfield significanceを併記する。</li>
+          </ol>
+
+          <h3>主張できることと、まだ主張できないこと</h3>
+          <ul>
+            <li><strong>主張できる:</strong> 指定した季節・時間単位・閾値で、ある位相組合せが観測された頻度と、時間シフト帰無分布に対する多さ。</li>
+            <li><strong>条件付きで主張できる:</strong> 閾値、block長、基準期間、データセットを変えても保たれる頑健な共起。</li>
+            <li><strong>それだけでは主張できない:</strong> AがBを励起した、二つが同じ物理モードである、joint状態が応答を非線形に増幅した、という因果・力学的結論。</li>
+          </ul>
+
+          <h3>まとめ</h3>
+          <p>実務上の最小構成は、<strong>二本のPCを同じ時間軸・基準期間・符号へ揃える → 2次元分布を見る → 位相別の共起率を独立時期待率と比較する → paired block bootstrapで区間を出す → 片系列の季節保持シフトで独立性を検定する → 単独位相とjoint位相の合成を比較する</strong>、という順です。相関、共起頻度、影響の相互作用、因果関係を同じ言葉でまとめず、それぞれ別の統計的問いとして報告することが最も重要です。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://doi.org/10.1002/joc.1499">Hannachi, Jolliffe and Stephenson (2007), Empirical orthogonal functions and related techniques in atmospheric science: A review</a></li>
+            <li id="ref-2"><a href="https://doi.org/10.1175/2008JCLI2571.1">Hannachi et al. (2009), Independent Component Analysis of Climate Data: A New Look at EOF Rotation</a></li>
+            <li id="ref-3"><a href="https://doi.org/10.1175/1520-0493(1982)110%3C0699:SEITEO%3E2.0.CO;2">North et al. (1982), Sampling Errors in the Estimation of Empirical Orthogonal Functions</a></li>
+            <li id="ref-4"><a href="https://doi.org/10.1080/01621459.1994.10476870">Politis and Romano (1994), The Stationary Bootstrap</a></li>
+            <li id="ref-5"><a href="https://doi.org/10.1175/1520-0493(1983)111%3C0046:SFSAID%3E2.0.CO;2">Livezey and Chen (1983), Statistical Field Significance and its Determination by Monte Carlo Techniques</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>

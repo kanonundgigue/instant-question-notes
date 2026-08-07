@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Matplotlib・Cartopyの描画支援に向くlocal LLMは？ | k-notes</title>
+    <meta name="description" content="Matplotlib・Cartopyのコード生成、実行エラー修正、生成図の画像レビューに向くlocal LLMを、メモリ容量と作業方法から選びます。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>Matplotlib・Cartopyの描画支援に向くlocal LLMは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-08-07">2026-08-07</time></p>
+          <p>カテゴリ: ai-coding-agents</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>local LLMで、pythonのmatplotlib,cartopyを使った描画を手伝わせるのに適したものは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><strong>32 GB以上のメモリがあるなら、コードを主に直す用途は <code>Qwen3-Coder:30b</code>、生成した図も見せて直す用途は画像入力に対応する <code>Devstral Small 2</code> が有力です。</strong>16 GB級では <code>Qwen2.5-Coder:7b</code> から始めるのが現実的です。モデル名以上に、LLMがスクリプトを実行し、例外・標準出力・保存したPNGを受け取れる環境を用意することが重要です。</p>
+
+          <h3>用途別の第一候補</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>環境・用途</th>
+                <th>候補</th>
+                <th>選ぶ理由</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="環境・用途">16 GB級、短いスクリプト</td>
+                <td data-label="候補"><code>Qwen2.5-Coder:7b</code></td>
+                <td data-label="選ぶ理由">Ollama版は4.7 GBで32Kコンテキスト。軽さを優先した出発点。</td>
+              </tr>
+              <tr>
+                <td data-label="環境・用途">32 GB級、コード生成・修正</td>
+                <td data-label="候補"><code>Qwen3-Coder:30b</code></td>
+                <td data-label="選ぶ理由">Ollama版は19 GB。30.5B総パラメータ・3.3B activeのMoEで、256Kコンテキストとtool callingを備える。</td>
+              </tr>
+              <tr>
+                <td data-label="環境・用途">32 GB以上、図も見せたい</td>
+                <td data-label="候補"><code>Devstral Small 2</code></td>
+                <td data-label="選ぶ理由">24B、256Kコンテキストのcoding agent向けモデルで画像入力にも対応する。</td>
+              </tr>
+              <tr>
+                <td data-label="環境・用途">大容量メモリ、長い反復作業</td>
+                <td data-label="候補"><code>Qwen3-Coder-Next</code></td>
+                <td data-label="選ぶ理由">80B総パラメータ・3B active、256Kコンテキスト。OllamaのQ4モデルだけで52 GBある。</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>上の区分は<strong>モデルファイル容量だけでなく、OS、コンテキスト用キャッシュ、Python実行環境にも余裕を残すための実務上の目安</strong>です。Qwen3-Coder 30Bの仕様とOllamaでの配布容量は公式のモデルカードとライブラリに記載されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup>Qwen2.5-CoderのOllama版は7Bが4.7 GB、14Bが9.0 GB、32Bが20 GBです。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup>Qwen3-Coder-Nextは公式モデルカード上で80B総パラメータ・3B active、OllamaのQ4版で52 GBです。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup><sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></p>
+
+          <h3>なぜ「最強のcoder」だけでは不十分なのか</h3>
+          <p>描画支援には、APIを使ったコード生成、実行エラーを受けた修正、生成図を見た視覚的な修正という三つの能力があります。テキスト専用coderは最初の二つに向きますが、「凡例がデータを隠す」「カラーバーが太い」「地図が潰れている」といった問題は、PNGを画像入力できるモデルの方が扱いやすくなります。</p>
+          <p>Devstral Small 2はcoding agent向けの24Bモデルで、公式発表では画像入力とローカル実行に対応します。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup>テキスト専用モデルを使う場合は、コード担当をQwen3-Coder、画像確認を <code>Qwen3-VL:8b</code> のようなvision-language modelに分ける方法もあります。Qwen3-VLのOllama版には2B、4B、8Bなどが用意されています。<sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup></p>
+
+          <h3>Matplotlib・Cartopyでは実行ループが特に重要</h3>
+          <p>Cartopyでは、axesの見た目を決める <code>projection</code> と、入力データの座標系を伝える <code>transform</code> は別物です。公式チュートリアルも、描画関数へ常に <code>transform</code> を渡すことを安全な方法として勧めています。<sup class="citation"><a href="#ref-8" aria-label="参照 8">[8]</a></sup>コードが例外なく終了しても、座標変換を誤ると点や等値線が静かに間違った場所へ描かれます。</p>
+          <p>Natural Earth由来の海岸線や湖などはCartopyのfeature interfaceから利用できます。<sup class="citation"><a href="#ref-9" aria-label="参照 9">[9]</a></sup>完全オフライン運用では初回のデータ取得を想定し、必要なfeatureを事前にキャッシュします。画面のない環境ではMatplotlibの非対話backendでPNGへ保存し、そのファイルをLLMへ戻します。Matplotlib公式文書ではAggが非対話のラスター出力に使われ、<code>savefig</code>で保存できると説明されています。<sup class="citation"><a href="#ref-10" aria-label="参照 10">[10]</a></sup></p>
+
+          <h3>最小構成はOllamaと実行可能なcoding agent</h3>
+          <pre><code class="language-shell"># 32 GB級の本命
+ollama run qwen3-coder:30b
+
+# 16 GB級の軽量案
+ollama run qwen2.5-coder:7b</code></pre>
+          <p>チャット欄へ毎回コードとエラーを貼るより、対応するcoding agentから「ファイルを読む → Pythonを実行する → エラーまたはPNGを確認する → 修正する」を回す方が有効です。Ollamaはtool callingと複数回のagent loopを提供しています。<sup class="citation"><a href="#ref-11" aria-label="参照 11">[11]</a></sup>ファイル編集とshell実行は対象ディレクトリを限定し、自動承認を広げすぎない設定にします。</p>
+
+          <h3>LLMに渡す依頼文の例</h3>
+          <pre><code class="language-shell">この描画スクリプトを修正してください。
+
+目的:
+- 緯度経度データをRobinson投影の全球図に描く
+- 海岸線と湖を表示し、国境線は表示しない
+- 横長、図中テキストは英語、PNGで保存する
+
+必須条件:
+- axesのprojectionとデータのtransformを明示的に分ける
+- 入力変数のdimensions、coordinates、unitsを実行前に確認する
+- 変更後にスクリプトを実行する
+- 例外がなくても、保存PNGを確認して位置ずれ、欠け、凡例、
+  カラーバー、単位を点検する
+- 推測した点と、実データから確認した点を分けて報告する</code></pre>
+          <p>データを見せる際は、配列だけでなく、<code>xarray.Dataset</code>の表示、変数名、次元順、緯度の昇順・降順、経度範囲、欠測値、単位、期待する地図範囲も渡します。これはモデルの賢さで補う部分ではなく、描画仕様そのものです。</p>
+
+          <h3>自分の環境で4問だけ評価する</h3>
+          <ol>
+            <li>既存コードへ軸ラベル、単位、細いカラーバーを追加させる。</li>
+            <li><code>projection</code>と<code>transform</code>を意図的に混同した地図を直させる。</li>
+            <li>存在しない変数名や次元順の違いで起きる例外を、実行結果から直させる。</li>
+            <li>保存PNGを見せ、文字切れ、凡例の重なり、データ位置を指摘・修正させる。</li>
+          </ol>
+          <p>同じ初期コード、制限時間、最大試行回数で比較し、「最終コードが実行できたか」「地理的に正しいか」「人間の手直し回数」「所要時間」を記録します。一般的なcoding benchmarkより、この小さな実務テストの方が自分のCartopy作業には直接的です。</p>
+
+          <h3>まとめ</h3>
+          <p><strong>迷ったら、32 GB以上では <code>Qwen3-Coder:30b</code>を実行可能なagentにつなぐ構成から始めます。</strong>完成図まで一つのモデルへ見せたいなら <code>Devstral Small 2</code>、16 GB級なら <code>Qwen2.5-Coder:7b</code>が現実的です。大容量環境では <code>Qwen3-Coder-Next</code>も候補ですが、まずは小さいモデルで実行・画像確認ループを整える方が、Matplotlib・Cartopy支援の品質差を見極めやすくなります。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct">Qwen: Qwen3-Coder-30B-A3B-Instruct model card</a></li>
+            <li id="ref-2"><a href="https://ollama.com/library/qwen3-coder">Ollama Library: qwen3-coder</a></li>
+            <li id="ref-3"><a href="https://ollama.com/library/qwen2.5-coder">Ollama Library: qwen2.5-coder</a></li>
+            <li id="ref-4"><a href="https://huggingface.co/Qwen/Qwen3-Coder-Next">Qwen: Qwen3-Coder-Next model card</a></li>
+            <li id="ref-5"><a href="https://ollama.com/library/qwen3-coder-next">Ollama Library: qwen3-coder-next</a></li>
+            <li id="ref-6"><a href="https://mistral.ai/news/devstral-2-vibe-cli/">Mistral AI: Introducing Devstral 2 and Mistral Vibe CLI</a></li>
+            <li id="ref-7"><a href="https://ollama.com/library/qwen3-vl">Ollama Library: qwen3-vl</a></li>
+            <li id="ref-8"><a href="https://cartopy.readthedocs.io/v0.25.0.post2/tutorials/understanding_transform.html">Cartopy: Understanding the transform and projection keywords</a></li>
+            <li id="ref-9"><a href="https://cartopy.readthedocs.io/latest/matplotlib/feature_interface.html">Cartopy: The Feature interface</a></li>
+            <li id="ref-10"><a href="https://matplotlib.org/stable/users/explain/figure/backends.html">Matplotlib: Backends</a></li>
+            <li id="ref-11"><a href="https://docs.ollama.com/capabilities/tool-calling">Ollama: Tool calling</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
