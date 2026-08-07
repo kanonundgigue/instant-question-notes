@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EOF解析に関連したCommon Basis Function（CBF）とは？ | k-notes</title>
+    <meta name="description" content="気候モデル評価で使われるCommon Basis Function（CBF）の目的、観測EOFへの射影と回帰、通常EOF・common EOFとの違い、解釈上の注意点を整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>EOF解析に関連したCommon Basis Function（CBF）とは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-08-07">2026-08-07</time></p>
+          <p>カテゴリ: meteorology</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>EOF解析に関連した、CBFとは？ Common Basis Functionのことです。</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><strong>Common Basis Function（CBF）は、観測・再解析から得たEOFパターンを共通の基底として固定し、各気候モデルの偏差場をその基底へ射影して比較する方法</strong>です。通常のEOF解析をモデルごとに独立に行うと、観測EOF1に対応する変動がモデルEOF2やEOF3へ移ったり、複数モードへ分かれたり、EOFの符号が反転したりします。CBFは同じ観測基底を全モデルへ適用することで、このモード対応付けの曖昧さを避けます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>何を計算しているか</h3>
+          <p>観測偏差場から求めた対象モードのEOFを \(\boldsymbol{e}_{\mathrm{obs} }\)、モデルの時刻 \(t\) における偏差場を \(\boldsymbol{x}_{m}(t)\)、格子面積などの空間重みを行列 \(\mathbf{W}\) とします。正規化方法の細部を省いた模式的なCBF PCは、</p>
+          <p>
+            \[
+              a_m(t)
+              =\boldsymbol{x}_{m}(t)^{\mathsf{T} }
+              \mathbf{W}\boldsymbol{e}_{\mathrm{obs} }
+            \]
+          </p>
+          <p>です。つまり、各時刻のモデル偏差が観測EOFとどれだけ同じ向きにあるかを内積で測った時系列です。実装ではEOFとデータの緯度重み・正規化規約を一致させます。</p>
+          <p>次に、CBF PCをモデルの各格子点の偏差へ回帰し、モデル内でその時系列とともに変動する空間パターンを得ます。格子点 \(j\) の回帰係数は、</p>
+          <p>
+            \[
+              b_{m,j}
+              =\frac{\operatorname{Cov}\!\left[x_{m,j}(t),a_m(t)\right] }
+              {\operatorname{Var}\!\left[a_m(t)\right] }
+            \]
+          </p>
+          <p>と表せます。文献とPCMDI Metrics Packageでは、この「モデル偏差を観測EOFへ射影してCBF PCを作り、そのPCをモデル偏差へ回帰する」手順が採用されています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>通常のEOF解析と何が違うか</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>方法</th>
+                <th>基底の決め方</th>
+                <th>主な用途</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="方法">通常EOF</td>
+                <td data-label="基底の決め方">各データ自身から分散を最大化する基底を求める</td>
+                <td data-label="主な用途">各データに固有の主要変動を発見する</td>
+              </tr>
+              <tr>
+                <td data-label="方法">CBF</td>
+                <td data-label="基底の決め方">観測EOFを固定し、各モデルを同じ基底へ射影する</td>
+                <td data-label="主な用途">観測で定義したモードの再現性をモデル間で比較する</td>
+              </tr>
+              <tr>
+                <td data-label="方法">common EOF</td>
+                <td data-label="基底の決め方">複数データの共分散行列を同時に扱って共通基底を推定する</td>
+                <td data-label="主な用途">全データ群に共通する変動軸を推定する</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>したがって、CBFは「複数モデルを連結してもう一度EOF解析する方法」ではありません。また、common EOFは複数群から共通固有ベクトルを推定する別の方法であり、観測EOFを一方向に基準とするCBFとは区別が必要です。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+
+          <h3>CBFを使う利点</h3>
+          <ul>
+            <li><strong>mode swappingを避ける:</strong> 観測EOF1に似たモデル変動がEOF2やEOF3に現れても、固定した観測EOFへの射影で拾える。</li>
+            <li><strong>mode splittingに強い:</strong> 観測の一つのモードが複数のモデルEOFへ分散していても、観測方向に沿う合成的な変動を評価できる。</li>
+            <li><strong>符号を統一できる:</strong> EOF固有の任意な符号反転に起因する比較の手間を減らせる。</li>
+            <li><strong>比較軸が共通になる:</strong> 空間パターン、CBF PCの標準偏差、説明分散、相関、RMSEなどを同じ観測定義のもとで比較できる。PCMDI Metrics PackageもCBFと通常EOFの両方を出力します。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></li>
+          </ul>
+
+          <h3>解釈上の注意</h3>
+          <ol>
+            <li><strong>モデル自身の最適EOFではない:</strong> CBFはモデル分散を最大化する方向を探していません。観測で定義した方向に限って、モデルがどの程度変動するかを問います。</li>
+            <li><strong>観測基準に依存する:</strong> 観測EOFが解析期間、データセット、領域、季節に不安定なら、CBFもその不確実性を引き継ぎます。複数の再解析・観測データで感度を確認します。</li>
+            <li><strong>前処理を一致させる:</strong> 変数、単位、格子、領域、欠測マスク、季節、気候値期間、トレンド処理、領域平均除去、緯度重みを揃えます。</li>
+            <li><strong>高い一致は機構の正しさを保証しない:</strong> 観測EOFに似たパターンと振幅を再現しても、そのモデルが同じ力学過程で変動を作っているとは限りません。</li>
+          </ol>
+
+          <h3>使い分け</h3>
+          <p><strong>モデルが持つ主要変動を探索したいなら通常EOF、観測で定義したNAO・SAM・PDOなどの再現性を公平に比較したいならCBF</strong>が向いています。実務では両方を併記し、通常EOFでモデル固有のモード構造を確認しながら、CBFで観測モードに沿うパターンと振幅を評価するのが安全です。</p>
+
+          <h3>まとめ</h3>
+          <p>CBFは、観測EOFを「共通の物差し」として各モデルへ適用する評価法です。観測EOFをモデル場へ射影してCBF PCを作り、そのPCをモデル場へ回帰して対応パターンを得ます。モード番号の入れ替わりや分裂を避けられる一方、結果は選んだ観測EOFと前処理に依存するため、通常EOFや複数観測データとの併用が重要です。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://doi.org/10.1007/s00382-018-4355-4">Lee et al. (2019), Quantifying the agreement between observed and simulated extratropical modes of interannual variability</a></li>
+            <li id="ref-2"><a href="https://repository.library.noaa.gov/view/noaa/28722/noaa_28722_DS1.pdf">Gleckler et al. (2020), Representation of Modes of Variability in Six U.S. Climate Models</a></li>
+            <li id="ref-3"><a href="https://doi.org/10.1007/s00382-022-06409-8">Ben Alaya et al. (2022), Common EOFs: a tool for multi-model comparison and evaluation</a></li>
+            <li id="ref-4"><a href="https://pcmdi.github.io/pcmdi_metrics/examples/Demo_4_modes_of_variability.html">PCMDI Metrics Package Documentation: Modes of Variability</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
