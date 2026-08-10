@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Wave activity fluxとは？矢印の意味を腑に落ちる形で理解する | k-notes</title>
-    <meta name="description" content="Wave activity flux（WAF）が何を運び、矢印・収束・発散をどう読むかを、位相速度と群速度の違い、保存則、Plumb flux・Takaya–Nakamura flux・EP fluxの使い分けから整理します。">
+    <meta name="description" content="Wave activity flux（WAF）を初めて学ぶ学生向けに、背景風、擾乱、ロスビー波、波束、群速度から順に説明し、矢印・収束・発散の読み方を整理します。">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
@@ -37,14 +37,55 @@
 
         <section aria-labelledby="answer-heading">
           <h2 id="answer-heading">回答</h2>
-          <p><strong>Wave activity flux（WAF）は、ロスビー波の「模様」が動く向きではなく、波の影響を担う保存量が背景流の中を伝わる向きと強さを表すベクトル</strong>です。まずは、各谷・尾根の移動を表す<strong>位相速度</strong>と、波束および波活動の伝播を表す<strong>群速度</strong>を分けてください。ゆっくり変調する小振幅波では、WAFは波活動密度と群速度の積になるため、矢印は波束の伝播方向を向きます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p><strong>Wave activity flux（WAF）は、「上流で生じたロスビー波の影響が、どの方向へ伝わっているか」を地図上の矢印で示す道具</strong>です。矢印は空気そのものの移動方向でも、高気圧・低気圧の移動方向でもありません。まずは<strong>波の影響の配送ルート</strong>だと考えてください。</p>
+          <p>たとえば、アジア上空のジェット気流に沿ってWAFの矢印が西から東へ並んでいれば、「西側にある波の影響が東側へ伝わる状態と整合的」と読みます。ただし、矢印だけで西側が原因だと証明できるわけではありません。</p>
 
-          <h3>最初の一枚絵</h3>
+          <h3>先に知っておく6語</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>用語</th>
+                <th>この記事での意味</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="用語">背景流・基本場</td>
+                <td data-label="この記事での意味">波が重なっている土台の風。季節平均のジェット気流など。</td>
+              </tr>
+              <tr>
+                <td data-label="用語">擾乱</td>
+                <td data-label="この記事での意味">土台からのずれ。たとえば、その日の高度から平年の高度を引いた偏差。</td>
+              </tr>
+              <tr>
+                <td data-label="用語">ロスビー波</td>
+                <td data-label="この記事での意味">地球の回転と緯度によるコリオリ効果の違いに関係する、大規模な大気の蛇行。</td>
+              </tr>
+              <tr>
+                <td data-label="用語">波の位相</td>
+                <td data-label="この記事での意味">山と谷がどこにあるかという「波の模様」。天気図では尾根・谷や正負の高度偏差に対応する。</td>
+              </tr>
+              <tr>
+                <td data-label="用語">波束</td>
+                <td data-label="この記事での意味">波が特に強い範囲を一つのまとまりとして見たもの。波の「封筒」や「かたまり」。</td>
+              </tr>
+              <tr>
+                <td data-label="用語">flux</td>
+                <td data-label="この記事での意味">ある境界を、ある向きへ、単位時間にどれだけ通過するか。WAFでは波活動の通過量を表す。</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>ロスビー波を「ジェット気流の蛇行」として見る</h3>
+          <p>中緯度上空には、平均的には西から東へ吹く強い風であるジェット気流があります。この流れは常に真っすぐではなく、南北へ蛇行します。蛇行の北への張り出しを<strong>尾根</strong>、南へのくぼみを<strong>谷</strong>と呼びます。このような大規模な蛇行をロスビー波として捉えます。</p>
+          <p>ロスビー波が生じる根本には、空気のかたまりが南北へ移動しても回転の性質を保とうとすることがあります。その回転の性質をまとめた量が<strong>ポテンシャル渦度（PV）</strong>です。最初は「空気のかたまりが持つ、回転と厚さをまとめた名札」くらいの理解で十分です。</p>
+
+          <h3>山・谷の移動と、影響の移動を分ける</h3>
           <figure class="climate-chart">
-            <figcaption>谷・尾根の模様と、波の影響が伝わる向きは同じとは限らない</figcaption>
+            <figcaption>上の山・谷の模様と、下の「波が強い範囲」およびWAFは、別のものを追っている</figcaption>
             <svg viewBox="0 0 760 270" role="img" aria-labelledby="waf-diagram-title waf-diagram-desc">
               <title id="waf-diagram-title">位相と波束とwave activity fluxの関係</title>
-              <desc id="waf-diagram-desc">上段は波の山谷である位相、中段は振幅の包絡線である波束、下段は波活動の伝播を表すWAFの矢印を示す。</desc>
+              <desc id="waf-diagram-desc">上段は波の山谷の模様、中段は波が強い範囲、下段は波活動の伝播を表すWAFの矢印を示す。</desc>
               <defs>
                 <marker id="arrow-waf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
                   <path d="M 0 0 L 10 5 L 0 10 z" fill="#d85a30"/>
@@ -53,32 +94,41 @@
                   <path d="M 0 0 L 10 5 L 0 10 z" fill="#26736c"/>
                 </marker>
               </defs>
-              <text x="18" y="42">位相</text>
+              <text x="18" y="42">山・谷</text>
               <path d="M 105 42 C 130 10, 155 10, 180 42 S 230 74, 255 42 S 305 10, 330 42 S 380 74, 405 42 S 455 10, 480 42 S 530 74, 555 42" fill="none" stroke="#26736c" stroke-width="4"/>
               <line x1="590" y1="42" x2="690" y2="42" stroke="#26736c" stroke-width="3" marker-end="url(#arrow-phase)"/>
-              <text x="604" y="30">位相速度</text>
+              <text x="588" y="30">模様の移動</text>
 
-              <text x="18" y="135">波束</text>
+              <text x="18" y="135">強い範囲</text>
               <path d="M 105 135 C 130 130, 155 130, 180 135 S 230 155, 255 135 S 305 88, 330 135 S 380 182, 405 135 S 455 115, 480 135 S 530 140, 555 135" fill="none" stroke="#25312d" stroke-width="4"/>
               <path d="M 105 135 C 180 133, 230 88, 330 86 C 430 88, 480 133, 555 135" fill="none" stroke="#8b9892" stroke-width="2" stroke-dasharray="7 6"/>
               <path d="M 105 135 C 180 137, 230 182, 330 184 C 430 182, 480 137, 555 135" fill="none" stroke="#8b9892" stroke-width="2" stroke-dasharray="7 6"/>
-              <text x="273" y="207">包絡線＝影響がまとまった領域</text>
+              <text x="273" y="207">点線＝波が強い範囲の外側</text>
 
               <text x="18" y="246">WAF</text>
               <line x1="215" y1="238" x2="565" y2="238" stroke="#d85a30" stroke-width="7" marker-end="url(#arrow-waf)"/>
-              <text x="283" y="228">波活動の伝播（群速度の向き）</text>
+              <text x="283" y="228">波の影響が伝わる向き</text>
             </svg>
           </figure>
-          <p>水面の波を想像すると、個々の波頭が動く一方、波が強い一群である「波束」も動きます。ロスビー波では位相速度と群速度が大きく異なり得ます。したがって、ジオポテンシャル高度偏差の正負が移動する向きと、WAFの矢印が一致しなくても矛盾ではありません。</p>
+          <p>水面に小石を落とすと、個々の波の山が動きます。それと同時に、「波が強く見える範囲」も広がります。この二つは同じ動きとは限りません。</p>
+          <ul>
+            <li><strong>位相速度:</strong> 個々の山や谷という模様が動く速さ。</li>
+            <li><strong>群速度:</strong> 波が強い範囲、すなわち波束が移動する速さ。波の情報や影響の伝播に対応する。</li>
+          </ul>
+          <p>WAFが対応するのは主に後者です。したがって、高度偏差の正負が動く向きとWAFの矢印が一致しなくても矛盾ではありません。ゆっくり形を変える小振幅波では、WAFは群速度と平行になります。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
 
-          <h3>何が流れているのか</h3>
-          <p>「wave activity」は水や空気のような物質ではなく、基本場からの擾乱に対して定義される保存量です。定式化によって波エネルギー、波エンストロフィー、擬運動量との結び付きが異なります。Takaya–Nakamuraの定式化では、波エンストロフィーに比例する量 (A) と波エネルギーに比例する量 (E) を組み合わせ、位相に依存しない波活動密度を</p>
+          <h3>「波活動」は物質ではなく、波の強さを数える帳簿</h3>
+          <p>WAFの矢印の中を、空気や水のような物質が流れているわけではありません。運ばれるのは<strong>波活動（wave activity）</strong>という、波の強さを数えるために理論上定義した量です。</p>
+          <p>波があると、風速や気圧・高度が平均状態からずれます。そのずれには運動エネルギーや位置エネルギーがあります。また、ロスビー波はPVを乱すため、渦の乱れを測る<a href="what-is-enstrophy.html">波エンストロフィー</a>も持ちます。Takaya–Nakamuraの方法では、波エンストロフィーに関係する量 \(A\) と波エネルギーに関係する量 \(E\) をまとめて、波活動密度 \(M\) を、</p>
           <p>
             \[
               M=\frac{A+E}{2}
             \]
           </p>
-          <p>と構成します。保存則の骨格は、波活動密度を (M)、WAFを \(\mathbf{F}\)、外力・散逸などの非保存効果を (D) として、</p>
+          <p>と作ります。ここで重要なのは細かな式ではなく、<strong>\(M\) は、その場所に波の影響がどれだけ蓄えられているかを表す在庫量</strong>だという点です。</p>
+
+          <h3>保存則は「在庫の出入り」として読む</h3>
+          <p>ある場所にある波活動の在庫を \(M\)、そこから出入りするWAFを \(\mathbf{F}\)、山岳・加熱・摩擦などによる生成や消失を \(D\) とすると、基本的な収支は、</p>
           <p>
             \[
               \frac{\partial M}{\partial t}
@@ -86,70 +136,132 @@
               =D
             \]
           </p>
-          <p>です。さらに、ゆっくり変調する小振幅波というWKB近似では、群速度を \(\mathbf{c}_g\) とすると、</p>
+          <p>です。各項は次のように読めます。</p>
+          <ul>
+            <li>\(\partial M/\partial t\)：その場所の波活動の在庫が増えたか、減ったか。</li>
+            <li>\(\boldsymbol{\nabla}\!\boldsymbol{\cdot}\mathbf{F}\)：入ってくる量より出ていく量がどれだけ多いか。これをWAFの<strong>発散</strong>と呼ぶ。</li>
+            <li>\(D\)：外部からの生成や、摩擦・散逸による消失。</li>
+          </ul>
+          <p>浴槽で考えると、\(M\) は浴槽の水量、\(\mathbf{F}\) はパイプを通る水流、\(D\) は蛇口や排水口です。WAFの矢印だけを見るのはパイプの流れを見ること、収束・発散を見るのは浴槽へ正味で水が入るか出るかを見ることに相当します。</p>
+          <p>条件のよい、ゆっくり形を変える小振幅波では、群速度を \(\mathbf{c}_g\) として、</p>
           <p>
             \[
               \mathbf{F}=M\mathbf{c}_g
             \]
           </p>
-          <p>となります。これが、<strong>WAFの矢印を波束の伝播方向として読む</strong>根拠です。Takaya–Nakamura fluxは、定常または移動性の準地衡風擾乱と、東西一様でない基本流を扱えるよう構成されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>となります。つまり、<strong>WAF＝その場所にある波活動の量×その影響が進む速さ</strong>です。これが、矢印を波束の伝播方向として読む根拠です。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
 
-          <h3>矢印を三段階で読む</h3>
+          <h3>実際の地図ではこの順に読む</h3>
           <ol>
-            <li><strong>向き:</strong> 波活動がどちらへ伝わるかを見る。水平図なら下流・上流、極向き・赤道向き、鉛直断面なら上向き・下向きを読む。</li>
-            <li><strong>大きさ:</strong> その場所を通過する波活動fluxの強さを見る。ただし、作図時の規格化や気圧依存の係数を確認し、別の図の矢印長を無条件に比較しない。</li>
-            <li><strong>収束・発散:</strong> 波活動が局所的に集まるか、出ていくかを見る。矢印が太いことと、収束・発散が大きいことは別である。</li>
+            <li><strong>陰影や等値線を確認する:</strong> 高度偏差なら、正偏差と負偏差が交互に並ぶ波列を探す。ここで見ているのは波の形である。</li>
+            <li><strong>矢印の向きを見る:</strong> 波活動がどちらへ伝わる状態かを見る。東西方向だけでなく、北向き・南向き、鉛直断面なら上向き・下向きも読む。</li>
+            <li><strong>矢印の長さを見る:</strong> 長いほど、その地点を通るWAFが大きい。ただし図ごとの矢印スケールを必ず確認する。</li>
+            <li><strong>矢印の混み方ではなく出入りを見る:</strong> 周囲から入るWAFと外へ出るWAFを比べ、収束・発散を判断する。</li>
           </ol>
-          <p>たとえば、同じ長さの矢印が一様に東向きなら、強い波活動が通過していても \(\boldsymbol{\nabla}\!\boldsymbol{\cdot}\mathbf{F}\) はほぼゼロです。下流ほど矢印が短くなるならfluxは収束傾向、長くなるなら発散傾向です。ただし観測・再解析の一時刻または合成図では、局所時間変化、外力、散逸、非線形性も残るため、収束を直ちに「そこで波が消えた」と断定はできません。</p>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>矢印の並び</th>
+                <th>読み方</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="矢印の並び">同じ長さで一様に東向き</td>
+                <td data-label="読み方">強いWAFが通過していても、入る量と出る量が同じなら発散はほぼゼロ。</td>
+              </tr>
+              <tr>
+                <td data-label="矢印の並び">東へ進むほど短くなる</td>
+                <td data-label="読み方">上流から入る量より下流へ出る量が少なく、WAFは収束傾向。</td>
+              </tr>
+              <tr>
+                <td data-label="矢印の並び">東へ進むほど長くなる</td>
+                <td data-label="読み方">下流へ出る量が増え、WAFは発散傾向。</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>矢印が長いことと、収束していることは別です。また、一時刻や合成図では、波活動の時間変化、外力、散逸、非線形な効果もあります。収束を見ただけで「ここで波が消えた」とは断定できません。</p>
 
-          <h3>WAFと平均流への作用は同じ図ではない</h3>
-          <p>WAFはまず<strong>波活動の伝播診断</strong>です。平均流の加速・減速を論じるには、fluxの発散と、その定式化に対応した平均流方程式を用いる必要があります。とくにEliassen–Palm（EP）fluxは東西平均した波と平均流の相互作用を診断するために発展し、その発散が変換されたオイラー平均の東西風加速と結び付きます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup><sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
-          <p>したがって、水平面のTakaya–Nakamura WAFを見て「矢印が東向きだから東風運動量を運ぶ」「矢印が集まるから必ず西風が減速する」と読むのは飛躍です。論文ごとに、使ったfluxの定義、発散の符号規約、背景流、鉛直座標、定常・線形・準地衡風などの仮定を確認します。</p>
+          <h3>「矢印が東向き＝東向きの風を運ぶ」ではない</h3>
+          <p>WAFの向きは波活動の伝播方向であり、運ばれる風向そのものではありません。東向きのWAFを見て「東風の運動量を運ぶ」と読むのは誤りです。</p>
+          <p>また、平均的なジェット気流が加速するか減速するかを知るには、WAFの向きだけでなく、fluxの発散と、そのfluxに対応する平均流の式が必要です。Eliassen–Palm（EP）fluxは、東西平均した波が平均東西風へ及ぼす作用を調べるための代表的な道具です。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup><sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
 
-          <h3>Plumb flux、Takaya–Nakamura flux、EP fluxの違い</h3>
+          <h3>「WAF」という名前の矢印は一種類ではない</h3>
+          <p>論文によって異なる式のfluxが使われます。最初は、式の形より「何を調べるための図か」で区別すると理解しやすくなります。</p>
           <table class="mobile-table">
             <thead>
               <tr>
                 <th>flux</th>
-                <th>得意な問い</th>
-                <th>要点</th>
+                <th>主に見る図</th>
+                <th>学生向けの使い分け</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td data-label="flux">Plumb flux</td>
-                <td data-label="得意な問い">定常ロスビー波は三次元にどう伝播するか</td>
-                <td data-label="要点">東西流上の準地衡風定常波に対する、局所的で東西平均を必要としない診断。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></td>
+                <td data-label="主に見る図">経度・緯度・高度を使った定常波の伝播</td>
+                <td data-label="学生向けの使い分け">時間平均しても残る波が、どこからどこへ伝わるかを見る古典的なWAF。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></td>
               </tr>
               <tr>
                 <td data-label="flux">Takaya–Nakamura flux</td>
-                <td data-label="得意な問い">東西に変化する基本流上で波列はどこへ伝わるか</td>
-                <td data-label="要点">定常・移動性QG擾乱に適用でき、位相に依存する細かな振動を抑えたWAF。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></td>
+                <td data-label="主に見る図">地図上のロスビー波列</td>
+                <td data-label="学生向けの使い分け">ジェットが東西に一様でない現実的な場で、定常波・移動する波の伝播を見る。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></td>
               </tr>
               <tr>
                 <td data-label="flux">EP flux</td>
-                <td data-label="得意な問い">東西平均した波が平均東西流へどう作用するか</td>
-                <td data-label="要点">緯度・高度断面で使われることが多く、flux発散と平均流加速の関係が中心。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup><sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></td>
+                <td data-label="主に見る図">緯度・高度断面</td>
+                <td data-label="学生向けの使い分け">東西平均した波が、平均的な西風ジェットをどう変えるかを見る。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup><sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></td>
               </tr>
             </tbody>
           </table>
 
-          <h3>実際のWAF図を読むチェックリスト</h3>
+          <h3>難しい用語は二周目に回してよい</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>用語</th>
+                <th>最初の理解</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="用語">準地衡風（QG）</td>
+                <td data-label="最初の理解">大規模・中緯度で、気圧傾度力とコリオリ力がほぼ釣り合うとした近似。</td>
+              </tr>
+              <tr>
+                <td data-label="用語">線形・小振幅</td>
+                <td data-label="最初の理解">波が背景流を大きく壊さず、波同士の複雑な相互作用を第一近似では小さいとする。</td>
+              </tr>
+              <tr>
+                <td data-label="用語">定常波</td>
+                <td data-label="最初の理解">時間平均しても同じ場所に残る山・谷。山岳や海陸の加熱差などで作られ得る。</td>
+              </tr>
+              <tr>
+                <td data-label="用語">WKB近似</td>
+                <td data-label="最初の理解">背景流や波の振幅が、波長に比べてゆっくり変化するとする近似。群速度を局所的に定義しやすくする。</td>
+              </tr>
+              <tr>
+                <td data-label="用語">擬運動量</td>
+                <td data-label="最初の理解">空気そのものの運動量ではなく、波と平均流の相互作用を記述するために定義した波の帳簿上の量。</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>論文のWAF図を読むチェックリスト</h3>
           <ul>
-            <li><strong>擾乱の定義:</strong> 日々偏差、気候値偏差、合成偏差、定常成分のどれか。</li>
-            <li><strong>基本流の定義:</strong> 気候値か期間平均か、東西平均か三次元場か。</li>
-            <li><strong>fluxの種類:</strong> Plumb、Takaya–Nakamura、EP、その他のどれか。</li>
-            <li><strong>適用条件:</strong> 線形、小振幅、準地衡風、定常、WKBなどのどれを仮定したか。</li>
-            <li><strong>矢印の規格化:</strong> 単位、スケール、気圧による重み、ベクトルの間引き方。</li>
-            <li><strong>背景の陰影:</strong> ジオポテンシャル高度偏差なのか、波活動密度なのか、flux発散なのか。</li>
-            <li><strong>因果の限界:</strong> 一本の矢印列は伝播と整合的でも、上流側が下流側を強制した証明にはならない。</li>
+            <li><strong>何からのずれか:</strong> 日々の平年偏差か、事例を平均した合成偏差か。</li>
+            <li><strong>土台の風は何か:</strong> 平年のジェットか、解析期間の平均風か。</li>
+            <li><strong>どのWAFか:</strong> Plumb、Takaya–Nakamura、EPのどれか。</li>
+            <li><strong>色や等値線は何か:</strong> 高度偏差、波活動密度、WAF発散など、矢印とは別の変数を確認する。</li>
+            <li><strong>矢印の縮尺:</strong> 図中の基準矢印、単位、気圧による補正を確認する。</li>
+            <li><strong>言える範囲:</strong> 「波の伝播と整合的」なのか、「外力から応答まで別の解析で確かめた」のかを分ける。</li>
           </ul>
 
           <h3>一言で覚える</h3>
-          <p><strong>高度偏差の等値線は「波の形」、WAFの矢印は「波の影響の配送経路」、WAFの収束・発散は「配送量の局所収支」</strong>です。この三つを分けると、WAF図はかなり読みやすくなります。</p>
+          <p><strong>高度偏差の等値線は「波の形」、WAFの矢印は「波の影響の配送経路」、WAFの収束・発散は「その場所への正味の出入り」</strong>です。この三つを分けると、WAF図はかなり読みやすくなります。</p>
 
           <h3>まとめ</h3>
-          <p>Wave activity fluxは、背景流上の波活動という保存量の輸送を表します。WKB近似では波活動密度と群速度の積なので、矢印は位相ではなく波束の伝播方向を示します。矢印の長さはfluxの大きさ、矢印場の収束・発散は局所収支であり、両者は区別が必要です。平均流への作用まで述べるときは、用いたfluxに対応する保存則・平均流方程式と符号規約を確認してください。</p>
+          <p>WAFは、平均的な風の上に重なったロスビー波の影響が、どちらへ伝わる状態かを示します。個々の谷・尾根の移動ではなく、波が強い範囲である波束の伝播を追う矢印です。矢印の長さは通過量、収束・発散は正味の出入りを表し、両者は別です。最初は「波の形」「配送経路」「正味の出入り」の三つだけを分け、QGやWKBなどの近似条件は二周目に確認すれば十分です。</p>
         </section>
 
         <section class="references" aria-labelledby="references-heading">

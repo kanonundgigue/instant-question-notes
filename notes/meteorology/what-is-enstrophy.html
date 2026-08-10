@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>エンストロフィーとは？渦度・エネルギー・WAFとの関係 | k-notes</title>
+    <meta name="description" content="エンストロフィーを渦度の二乗、空間スケール、二次元乱流の二重カスケードから直感的に説明し、ポテンシャル・エンストロフィーとWAFの波エンストロフィーまでつなげます。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>エンストロフィーとは？渦度・エネルギー・WAFとの関係</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-08-07">2026-08-07</time></p>
+          <p>カテゴリ: meteorology</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>エンストロフィーってなに</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><strong>エンストロフィー（enstrophy）は、渦度の強さを二乗して領域全体で合計した量</strong>です。運動エネルギーが「流れがどれだけ速いか」を測るのに対し、エンストロフィーは「流れがどれだけ強く、細かく回転しているか」を測ります。とくに二次元流では非粘性・非発散・外力なしという理想条件で保存され、運動エネルギーとともに乱流のスケール間輸送を強く制約します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>まず渦度とは何か</h3>
+          <p>水平風を \(\mathbf{u}=(u,v)\) とすると、鉛直方向の相対渦度 \(\zeta\) は、</p>
+          <p>
+            \[
+              \zeta
+              =\frac{\partial v}{\partial x}
+              -\frac{\partial u}{\partial y}
+            \]
+          </p>
+          <p>です。これは、ごく小さな風車を流れに置いたときの局所的な回りやすさを表します。北半球で反時計回りなら通常は \(\zeta&gt;0\)、時計回りなら \(\zeta&lt;0\) です。</p>
+
+          <h3>エンストロフィーは渦度を二乗する</h3>
+          <p>単位面積あたりのエンストロフィー密度を \(z\) とすると、慣例的に、</p>
+          <p>
+            \[
+              z=\frac{1}{2}\zeta^2
+            \]
+          </p>
+          <p>と定義します。領域 \(\mathcal{A}\) 全体のエンストロフィー \(Z\) は、</p>
+          <p>
+            \[
+              Z
+              =\frac{1}{2}
+              \int_{\mathcal{A} }\zeta^2\,\mathrm{d}A
+            \]
+          </p>
+          <p>です。「enstrophy density」という語が空間積分前の \(z\)、領域平均 \(\tfrac{1}{2}\langle\zeta^2\rangle\)、あるいは流体質量あたりの量を指す場合もあるため、論文では定義と単位を確認します。</p>
+
+          <h3>なぜ二乗するのか</h3>
+          <ul>
+            <li><strong>回転方向を打ち消さない:</strong> \(\zeta\) をそのまま合計すると、時計回りと反時計回りの渦が相殺される。二乗すれば両方を強い渦として数えられる。</li>
+            <li><strong>強い渦を重く数える:</strong> 渦度が2倍ならエンストロフィー密度は4倍になる。</li>
+            <li><strong>保存則になる:</strong> 二次元の理想流では、渦度が流体粒子とともに運ばれるため、渦度二乗の空間積分も保存される。</li>
+          </ul>
+
+          <h3>エネルギーとの違いは「細かさ」への感度</h3>
+          <p>代表風速を \(U\)、渦の大きさを \(L\) とすると、渦度のスケールはおおよそ \(\zeta\sim U/L\) です。したがって、単位質量あたりの運動エネルギー \(K\) とエンストロフィー密度 \(z\) は、</p>
+          <p>
+            \[
+              K\sim\frac{U^2}{2},
+              \qquad
+              z\sim\frac{U^2}{2L^2}
+            \]
+          </p>
+          <p>と見積もれます。同じ風速 \(U\) でも、渦の大きさ \(L\) が半分になると、エンストロフィー密度は約4倍です。運動エネルギーは主に速さを見ますが、エンストロフィーは速度の空間変化を見るため、小さなスケールへ強く反応します。</p>
+
+          <figure class="climate-chart">
+            <figcaption>同じ代表風速でも、小さい渦ほど渦度とエンストロフィーが大きい</figcaption>
+            <svg viewBox="0 0 760 300" role="img" aria-labelledby="enstrophy-diagram-title enstrophy-diagram-desc">
+              <title id="enstrophy-diagram-title">大きな渦と小さな渦のエンストロフィー比較</title>
+              <desc id="enstrophy-diagram-desc">左に大きな渦、右に小さな渦を描き、同じ代表風速なら小さな渦ほどエンストロフィー密度が大きいことを示す。</desc>
+              <defs>
+                <marker id="arrow-vortex" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#26736c"/>
+                </marker>
+              </defs>
+              <text x="112" y="35">大きな渦</text>
+              <circle cx="190" cy="145" r="92" fill="none" stroke="#d5ddd9" stroke-width="2"/>
+              <path d="M 132 93 C 188 42, 273 91, 259 164 C 248 222, 172 247, 123 205" fill="none" stroke="#26736c" stroke-width="7" marker-end="url(#arrow-vortex)"/>
+              <text x="92" y="270">\(\zeta\sim U/L\)：小さい</text>
+
+              <text x="510" y="35">小さな渦</text>
+              <circle cx="560" cy="145" r="48" fill="none" stroke="#d5ddd9" stroke-width="2"/>
+              <path d="M 530 117 C 560 88, 605 113, 597 151 C 590 183, 550 197, 524 174" fill="none" stroke="#d85a30" stroke-width="7" marker-end="url(#arrow-vortex)"/>
+              <line x1="426" y1="145" x2="492" y2="145" stroke="#8b9892" stroke-width="2" stroke-dasharray="6 5"/>
+              <text x="458" y="128" text-anchor="middle">同じ \(U\)</text>
+              <text x="463" y="270">\(\zeta\sim U/L\)：大きい</text>
+            </svg>
+          </figure>
+
+          <h3>二次元乱流ではなぜ重要か</h3>
+          <p>非圧縮・非粘性の二次元流では、運動エネルギーとエンストロフィーの両方が保存されます。高波数、つまり小さい空間スケールほど、同じエネルギーに対して大きなエンストロフィーを持ちます。この二つの保存条件のため、エネルギーの多くは大きなスケール側へ、エンストロフィーは小さなスケール側へ移る傾向があります。Fjørtoftは二重保存則によるスペクトル輸送の制約を示し、Kraichnanは逆エネルギーカスケードと順エンストロフィーカスケードを理論化しました。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p><strong>「小さい渦が大きい渦へ合体する」だけで覚えると不十分</strong>です。正確には、理想化した二次元乱流の統計的なスペクトル輸送について、エネルギーは低波数側、エンストロフィーは高波数側へ向かうという記述です。個々の渦が常に同じ動きをするという法則ではありません。</p>
+
+          <h3>三次元流では保存されない</h3>
+          <p>三次元流では、渦管が引き伸ばされると渦度が強くなる「渦伸長」があります。そのため、通常の三次元エンストロフィーは非粘性でも一般には保存されません。二次元では渦伸長がなく、渦度が物質保存されることが、エンストロフィー保存の鍵です。したがって「エンストロフィーは保存量」という説明には、<strong>二次元、非粘性、非発散、外力なし、適切な境界条件</strong>という条件が付きます。</p>
+
+          <h3>大気ではポテンシャル・エンストロフィーを使う</h3>
+          <p>大気の準地衡風力学では、相対渦度だけでなく成層による鉛直伸縮なども含む準地衡風ポテンシャル渦度 \(q\) が中心になります。その二乗から作る、</p>
+          <p>
+            \[
+              P
+              =\frac{1}{2}
+              \int q^2\,\mathrm{d}V
+            \]
+          </p>
+          <p>がポテンシャル・エンストロフィーの基本形です。Charneyの地衡風乱流理論は、三次元的な大気でも準地衡風近似のもとでエネルギーとポテンシャル・エンストロフィーがスペクトル輸送を制約することを示しました。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+
+          <h3>WAFに出てきた「波エンストロフィー」とは</h3>
+          <p>平均的な基本場のポテンシャル渦度を \(Q\)、そこからの波擾乱を \(q'\) とすると、波エンストロフィーは概念的には \(\tfrac{1}{2}q'^2\) です。つまり、<strong>ロスビー波が基本PV場をどれだけ強く乱しているか</strong>を測ります。</p>
+          <p>Takaya–NakamuraのWAFでは、波エンストロフィーに比例する量 \(A\) と波エネルギーに比例する量 \(E\) を組み合わせ、位相に依存しにくい波活動密度 \(M=(A+E)/2\) を作ります。ここで \(A\) は単なる \(q'^2/2\) そのものではなく、背景PV勾配との関係を含む波活動の量です。したがって、WAF記事の「波エンストロフィー」は、通常の二次元エンストロフィーをそのまま流しているという意味ではありません。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+
+          <h3>一言で覚える</h3>
+          <p><strong>運動エネルギーは流れの速さ、エンストロフィーは渦の細かさと強さ。</strong>同じ速さなら、小さく急に曲がる流れほどエンストロフィーが大きくなります。WAFでは、この考えをポテンシャル渦度の波擾乱へ置き換えた波エンストロフィーが、波活動密度を構成する一部になります。</p>
+
+          <h3>まとめ</h3>
+          <p>エンストロフィーは渦度二乗の積分で、回転方向を区別せず、強く細かい渦を重く数えます。二次元の理想流では運動エネルギーとともに保存され、この二重保存則が逆エネルギーカスケードと順エンストロフィーカスケードを制約します。大気の準地衡風系ではポテンシャル渦度の二乗へ拡張し、WAFではその擾乱成分に基づく波エンストロフィーが使われます。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://doi.org/10.1111/j.2153-3490.1953.tb01051.x">Fjørtoft (1953), On the Changes in the Spectral Distribution of Kinetic Energy for Two-Dimensional, Nondivergent Flow</a></li>
+            <li id="ref-2"><a href="https://doi.org/10.1063/1.1762301">Kraichnan (1967), Inertial Ranges in Two-Dimensional Turbulence</a></li>
+            <li id="ref-3"><a href="https://doi.org/10.1175/1520-0469(1971)028%3C1087:GT%3E2.0.CO;2">Charney (1971), Geostrophic Turbulence</a></li>
+            <li id="ref-4"><a href="https://doi.org/10.1175/1520-0469(2001)058%3C0608:AFOAPI%3E2.0.CO;2">Takaya and Nakamura (2001), A Formulation of a Phase-Independent Wave-Activity Flux for Stationary and Migratory Quasigeostrophic Eddies on a Zonally Varying Basic Flow</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
