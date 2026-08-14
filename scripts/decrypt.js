@@ -65,6 +65,10 @@
           inlineMath: [["\\(", "\\)"]],
           displayMath: [["\\[", "\\]"]],
         },
+        startup: {
+          // 復号本文を挿入する前の自動組版を止め、挿入後に明示的に組版する。
+          typeset: false,
+        },
       };
     }
 
@@ -104,12 +108,17 @@
     try {
       const html = await window.NoteCrypto.decrypt(payload, password);
       content.innerHTML = html;
+      // display:none のまま組版すると幅を正しく測れないため、レイアウトには
+      // 参加させつつ、組版完了までは不可視にする。
+      content.style.visibility = "hidden";
+      content.hidden = false;
       try {
         await enhanceMath();
       } catch (mathError) {
         console.error("MathJaxの読み込みまたは組版に失敗しました。", mathError);
+      } finally {
+        content.style.removeProperty("visibility");
       }
-      content.hidden = false;
       lock.hidden = true;
       input.value = "";
       // 復号後の本文に <h1> がある場合、ページタイトルをそれに合わせる（任意）。

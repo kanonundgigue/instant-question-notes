@@ -18,6 +18,7 @@
         <h1>パレート最適化とは？</h1>
         <div class="article-meta">
           <p>作成日: <time datetime="2026-07-31">2026-07-31</time></p>
+          <p>更新日: <time datetime="2026-08-11">2026-08-11</time></p>
           <p>カテゴリ: statistics</p>
         </div>
 
@@ -95,6 +96,97 @@
           </ul>
 
           <p>したがって、この候補集合におけるパレート最適解はA、B、Cです。ただし、これは<strong>列挙した5案の中での非支配解</strong>です。調べていない設計案や探索範囲の外に、A、B、Cを支配する解が存在しないことまでは保証しません。</p>
+        </section>
+
+        <section aria-labelledby="python-exercise-heading">
+          <h2 id="python-exercise-heading">Python演習: 気象予報モデルのPareto frontを探す</h2>
+          <p>ある地点の翌日気温を予報する6種類のモデルを比較します。評価軸は、予報値と観測値のずれを表す<strong>RMSE（平均二乗誤差の平方根）</strong>と、1回の予報に必要な<strong>計算時間</strong>です。どちらも小さいほど良いものとします。次の数値は仕組みを学ぶための<strong>合成データ</strong>であり、実在する気象予報モデルの性能ではありません。</p>
+
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>モデル</th>
+                <th>RMSE</th>
+                <th>計算時間</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td data-label="モデル">A: 高解像度</td><td data-label="RMSE">1.4 K</td><td data-label="計算時間">40分</td></tr>
+              <tr><td data-label="モデル">B: 標準</td><td data-label="RMSE">1.8 K</td><td data-label="計算時間">18分</td></tr>
+              <tr><td data-label="モデル">C: 軽量</td><td data-label="RMSE">2.3 K</td><td data-label="計算時間">7分</td></tr>
+              <tr><td data-label="モデル">D: 旧版</td><td data-label="RMSE">2.1 K</td><td data-label="計算時間">22分</td></tr>
+              <tr><td data-label="モデル">E: 実験版</td><td data-label="RMSE">1.6 K</td><td data-label="計算時間">32分</td></tr>
+              <tr><td data-label="モデル">F: 簡易版</td><td data-label="RMSE">2.5 K</td><td data-label="計算時間">12分</td></tr>
+            </tbody>
+          </table>
+
+          <h3>「XがYを支配する」とは</h3>
+          <p>これは、<strong>Yより悪い項目がXには一つもなく、少なくとも一項目ではXの方が良い</strong>という意味です。言い換えると、今回比べているRMSEと計算時間だけを見る限り、Yを残す理由がなくなる状態です。</p>
+          <p>BとDを比べると、BのRMSEは1.8 KでDの2.1 Kより小さく、Bの計算時間は18分でDの22分より短くなっています。Bは精度と速さの両方でDに勝つので、<strong>BがDを支配します</strong>。</p>
+          <pre><code class="language-text">B → D を比較
+RMSE:     1.8 &lt;= 2.1  → Bの方が良い
+計算時間: 18  &lt;= 22   → Bの方が良い
+結論: BはDを支配する</code></pre>
+          <p>一方、AとBでは、Aの方が正確ですが、Bの方が速く計算できます。片方のモデルが両項目で勝っているわけではないため、AとBは互いを支配しません。</p>
+          <pre><code class="language-text">A → B を比較
+RMSE:     1.4 &lt;= 1.8  → Aの方が良い
+計算時間: 40  &lt;= 18   → False（Aの方が遅い）
+結論: AはBを支配しない</code></pre>
+
+          <h3>問題</h3>
+          <ol>
+            <li>表を見て、他のモデルに支配されるモデルを予想してください。</li>
+            <li>比較モデルが判定対象モデルを支配するか調べる関数 <code>dominates</code> を完成させてください。</li>
+            <li>どのモデルにも支配されないモデルを抽出し、Pareto frontを求めてください。</li>
+          </ol>
+
+          <p>まず、次の雛形の <code>...</code> を条件式に置き換えます。</p>
+          <pre><code class="language-python">def dominates(comparison_model, target_model):
+    no_worse = ...
+    strictly_better = ...
+    return no_worse and strictly_better</code></pre>
+
+          <h3>ヒント</h3>
+          <p><code>comparison_model</code> は「勝てるか調べる側」、<code>target_model</code> は「支配されるか調べられる側」です。<code>dominates(B, D)</code> は「BがDを支配するか」と左から読みます。</p>
+          <p><code>no_worse</code> は「比較モデルのRMSEと計算時間が、どちらも判定対象以下」、<code>strictly_better</code> は「少なくとも片方が判定対象より小さい」という条件です。同じ値のモデル同士を、誤って支配関係にしないために両方が必要です。</p>
+
+          <details>
+            <summary>解答と実行結果を見る</summary>
+            <p>解答では、候補ごとに「その候補を支配する別モデルが一つでもあるか」を <code>any</code> で調べます。</p>
+            <pre><code class="language-python">def dominates(comparison_model, target_model):
+    no_worse = (
+        comparison_model["rmse_k"] &lt;= target_model["rmse_k"]
+        and comparison_model["runtime_min"] &lt;= target_model["runtime_min"]
+    )
+    strictly_better = (
+        comparison_model["rmse_k"] &lt; target_model["rmse_k"]
+        or comparison_model["runtime_min"] &lt; target_model["runtime_min"]
+    )
+    return no_worse and strictly_better
+
+
+pareto_front = []
+for candidate in models:
+    is_dominated = any(
+        dominates(other, candidate)
+        for other in models
+        if other is not candidate
+    )
+    if not is_dominated:
+        pareto_front.append(candidate)</code></pre>
+            <p>DはBに、FはCに支配されます。A、E、B、Cは、精度を上げるほど計算時間が長くなる関係にあるため、互いを支配しません。</p>
+            <pre><code>Pareto frontに残る予報モデル
+A: 高解像度: RMSE=1.4 K, 計算時間=40分
+B: 標準: RMSE=1.8 K, 計算時間=18分
+C: 軽量: RMSE=2.3 K, 計算時間=7分
+E: 実験版: RMSE=1.6 K, 計算時間=32分</code></pre>
+          </details>
+
+          <p><a href="examples/pareto-weather-model-exercise.py">解答を含む演習用Pythonスクリプト</a>は標準ライブラリだけで実行できます。リポジトリのルートで <code>uv run python notes/statistics/examples/pareto-weather-model-exercise.py</code> を実行してください。</p>
+
+          <h3>考察</h3>
+          <p>Pareto frontに残ったからといって、Aが常に最善とは限りません。たとえば予報を10分以内に配信する必要があるならCだけが条件を満たします。実務では、Pareto frontを求めた後に配信期限、計算資源、許容できる誤差などを使って一案を選びます。</p>
+          <p>次の段階として、<a href="antarctic-proxy-pareto-mini-exercise.html">南極古気候の候補を蓄積量と複数プロキシで絞る演習</a>では、必要条件を先に適用してからPareto frontを求めます。</p>
         </section>
 
         <section aria-labelledby="workflow-heading">
