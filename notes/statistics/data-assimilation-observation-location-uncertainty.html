@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>データ同化で観測位置の不確実性をどう扱うか | k-notes</title>
+    <meta name="description" content="観測位置に不確実性があるデータ同化について、観測誤差共分散の拡張、位置分布による周辺化、位置の同時推定、適用条件を数式と数値例で整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css?v=20260828">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>データ同化で観測位置の不確実性をどう扱うか</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-08-28">2026-08-28</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>データ同化で、観測の位置に不確実性がある場合はどのような方法がとられている？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">位置を確率変数として観測モデルへ入れる</h2>
+          <p><strong>観測位置の不確実性は、真の位置を確率変数として観測演算子へ入れ、その影響を観測尤度へ伝えるのが基本です。</strong> 位置誤差が小さく場が滑らかなら、位置について観測演算子を線形化し、位置誤差が作る分散を観測誤差共分散 \(R\) に加えます。誤差が広い、前線をまたぐ、候補位置が複数ある、または漂流ブイの位置が流れに依存する場合は、位置分布で尤度を積分するか、位置を状態変数に加えて同時推定します。海洋動物搭載センサーを想定したKalman filterの研究では、位置誤差による分散増加を明示した更新が、位置誤差を無視した更新より合成実験の平均二乗予測誤差を改善しました。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>観測値と観測位置を同じ確率モデルで表す</h3>
+          <p>状態場を \(x\)、観測値を \(y\)、真の観測位置を \(s\)、報告された位置を \(\hat{s}\) とします。観測演算子 \(h(x,s)\) は、モデル状態から位置 \(s\) における観測相当量を計算します。測器などの観測誤差を \(\varepsilon\)、その共分散を \(R_{\mathrm{meas} }\) とすると、観測モデルは式 (1) です。</p>
+          <p>
+            \[
+              \begin{aligned}
+                y &amp;= h(x,s) + \varepsilon, \\
+                \varepsilon &amp;\sim \mathcal{N}(0,R_{\mathrm{meas} }), \\
+                s \mid \hat{s} &amp;\sim p(s \mid \hat{s})
+              \end{aligned}
+              \tag{1}
+            \]
+          </p>
+          <p>位置を確率変数として扱うと、同化で使う尤度は式 (2) の周辺尤度になります。式 (2) は「位置候補ごとに予測される観測値を計算し、位置としてあり得る度合いで混ぜる」操作です。</p>
+          <p>
+            \[
+              p(y \mid x,\hat{s})
+              = \int p(y \mid x,s)\,p(s \mid \hat{s})\,\mathrm{d}s
+              \tag{2}
+            \]
+          </p>
+          <p>この表現なら、楕円形の位置誤差、海陸マスクで切れた分布、複数の候補地点、時刻間で相関した軌跡誤差をそれぞれ \(p(s \mid \hat{s})\) に反映できます。</p>
+
+          <h3>小さい位置誤差は追加の観測誤差へ変換できる</h3>
+          <p>位置誤差がモデル格子や場の変化スケールより十分小さく、\(h\) が位置について滑らかなら、式 (1) を \(\hat{s}\) の周りで一次Taylor展開します。位置に関するJacobianを \(G_s=\partial h/\partial s\)、位置誤差共分散を \(\Sigma_s\) とすると、式 (3) の有効観測誤差共分散を通常のKalman filter、EnKF、3D-Var、4D-Varへ渡せます。Sengupta et al. はこの近似をKalman filteringとsmoothingに導入し、局所的な場の傾きが大きいほど位置誤差による分散増加が大きくなることを示しました。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>
+            \[
+              \begin{aligned}
+                h(x,s)
+                &amp;\approx h(x,\hat{s}) + G_s(s-\hat{s}), \\
+                R_{\mathrm{eff} }
+                &amp;= R_{\mathrm{meas} } + G_s\Sigma_sG_s^{\mathsf{T} }
+              \end{aligned}
+              \tag{3}
+            \]
+          </p>
+          <p>複数観測の位置誤差が相関する場合、追加項には非対角成分も生じます。したがって、同じ軌跡推定や同じ画像位置合わせに由来する観測をすべて独立として扱うと、情報量を過大評価する可能性があります。</p>
+
+          <h3>数値例では局所勾配が観測の重みを決める</h3>
+          <p>一次元の気温場が観測点付近で1 kmあたり \(0.4\,^{\circ}\mathrm{C}\) 変化し、位置誤差の標準偏差が5 km、測器誤差の標準偏差が \(0.5\,^{\circ}\mathrm{C}\) だとします。位置誤差が作る標準偏差は \(0.4\times5=2.0\,^{\circ}\mathrm{C}\) です。式 (3) から有効分散と標準偏差は式 (4) になります。</p>
+          <p>
+            \[
+              \begin{aligned}
+                R_{\mathrm{eff} }
+                &amp;= 0.5^2 + (0.4\times5)^2
+                 = 4.25\,^{\circ}\mathrm{C}^2, \\
+                \sqrt{R_{\mathrm{eff} } }
+                &amp;\approx 2.06\,^{\circ}\mathrm{C}
+              \end{aligned}
+              \tag{4}
+            \]
+          </p>
+          <p>観測空間に射影した背景誤差分散を \(1.0\,^{\circ}\mathrm{C}^2\) とすると、スカラーのKalman gainは、位置誤差を無視した場合の \(1/(1+0.25)=0.80\) から、考慮した場合の \(1/(1+4.25)\approx0.19\) へ下がります。同じ5 kmの位置誤差でも、勾配がほぼゼロの一様な場所では追加分散もほぼゼロです。このため、位置の距離誤差と場の局所勾配を組み合わせて観測の重みを決めます。</p>
+
+          <h3>位置分布の周辺化は非線形な場所にも対応する</h3>
+          <p>位置誤差が広い場合は、式 (2) を求積法やMonte Carlo法で近似します。位置分布から \(s^{(m)}\) を \(M\) 個生成し、各位置で観測演算子を評価すれば、式 (5) の混合尤度を得られます。位置候補が前線の両側や海と陸に分かれる場合、この尤度は歪んだ形や多峰形になり得るため、平均位置で1回だけ補間する処理より情報を保てます。</p>
+          <p>
+            \[
+              p(y \mid x,\hat{s})
+              \approx \frac{1}{M}\sum_{m=1}^{M}
+              p\!\left(y \mid x,s^{(m)}\right),
+              \qquad s^{(m)}\sim p(s \mid \hat{s})
+              \tag{5}
+            \]
+          </p>
+          <p>EnKFで各メンバーに位置をサンプリングして擬似観測を作る簡略法もあります。ただし、混合尤度が強く非Gaussianなら、平均と共分散だけで更新するEnKFは多峰性を表現しにくくなります。この場合はparticle filter、逐次MCMC、反復型のensemble smootherなど、非Gaussian性を保持しやすい方法を検討します。</p>
+
+          <h3>動く観測者は位置と場を同時に推定する</h3>
+          <p>漂流ブイ、気球、海洋動物のように観測者が動き、その軌跡が未知の流速場に依存する場合、位置 \(s_t\) を同化状態へ加えます。各アンサンブルまたは粒子で場 \(x_t\) と位置 \(s_t\) を一緒に時間発展させ、観測値と位置情報の双方で更新します。位置の現在値に加え、それまでの流れも軌跡へ影響するため、問題には長い時間依存が入ります。</p>
+          <p>Ruzayqat et al. は、未知の観測者位置を伴うLagrangian data assimilationを状態空間モデルとして定式化し、場と観測者位置を伝播する逐次MCMCを提案しました。回転浅水モデルと実際の漂流ブイ位置を使う事例では、約4.4万の状態変数と12台のdrifterを扱っています。一方、著者らは、この高次元・非線形設定で一般的なensemble法が不正確になり得ることと、逐次MCMCの計算費用が大きいことも報告しています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>誤差の大きさと非線形性で方法を選ぶ</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>条件</th>
+                <th>実用的な方法</th>
+                <th>確認事項</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="条件">位置誤差が小さく、場が滑らか</td>
+                <td data-label="実用的な方法">式 (3) で \(R\) を拡張</td>
+                <td data-label="確認事項">位置方向の勾配、線形化誤差</td>
+              </tr>
+              <tr>
+                <td data-label="条件">位置分布が広い、歪む、複数候補がある</td>
+                <td data-label="実用的な方法">求積またはMonte Carloで式 (2) を周辺化</td>
+                <td data-label="確認事項">尤度の歪み、多峰性、必要サンプル数</td>
+              </tr>
+              <tr>
+                <td data-label="条件">位置にも直接観測があり、位置自体も知りたい</td>
+                <td data-label="実用的な方法">状態拡張したEKF・EnKF・変分法</td>
+                <td data-label="確認事項">場と位置の交差共分散、可観測性</td>
+              </tr>
+              <tr>
+                <td data-label="条件">軌跡が未知の流れに依存し、非Gaussian性が強い</td>
+                <td data-label="実用的な方法">particle filterまたは逐次MCMC</td>
+                <td data-label="確認事項">粒子退化、計算量、時間相関</td>
+              </tr>
+              <tr>
+                <td data-label="条件">衛星画素など面積平均の観測</td>
+                <td data-label="実用的な方法">footprintと位置分布を観測演算子へ組み込む</td>
+                <td data-label="確認事項">画素内重み、隣接観測間の相関</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>位置誤差モデルを検証してから同化する</h3>
+          <ol>
+            <li><strong>位置情報の形を保存する:</strong> 緯度・経度の標準偏差、誤差楕円、品質フラグ、候補位置、時刻間相関を保持する。</li>
+            <li><strong>観測演算子へ位置を明示する:</strong> 補間、footprint、鉛直位置、時刻ずれを含む \(h(x,s)\) を定義する。</li>
+            <li><strong>線形化を合成実験で調べる:</strong> 位置サンプルから得た \(h(x,s)\) の分布と、式 (3) のGaussian近似を比較する。</li>
+            <li><strong>相関を推定する:</strong> 同じ軌跡モデルや画像幾何に由来する位置誤差が、観測間の非対角な \(R_{\mathrm{eff} }\) を作るか確認する。</li>
+            <li><strong>後方診断を行う:</strong> innovationと解析残差の分散・偏り・空間構造を調べ、位置誤差を含む想定と整合するか検証する。観測演算子の不確実性は、Gaussian近似できる場合には共分散として加算できますが、残差診断や感度実験による確認が必要です。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></li>
+          </ol>
+
+          <h3>予報された現象の位置ずれは別の制御変数で扱う</h3>
+          <p>ここまでの主題は「観測を得た座標 \(s\) が不確か」という問題です。これと関連する別問題として、観測位置は正確でも、モデル内の台風・前線・降水域が実際よりずれている場合があります。このfeature displacementでは、通常の振幅更新が現象を変形させることがあるため、変位場でモデルと観測を整列させてから振幅を更新するfield alignmentが提案されています。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup> 実務では、センサーの位置誤差、観測のfootprint、モデル現象の位置ずれを分けて診断し、それぞれを観測モデル、観測誤差、状態の変位制御へ割り当てます。</p>
+
+          <h3>まとめ</h3>
+          <p>観測位置の不確実性を扱う中心は、真の位置を確率変数として式 (1) に入れることです。小さく滑らかな誤差には式 (3) の共分散拡張が軽量で、広い分布や不連続な場には式 (2) の周辺化が適します。位置が流れとともに動く場合は、場と位置を同時に推定します。どの方法でも、位置誤差の分布、局所勾配、観測間相関を明示し、合成実験とinnovation診断で妥当性を確認することが重要です。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://doi.org/10.1371/journal.pone.0042093">Sengupta et al. (2012), Accounting for Location Error in Kalman Filters: Integrating Animal Borne Sensor Data into Assimilation Schemes, PLOS ONE</a></li>
+            <li id="ref-2"><a href="https://doi.org/10.1002/qj.4716">Ruzayqat et al. (2024), Sequential Markov chain Monte Carlo for Lagrangian data assimilation with applications to unknown data locations, Quarterly Journal of the Royal Meteorological Society</a></li>
+            <li id="ref-3"><a href="https://doi.org/10.5194/acp-19-13911-2019">Rayner et al. (2019), Fundamentals of data assimilation applied to biogeochemistry, Atmospheric Chemistry and Physics</a></li>
+            <li id="ref-4"><a href="https://doi.org/10.1016/j.physd.2006.09.035">Ravela et al. (2007), Data assimilation by field alignment, Physica D</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>

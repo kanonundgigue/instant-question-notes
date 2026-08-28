@@ -614,9 +614,11 @@ h3 {
 .article mjx-container[display="true"] {
   box-sizing: border-box;
   max-width: 100%;
+  min-width: 0 !important;
   overflow-x: auto;
   overflow-y: hidden;
   padding: 0.2rem 0;
+  width: 100%;
 }
 
 .article figure {
