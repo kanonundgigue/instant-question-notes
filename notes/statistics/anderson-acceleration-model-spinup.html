@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>モデルのspin-upを速めるAnderson accelerationとは？ | k-notes</title>
+    <meta name="description" content="Anderson accelerationがモデルのspin-upを固定点反復として加速する仕組みを、数式、数値例、地球システムモデルでの実績、適用条件から整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>モデルのspin-upを速めるAnderson accelerationとは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-08-28">2026-08-28</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>model のspinupを加速するAndersson accerelationとは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">直近のspin-up履歴から平衡状態を外挿する</h2>
+          <p><strong>一般的な名称は Anderson acceleration（Anderson加速、AA）です。</strong> 通常のspin-upが「ある期間だけモデルを進め、その出力を次の初期値にする」という反復なら、AAは直近数回の状態と平衡からのずれを保存し、ずれが小さくなる状態の線形結合を次の初期値にします。モデル内部の方程式やヤコビアンを直接書き換えず、既存の時間積分モデルを関数として扱えることが大きな利点です。手法はDonald G. Andersonが1965年に提案し、現在は固定点反復の一般的な加速法として定式化されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>spin-upを1周期写像の固定点問題として表す</h3>
+          <p>モデルの全状態をベクトル \(x\) とします。海洋生物地球化学モデルなら、各格子点の栄養塩、溶存無機炭素、酸素などを並べた巨大なベクトルです。1年周期の外力を使う場合、関数 \(g\) は「状態 \(x\) からモデルを1年間積分し、翌年の同じ日付の状態を返す操作」を表します。求める周期平衡状態 \(x^*\) は、1年進めても変わらないため、式 (1) を満たします。</p>
+          <p>
+            \[
+              x^* = g(x^*) \tag{1}
+            \]
+          </p>
+          <p>通常の直接積分は \(x_{k+1}=g(x_k)\) を繰り返します。深層海洋や土壌の遅い炭素プールがあると、1周期後の変化は小さくても長期間残るため、平衡まで数百年から数千年分の積分が必要になります。地球システムモデルのspin-upでは、この遅い調整が大きな計算負担になります。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+
+          <h3>残差を打ち消す線形結合を最小二乗で選ぶ</h3>
+          <p>反復 \(i\) の残差を \(r_i=g(x_i)-x_i\) とします。これは「この状態から1周期進めたときに残る変化」であり、平衡ならゼロです。AAは直近 \(m+1\) 個の残差を組み合わせ、合成残差のノルムが最小になる係数 \(\alpha_i\) を求めます。式 (2) の制約 \(\sum_i\alpha_i=1\) は、状態をアフィン結合として扱うための条件です。選んだ係数で各モデル出力 \(g(x_i)\) を合成し、次の状態を作ります。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>
+            \[
+              \begin{aligned}
+                \{\alpha_i\}
+                &amp;= \operatorname*{arg\,min}_{\sum_i \alpha_i=1}
+                \left\|\sum_i \alpha_i r_i\right\|_2, \\
+                x_{k+1}
+                &amp;= \sum_i \alpha_i g(x_i)
+              \end{aligned}
+              \tag{2}
+            \]
+          </p>
+          <p>直感的には、最近の状態が平衡へ近づく方向と速さを履歴から推定し、その先へ進む外挿です。係数は平均のような0から1の範囲に限られず、負になることもあります。この外挿が遅い減衰モードを打ち消せるため、通常積分を何度も重ねるより速く平衡へ近づけます。</p>
+
+          <h3>1変数の例では遅い減衰を2回で除ける</h3>
+          <p>簡単なモデル \(x_{k+1}=0.9x_k+1\) を、初期値 \(x_0=0\) からspin-upするとします。平衡値は \(x^*=10\) です。通常反復では差が毎回0.9倍にしか減りません。誤差を0.001未満にするには88回必要です。一方、この線形1変数問題では、2つの残差から減衰率を推定できるため、履歴長1のAAは2回目の更新で平衡値10を得ます。</p>
+
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>更新回数</th>
+                <th>通常のspin-up</th>
+                <th>AA</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="更新回数">0</td>
+                <td data-label="通常のspin-up">0.0</td>
+                <td data-label="AA">0.0</td>
+              </tr>
+              <tr>
+                <td data-label="更新回数">1</td>
+                <td data-label="通常のspin-up">1.0</td>
+                <td data-label="AA">1.0</td>
+              </tr>
+              <tr>
+                <td data-label="更新回数">2</td>
+                <td data-label="通常のspin-up">1.9</td>
+                <td data-label="AA">10.0</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>この例はAAの働きを明確にするための線形問題です。実際のモデルには多数の時定数、非線形相互作用、季節変動があるため、有限回で厳密解に到達するとは限りません。</p>
+
+          <h3>海洋・地球システムモデルで計算時間を大きく短縮した</h3>
+          <p>Khatiwala（2023）は、周期外力下の海洋地球化学トレーサーへAAを適用し、通常の直接積分に対して10倍から25倍の高速化を報告しました。実装はモデル固有のヤコビアンや前処理を必要とせず、元の時間積分スキームと整合し、トレーサー保存も維持するよう構成されています。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+
+          <p>Khatiwala（2024）は対象をMITgcm-BLINGとNEMO-PISCESへ拡張し、複雑な海洋生物地球化学モデルの平衡化を一桁以上高速化しました。CMIPで使われるような経年変動する外力を含む手順では、まず反復可能な外力でAAを使い、その状態から通常積分へ戻す構成により約5倍の高速化を得ました。陸面モデルJULESでも有望な予備結果が示されています。これらの倍率は各実験の結果であり、すべてのモデルに同じ倍率を保証する値ではありません。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+
+          <h3>対象状態・周期・残差・制約を決めて導入する</h3>
+          <ol>
+            <li><strong>固定点を定義する:</strong> 年周期外力なら同じ暦日の状態差を残差にする。定常外力なら一定期間後の状態差を使う。</li>
+            <li><strong>加速対象を選ぶ:</strong> 生物地球化学トレーサーだけを加速するのか、物理場も含めるのかを決める。速い物理と遅いトレーサーを分ける構成も検討する。</li>
+            <li><strong>履歴長と減衰を調整する:</strong> 保存する過去反復数 \(m\) を増やすと利用情報とメモリ量が増える。外挿が強すぎる場合は、AA更新と通常更新を混ぜる減衰を使う。</li>
+            <li><strong>物理制約を監視する:</strong> 濃度、炭素プール、水分量などの非負性と上下限を確認する。負の係数を許す外挿は、範囲外の中間状態を作る可能性がある。</li>
+            <li><strong>通常積分で仕上げる:</strong> AA状態から元の時間積分を再開し、残差、保存量、ドリフト、季節周期が十分小さいことを確認する。</li>
+          </ol>
+
+          <h3>収束の速さと物理解の正しさを別々に検証する</h3>
+          <p><strong>AAが残差を速く減らしても、その状態が目的の平衡解であることは別に確認します。</strong> 非線形モデルには複数の安定状態があり得るため、異なる初期値から同じ解へ到達するかを調べます。変数ごとの残差を集約する重みも重要です。単位や典型振幅が異なる変数を無調整で一つのユークリッドノルムへ入れると、大きな数値を持つ変数だけが最小二乗を支配します。</p>
+
+          <p>実用上の比較では、AA終了後と十分長い通常spin-up後について、全球積分量、鉛直分布、空間分布、保存則、季節周期、年々ドリフトを照合します。最終状態に加え、AAが作った各中間状態をモデルが安定して積分できることも確認します。WalkerとNiは、履歴残差がほぼ線形従属になると最小二乗問題の条件が悪化し得ることを指摘しており、履歴の打ち切りや再スタートは数値安定性のために重要です。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>まとめ</h3>
+          <p>Anderson accelerationは、spin-upを式 (1) の固定点問題として捉え、式 (2) により直近の状態と残差から平衡状態を外挿する方法です。特に、遅いトレーサーや炭素プールが計算時間を支配する周期外力モデルで有効です。導入時は、履歴長、減衰、残差の重み、物理制約を設定し、最後に通常積分と独立な診断で平衡解を検証します。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://doi.org/10.1145/321296.321305">D. G. Anderson (1965), Iterative Procedures for Nonlinear Integral Equations, Journal of the ACM</a></li>
+            <li id="ref-2"><a href="https://doi.org/10.1137/10078356X">H. F. Walker and P. Ni (2011), Anderson Acceleration for Fixed-Point Iterations, SIAM Journal on Numerical Analysis</a></li>
+            <li id="ref-3"><a href="https://doi.org/10.1126/sciadv.adn2839">S. Khatiwala (2024), Efficient spin-up of Earth System Models using sequence acceleration, Science Advances</a></li>
+            <li id="ref-4"><a href="https://doi.org/10.1029/2022MS003447">S. Khatiwala (2023), Fast Spin-Up of Geochemical Tracers in Ocean Circulation and Climate Models, Journal of Advances in Modeling Earth Systems</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>tipping現象の3種類とは？ | k-notes</title>
+    <meta name="description" content="力学系のtipping現象を、分岐誘起・ノイズ誘起・速度誘起の3種類に分け、原因、具体例、見分け方、分類の限界を整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>tipping現象の3種類とは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-08-28">2026-08-28</time></p>
+          <p>カテゴリ: meteorology</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>tipping現象の3種類とは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><strong>力学系で扱うtipping現象は、B-tipping（分岐誘起）、N-tipping（ノイズ誘起）、R-tipping（速度誘起）の3種類に整理されます。</strong>3種類を分ける鍵は、状態が急変する直接の原因が、外部条件の到達値、偶然の揺らぎ、外部条件の変化速度のどれにあるかです。Ashwin et al.（2012）は、この3分類を気候系の単純なエネルギー収支モデルで例示しました。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>種類</th>
+                <th>直接の原因</th>
+                <th>直感的な問い</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="種類">B-tipping<br>分岐誘起</td>
+                <td data-label="直接の原因">外部条件が臨界値へ到達する</td>
+                <td data-label="直感的な問い">どこまで変わったか</td>
+              </tr>
+              <tr>
+                <td data-label="種類">N-tipping<br>ノイズ誘起</td>
+                <td data-label="直接の原因">一時的な揺らぎが安定領域の境界を越える</td>
+                <td data-label="直感的な問い">どれほど大きく揺れたか</td>
+              </tr>
+              <tr>
+                <td data-label="種類">R-tipping<br>速度誘起</td>
+                <td data-label="直接の原因">外部条件の変化に系の応答が追いつかない</td>
+                <td data-label="直感的な問い">どれほど速く変わったか</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>B-tippingは安定状態の構造が変わる</h3>
+          <p><strong>B-tippingでは、外部条件をゆっくり変えても、分岐点に達すると現在の安定状態が消失または不安定化します。</strong>球を谷底に置く比喩なら、外部条件の変化で谷が浅くなり、最後には谷そのものがなくなる状況です。系は元の状態にとどまれず、別の安定状態へ移ります。臨界点の手前で回復が遅くなるcritical slowing downは、特定の分岐へ近づく際に現れ得る早期警戒信号です。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>N-tippingは揺らぎが安定領域の境界を越える</h3>
+          <p><strong>N-tippingでは、現在の安定状態が残っていても、ランダムな揺らぎによって別の状態へ移ります。</strong>谷の比喩では、谷が存在する間に、強い突風を受けた球が尾根を越える状況です。気候系の内部変動や極端現象は、モデル上でこのノイズに相当します。現在気候に近い一定の外部強制下でも、大気の内部変動によって大西洋子午面逆転循環（AMOC）が別状態へ遷移し得ることが、アンサンブル実験で示されています。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+
+          <h3>R-tippingは系の追随速度を外部変化が上回る</h3>
+          <p><strong>R-tippingでは、外部条件の最終的な大きさが静的な分岐点に届かなくても、その変化が速すぎると遷移が起こります。</strong>動く谷を追いかける球の比喩では、谷が急速に移動し、球が谷底へ戻る前に安定領域から取り残される状況です。この機構はノイズや静的な分岐を必要とせず、入力の変化速度と系固有の応答時間の組み合わせで決まります。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+
+          <h3>原因を切り分けるには値・揺らぎ・速度を別々に調べる</h3>
+          <p><strong>3種類の切り分けには、同じモデルや実験系で外部条件の到達値、ノイズ強度、変化速度を個別に操作します。</strong>B-tippingなら十分ゆっくり変えても特定の臨界値付近で遷移します。N-tippingなら外部条件を固定したままノイズの実現ごとに遷移時刻がばらつきます。R-tippingなら開始値と終了値を同じに保っても、変化を速めたときにだけ遷移します。</p>
+
+          <p><strong>実際の気候・生態系では、3種類が組み合わさる可能性があります。</strong>分岐点へ近づくほど安定領域が狭まり、比較的小さなノイズでも遷移しやすくなる場合があります。外部強制の速度が速い状況へノイズが加わる場合もあります。そのため、観測された急変だけから機構を一意に決めるのは困難であり、分類は検証すべき仮説として用います。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>まとめ</h3>
+          <p>tipping現象の3種類は、<strong>B-tipping＝臨界値、N-tipping＝揺らぎ、R-tipping＝変化速度</strong>と覚えると整理できます。解析では、外部条件を十分ゆっくり動かした結果、固定条件でノイズを変えた結果、同じ変化幅で速度だけを変えた結果を比較すると、どの機構が支配的かを検討できます。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://doi.org/10.1098/rsta.2011.0306">Ashwin et al. (2012): Tipping points in open systems: bifurcation, noise-induced and rate-dependent examples in the climate system, Philosophical Transactions of the Royal Society A</a></li>
+            <li id="ref-2"><a href="https://doi.org/10.1038/nature08227">Scheffer et al. (2009): Early-warning signals for critical transitions, Nature</a></li>
+            <li id="ref-3"><a href="https://doi.org/10.1038/s41612-024-00568-7">van Westen et al. (2024): Simulating AMOC tipping driven by internal climate variability with a rare event algorithm, npj Climate and Atmospheric Science</a></li>
+            <li id="ref-4"><a href="https://doi.org/10.1098/rspa.2022.0450">Wieczorek, Xie and Ashwin (2023): Rate-induced tipping: thresholds, edge states and connecting orbits, Proceedings of the Royal Society A</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
