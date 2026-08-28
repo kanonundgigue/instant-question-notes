@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Nested Principal Component Regressionとは？ | k-notes</title>
+    <meta name="description" content="古気候復元で使われるNested Principal Component Regressionについて、通常のPCR、期間ごとに変わるプロキシ数、nested cross-validationとの違いを整理する。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>Nested Principal Component Regressionとは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-08-17">2026-08-17</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>Nested Principal Component Regression とは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><strong>古気候・年輪研究でいうNested Principal Component Regression（nested PCR）は、年代によって利用できるプロキシ記録の本数が変わるとき、利用可能な記録の組ごとに主成分回帰（PCR）を作り直し、それらをつないで長い復元を得る方法</strong>です。過去へ遡るほど短い記録が抜けるので、内側へ重なる箱のような複数の期間を「nest」と呼びます。Meko（1997）は、利用できる樹木指標が異なる時間区間ごとに別々の回帰モデルを推定・交差検証する方法を提示しました。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <aside class="notice" aria-label="用語の注意">
+            <p><strong>用語の注意:</strong> 機械学習の文脈では、nested PCRが「nested cross-validationを使ってPCRの主成分数を選び、外側の交差検証で性能を評価する手順」を指すこともあります。しかし、古気候論文の<strong>nested PCR</strong>は通常、交差検証の二重化ではなく、年代とともに変わるプロキシ集合への対応を意味します。</p>
+          </aside>
+
+          <h3>まず、通常のPCRは何をするか</h3>
+          <p>説明変数を並べた行列を \(X\)、そこから得た先頭 \(m\) 個の主成分得点を \(Z_m\)、復元したい気温・降水量・流量などを \(y\) とします。PCRは、相関の強い多数のプロキシを少数の互いに直交する主成分へまとめ、その主成分で目的変数を回帰します。</p>
+          <p>
+            \[
+              Z_m = X V_m
+            \]
+          </p>
+          <p>
+            \[
+              y = \alpha + Z_m \beta + \varepsilon
+            \]
+          </p>
+          <p>ここで \(V_m\) は採用した主成分の荷重、\(\alpha\) は切片、\(\beta\) は回帰係数、\(\varepsilon\) は回帰で説明できない誤差です。使う主成分数 \(m\) は固定の真理ではなく、予測誤差に基づく交差検証などで選ぶ対象になります。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>なぜ「nested」にするのか</h3>
+          <p>たとえば8本の年輪記録があっても、すべてが同じ年から始まるとは限りません。次の架空例では、古い時代ほど使える記録が減ります。</p>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>復元区間</th>
+                <th>使える記録</th>
+                <th>その区間のモデル</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="復元区間">1800年以降</td>
+                <td data-label="使える記録">8本</td>
+                <td data-label="その区間のモデル">8本からPCAと回帰を学習</td>
+              </tr>
+              <tr>
+                <td data-label="復元区間">1600–1799年</td>
+                <td data-label="使える記録">5本</td>
+                <td data-label="その区間のモデル">5本でPCAと回帰を再学習</td>
+              </tr>
+              <tr>
+                <td data-label="復元区間">1400–1599年</td>
+                <td data-label="使える記録">2本</td>
+                <td data-label="その区間のモデル">2本でPCAと回帰を再学習</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>各nestでは説明変数の列そのものが変わるため、単に欠けた列を削除して同じ係数を使うのではありません。<strong>PCAの荷重、採用する主成分、回帰係数、検証統計をnestごとに計算し直す</strong>のが要点です。Cookら（2002）の冬季NAO復元では、1750年まで遡る候補が367本、1700年までが329本、1600年までが141本、1500年までが86本、1400年までが49本であり、開始年を25年刻みで遡らせた15個のPCRモデルが作られました。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+
+          <h3>処理の流れ</h3>
+          <ol>
+            <li><strong>記録の利用可能期間を調べる。</strong> 各プロキシが何年から何年まで存在するかを整理し、プロキシ集合が変わる境界でnestを定める。</li>
+            <li><strong>各nestの候補プロキシを選ぶ。</strong> その開始年まで連続して使える記録だけを残す。</li>
+            <li><strong>nestごとにPCAを行う。</strong> 中心化・標準化も含め、当該nestの説明変数から主成分を計算する。</li>
+            <li><strong>PCRを較正する。</strong> プロキシと観測対象が重なる較正期間で、主成分と目的変数の回帰関係を学習する。</li>
+            <li><strong>nestごとに検証する。</strong> 独立した検証期間や交差検証を用い、主成分数とモデルの予測技能を確認する。</li>
+            <li><strong>区間を組み合わせる。</strong> 各年代で使える情報が最も多い適切なnestの推定を採用し、長期復元を構成する。</li>
+          </ol>
+          <p>Neuquén川の研究では、43本の年輪クロノロジーを複合系列へまとめ、nested PCRによって1346–2000年の流量を復元しています。これは「最も長い記録だけに全期間を合わせる」と長い区間は得られても近年の豊富な情報を捨ててしまう、という問題を避ける実例です。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+
+          <h3>通常のPCR、古気候のnested PCR、nested CVの違い</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>呼び方</th>
+                <th>何を入れ子にするか</th>
+                <th>主な目的</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="呼び方">通常のPCR</td>
+                <td data-label="何を入れ子にするか">入れ子にしない</td>
+                <td data-label="主な目的">相関した多数の説明変数を主成分へ縮約して回帰する</td>
+              </tr>
+              <tr>
+                <td data-label="呼び方">古気候のnested PCR</td>
+                <td data-label="何を入れ子にするか">異なる開始年とプロキシ集合を持つ時間区間</td>
+                <td data-label="主な目的">年代とともに減るプロキシに対応し、復元期間を延ばす</td>
+              </tr>
+              <tr>
+                <td data-label="呼び方">nested CV付きPCR</td>
+                <td data-label="何を入れ子にするか">内側のモデル選択と外側の性能評価</td>
+                <td data-label="主な目的">主成分数の選択に使ったデータで性能を過大評価するのを防ぐ</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>長所</h3>
+          <ul>
+            <li><strong>長い記録を活かせる:</strong> 最古まで残る少数のプロキシを使い、復元開始年を遡らせられる。</li>
+            <li><strong>近年の情報を捨てない:</strong> 記録が豊富な期間には、多数のプロキシを使う別モデルを適用できる。</li>
+            <li><strong>技能の時代差を見せられる:</strong> nestごとに検証統計と不確実性を出せば、過去ほど制約が弱くなる様子を明示できる。Meko（1997）は、標本構成に伴う復元精度の変化を直接評価できる点を方法の利点として挙げています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></li>
+          </ul>
+
+          <h3>注意点</h3>
+          <ul>
+            <li><strong>一本の同じモデルではない:</strong> nestの境界でPCA基底と回帰係数が変わるため、全期間の値が完全に同じ統計特性を持つとは自動的には保証されない。</li>
+            <li><strong>古い区間ほど情報が少ない:</strong> 復元期間が長くなることと、古い年代の精度が高いことは別である。nest別の検証指標と不確実性を併記する必要がある。</li>
+            <li><strong>較正関係の定常性を仮定する:</strong> 現代の観測期間で学んだプロキシと気候の関係が、過去にも成り立つという仮定は残る。</li>
+            <li><strong>PCRは目的変数を見ずに主成分を作る:</strong> 分散の大きい主成分が必ずしも気候復元に有用とは限らないため、主成分数や候補の選択を検証する必要がある。</li>
+            <li><strong>低周波変動の保持は別問題:</strong> nested化だけで、年輪標準化などで失われた長周期成分が回復するわけではない。</li>
+          </ul>
+
+          <h3>結論</h3>
+          <p>古気候研究のNested Principal Component Regressionは、<strong>プロキシ記録の長さが不揃いなために生じる「時代ごとに使える説明変数が違う」問題を、期間別のPCRモデル群で解く方法</strong>です。論文でこの語を見たら、まず「nestが時間区間を指すのか、交差検証を指すのか」を確認します。古気候・年輪・流量復元で、年代ごとのプロキシ本数やstarting yearが説明されていれば、ほぼ前者です。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://doi.org/10.1175/1520-0442(1997)010%3C0687:DRWTVP%3E2.0.CO;2">David M. Meko, Dendroclimatic Reconstruction with Time Varying Predictor Subsets of Tree Indices (1997)</a></li>
+            <li id="ref-2"><a href="https://doi.org/10.5183/jjscs1988.9.53">Jae-Kyoung Shin and Yutaka Tanaka, Cross-Validatory Choice for the Number of Principal Components in Principal Component Regression (1996)</a></li>
+            <li id="ref-3"><a href="https://doi.org/10.1175/1520-0442(2002)015%3C1754:AWVMRO%3E2.0.CO;2">Edward R. Cook et al., A Well-Verified, Multiproxy Reconstruction of the Winter North Atlantic Oscillation Index since A.D. 1400 (2002)</a></li>
+            <li id="ref-4"><a href="https://doi.org/10.5194/cp-8-815-2012">Ignacio A. Mundo et al., Multi-century tree-ring based reconstruction of the Neuquén River streamflow, northern Patagonia, Argentina (2012)</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
