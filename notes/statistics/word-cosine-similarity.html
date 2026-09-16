@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>言葉のコサイン類似度とは？ | k-notes</title>
+    <meta name="description" content="言葉をベクトルにする仕組み、コサイン類似度の計算、数値例と意味を解釈するときの注意点を整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] } };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>言葉のコサイン類似度とは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-09-12">2026-09-12</time></p>
+          <!-- 後日、実質的な修正をした記事だけ、次の形式で更新日を追加する: <p>更新日: <time datetime="YYYY-MM-DD">YYYY-MM-DD</time></p> -->
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>言葉のコサイン類似度とは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">言葉のベクトルの向きから類似度を測る</h2>
+          <p><strong>コサイン類似度は、二つのベクトルの向きがどれだけそろっているかを表す数値です。</strong>言葉への応用では、まず言葉を数値の並びであるベクトルに変換し、そのベクトル同士を比較します。長さを正規化した内積として計算します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>意味の近さが結果に表れるかは、ベクトルの作り方に依存します。例えば GloVe は、大量の文章でどの単語が一緒に現れるかという共起情報から、単語のベクトル表現を学習します。このような学習された数値表現を「埋め込み」と呼びます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <h3>同じ表現方法で言葉を数値に変換する</h3>
+          <p>GloVe のような単語埋め込みでは、各単語を同じ次元数のベクトルにします。学習された各成分は、複数の成分を合わせて言葉の関係を表します。個々の軸に「動物らしさ」のような意味があらかじめ指定されているわけではありません。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>計算には共通の座標系が必要です。同じ次元数でも、別々に学習したモデルのベクトルをそのまま比較する解釈は成立しません。実際の比較では同じモデルと前処理をそろえます。</p>
+          <h3>内積を両方の長さで割る</h3>
+          <p>二つの非ゼロベクトルを \(\mathbf{a}\)、\(\mathbf{b}\)、その間の角度を \(\theta\) とします。記号 \(\cdot\) は対応する成分を掛けて足す内積、\(\lVert\cdot\rVert\) はユークリッド長を表します。式 (1) で内積を両方の長さの積で割ると、角度の余弦になります。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>\[s(\mathbf{a},\mathbf{b})=\frac{\mathbf{a}\cdot\mathbf{b} }{\lVert\mathbf{a}\rVert\lVert\mathbf{b}\rVert}=\cos\theta.\tag{1}\]</p>
+          <p>式 (1) から、値の範囲は −1 から 1 です。1 は同じ向き、0 は直交、−1 は逆向きを意味します。成分がすべて非負のベクトル同士なら、範囲は 0 から 1 になります。ゼロベクトルでは分母がゼロになるため、この式の値は定義できません。</p>
+          <h3>架空の二次元ベクトルで計算する</h3>
+          <p>以下は計算を理解するために手で置いた架空の値です。実際の言語モデルで測定した値ではありません。「猫」を \(\mathbf{a}=(2,1)\)、「犬」を \(\mathbf{b}=(1,2)\) と仮定します。</p>
+          <p>内積は対応する成分の積の和で 4、両方の長さはそれぞれ \(\sqrt{5}\) です。式 (1) に代入すると式 (2) になります。</p>
+          <p>\[s(\mathbf{a},\mathbf{b})=\frac{2\times1+1\times2}{\sqrt{2^2+1^2}\sqrt{1^2+2^2} }=\frac45=0.8.\tag{2}\]</p>
+          <p>式 (2) の 0.8 は、この架空の二つのベクトルが比較的近い向きを持つという意味です。「猫と犬の意味が 80% 一致する」という確率や割合を表しているわけではありません。</p>
+          <table class="mobile-table">
+            <caption>表1：基準ベクトルに対する向きと長さの比較（架空の数値）</caption>
+            <thead><tr><th scope="col">比較するベクトル</th><th scope="col">類似度</th><th scope="col">幾何学的な意味</th></tr></thead>
+            <tbody>
+              <tr><td data-label="比較するベクトル">\((1,2)\)</td><td data-label="類似度">0.8</td><td data-label="幾何学的な意味">近い向き</td></tr>
+              <tr><td data-label="比較するベクトル">\((4,2)\)</td><td data-label="類似度">1</td><td data-label="幾何学的な意味">長さは2倍、向きは同じ</td></tr>
+              <tr><td data-label="比較するベクトル">\((-1,2)\)</td><td data-label="類似度">0</td><td data-label="幾何学的な意味">直交する</td></tr>
+              <tr><td data-label="比較するベクトル">\((-2,-1)\)</td><td data-label="類似度">−1</td><td data-label="幾何学的な意味">逆向き</td></tr>
+            </tbody>
+          </table>
+          <p>表1ではすべて \((2,1)\) を基準にしています。特に \((4,2)\) との比較から、ベクトル全体を正の数で何倍かしても類似度が変わらないことが分かります。</p>
+          <h3>意味の解釈には学習方法と用途を含める</h3>
+          <p><strong>高い類似度は、類義語であることまで保証しません。</strong>類義語と反対語は似た文脈に現れるため、共起に基づくモデルでは両方が近くなり得ます。この区別を改善するため、反対語・類義語の情報を組み込む研究が行われています。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <p>例えば「暑い」と「寒い」は、ともに気温の話題で使われます。この例は上の問題を説明するための例示で、特定モデルの測定結果ではありません。幾何学的な逆向きと、言語的な反対の意味は区別して解釈します。</p>
+          <p>実務上は、0.8 などの一つの値だけで判定するより、同じモデルで複数の候補を比較し、目的に合う順序になっているかを確かめます。しきい値を決めるなら、実際の用途で「似ている」「似ていない」と判断した例を用意して検証します。0 も座標上の直交を表す値なので、それだけで意味的に無関係と断定できません。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1">Manning, Raghavan &amp; Schütze (2008). <a href="https://nlp.stanford.edu/IR-book/html/htmledition/dot-products-1.html">Introduction to Information Retrieval — Dot products</a>：定義、内積、長さの正規化。</li>
+            <li id="ref-2">Pennington, Socher &amp; Manning (2014). <a href="https://aclanthology.org/D14-1162/">GloVe: Global Vectors for Word Representation</a>. DOI: 10.3115/v1/D14-1162：共起情報から単語表現を学習する原論文。</li>
+            <li id="ref-3">Nguyen, Schulte im Walde &amp; Vu (2016). <a href="https://aclanthology.org/P16-2074/">Integrating Distributional Lexical Contrast into Word Embeddings for Antonym-Synonym Distinction</a>. DOI: 10.18653/v1/P16-2074：類義語と反対語を区別する研究。</li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
