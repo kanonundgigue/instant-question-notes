@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>量水堰とは？水位から流量を測る仕組み | k-notes</title>
-    <meta name="description" content="量水堰の役割、三角堰で水位を測る位置、流量への換算、正確な測定に必要な条件を整理します。">
+    <meta name="description" content="量水堰の仕組みと水位計の設置位置を整理し、沈める圧力式水位計の高さ補正をイラストと具体例で説明します。">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
@@ -60,6 +60,17 @@
             <li><strong>堰の周囲の漏水を点検する。</strong>切り欠きを通らずに漏れた水は、その切り欠きの換算から得られる流量に含まれません。</li>
             <li><strong>切り欠きの形と水位計の基準高さを確認する。</strong>縁の変形や水位計のゼロ点のずれは、流量の誤差につながります。</li>
           </ul>
+          <h3 id="pressure-sensor">投げ込み式水位計は、受圧部の高さを測って固定する</h3>
+          <p><strong>投げ込み式（圧力式）水位計の設置深さには自由度がありますが、観測中に水没し続け、測定範囲内に収まる位置を選びます。</strong>水底に置く場合は、堰の上流の穏やかな測定区間で、安定した台座などに載せてセンサーが動かないよう固定します。設置姿勢は機器の説明書に従い、受圧部の開口を塞がないようにします。三角堰で低水頭まで観測する場合、V字の最下点より低い位置に受圧部を置くと水没を保ちやすくなります。底の土砂に埋まらないよう配置し、現地の最低水位と機器の仕様を確認します。<sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup><sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
+          <p><strong>高さの基準にするのは、水圧を感じる「受圧部」です。</strong>水位計本体の上端やケーブルの先端とは区別し、機器の説明書で受圧部と測定基準位置を確認します。受圧部の高さを堰のV字の最下点と結び付けて記録すると、水圧から求めた水深を流量計算用の水頭へ換算できます。<sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>図1は、高さの補正を説明する仮想例です。受圧部がV字の最下点より20 cm低く、水面までの深さが35 cmなら、35 cmから20 cmを差し引いた<strong>15 cmが流量計算に使う水頭</strong>です。水底に置く場合も、高さの差は受圧部から測ります。台座の厚さや本体の太さによって、受圧部と水底の高さは異なります。</p>
+          <figure>
+            <img src="../../images/hydrology/weir-pressure-sensor.png" alt="量水堰と水底の台座に置いた投げ込み式水位計の断面模式図。上流の受圧部はV字の最下点より20 cm低く、水面まで35 cm。流量計算に使う水頭は最下点から水面までの15 cm。" loading="lazy">
+            <figcaption>図1．量水堰と投げ込み式水位計の位置関係。USBR・USGSの測定原理に基づく説明用のAI生成模式図。図では水底の台座に横置きする例を示す。機種により推奨姿勢や固定方法が異なるため、説明書に従う。寸法は仮想例であり、設置推奨寸法や実測値ではない。横方向は縮尺外。測定値35 cmは、気圧の影響を除き水深へ換算した値を表す。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup><sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup></figcaption>
+          </figure>
+          <p><strong>絶対圧式では、大気圧を補正してから水深へ換算します。</strong>この方式は水圧と大気圧の合計を測るため、対応する大気圧記録が必要です。大気開放式（ゲージ圧式）は通気管を通して大気圧を参照するため、通気管の乾燥と通気状態を維持します。圧力から水深への換算には水の密度も関わるので、温度や塩分、機器の換算設定を確認します。<sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup></p>
+          <p><strong>出力値が何を表すかを確認してから、高さを補正します。</strong>機器やソフトウェアが既に「堰の最下点を基準とする水位」を出力している場合、20 cmの補正を重ねると誤りになります。設置時と再設置時には基準点との高さを記録し、量水標などによる独立した水位測定と照合します。<sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup></p>
+
           <p>現地で量水堰を見るときは、<strong>水が越える開口、水位の測定位置、水位を流量へ換算する表や式</strong>の3点を確認すると、測定の仕組みを理解できます。</p>
         </section>
 
@@ -72,6 +83,7 @@
             <li id="ref-4"><a href="https://www.usbr.gov/tsc/techreferences/mands/wmm/chap05_11.html">米国開拓局 Water Measurement Manual：水位の測定位置と静水井の注意点（第5章11節）</a></li>
             <li id="ref-5"><a href="https://www.usbr.gov/tsc/techreferences/mands/wmm/chap07_16.html">米国開拓局 Water Measurement Manual：堰の選定と小流量の測定（第7章16節）</a></li>
             <li id="ref-6"><a href="https://www.usbr.gov/tsc/techreferences/mands/wmm/chap07_18.html">米国開拓局 Water Measurement Manual：堰の維持管理（第7章18節）</a></li>
+            <li id="ref-7"><a href="https://pubs.usgs.gov/twri/twri8a3/">Freeman et al. (2004), USGS：Use of Submersible Pressure Transducers in Water-Resources Investigations</a>（設置・基準高さ・大気圧補正）。<a href="https://doi.org/10.3133/twri08A3">DOI: 10.3133/twri08A3</a></li>
           </ol>
         </section>
       </article>
