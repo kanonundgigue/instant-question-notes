@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>外部ネットワークに接続できないサーバをgit bundleで更新する | k-notes</title>
+    <meta name="description" content="Mac経由でGitHubの履歴をサーバへ転送し、競合を解消してMacへ戻す手順と、更新確認の読み方を整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>外部ネットワークに接続できないサーバをgit bundleで更新する</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-09-18">2026-09-18</time></p>
+          <!-- 後日、実質的な修正をした記事だけ、次の形式で更新日を追加する: <p>更新日: <time datetime="YYYY-MM-DD">YYYY-MM-DD</time></p> -->
+          <p>カテゴリ: github</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>サーバでの外部ネットワーク接続ができない状況にしばらくなっているが、githubのリポジトリを更新したい。。</p>
+        </section>
+
+<h2>Macを経由してGitの履歴を往復させる</h2>
+
+<p>サーバがGitHubへ接続できなくても、ネット接続できるMacからSSH・SCPでサーバへアクセスできれば、<code>git bundle</code>で履歴を転送できる。サーバ独自のコミットも維持し、通常のマージとして競合を解消する。bundleはオフラインでGitのオブジェクトと参照を渡す仕組みで、<code>git fetch</code>の入力にできる。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+<pre><code class="language-shell">GitHub → Macでfetch → bundleをSCP → サーバでfetch・merge
+サーバで競合解消・commit → bundleをSCP → Macでfetch・merge → GitHubへpush</code></pre>
+
+<p>以下は両端末に同じリポジトリがあり、対象ブランチが<code>master</code>、Macのリモート名が<code>origin</code>の例。<code>main</code>を使う場合は読み替える。<code>user@server.example</code>は自分のSSH接続先に置き換える。各コマンドの成功を確認して次へ進み、エラーが出たらその段階で止める。</p>
+
+<nav aria-label="記事の目次"><ul><li><a href="#step-1">サーバの状態確認と保存</a></li><li><a href="#step-2">Macから最新履歴を転送</a></li><li><a href="#step-3">サーバでマージと競合解消</a></li><li><a href="#step-4">取り込み結果を確認</a></li><li><a href="#step-5">サーバの変更をMacへ戻す</a></li><li><a href="#step-6">GitHubへpushして確認</a></li></ul></nav>
+
+<section id="step-1"><h2>1. サーバの状態を確認してコミットを保存する</h2>
+
+<p><strong>実行場所：サーバ。</strong>マージ前に作業ツリーとブランチを確認する。今回の開始時点は<code>master...origin/master [ahead 1]</code>で、未コミット変更はなく、サーバ独自のコミットが1つあった。</p>
+
+<pre><code class="language-shell">cd ~/.dotfiles
+git status --short --branch
+git branch -vv | cat
+git --no-pager log -5 --oneline
+git branch backup-before-offline-update-20260918 HEAD</code></pre>
+
+<p>バックアップ用ブランチは現在のコミットを保存する。未コミット変更や未追跡ファイルは保存しないので、それらがある場合は別途バックアップし、必要な変更を整理してコミットするなどしてから進める。バックアップ名の日付は作業日に合わせ、既存のブランチと重複しない名前にする。サーバの<code>origin/master</code>は以前取得した情報なので、この時点のahead数から現在のGitHubとの差は判断できない。</p>
+
+</section>
+
+<section id="step-2"><h2>2. MacでGitHubの最新履歴を取得して転送する</h2>
+
+<p><strong>実行場所：Mac。</strong>SSH接続中の端末とは別にMacのターミナルを開く。プロンプトのホスト名で実行場所を確認する。</p>
+
+<pre><code class="language-shell">cd ~/.dotfiles
+git fetch origin
+git bundle create /tmp/dotfiles-master.bundle refs/remotes/origin/master
+scp /tmp/dotfiles-master.bundle user@server.example:/tmp/</code></pre>
+
+<p>このbundleには取得した<code>origin/master</code>とそこからたどれる履歴が入る。Macの未コミット変更は含まれない。bundleの検証は形式や必要な履歴を確認するもので、マージ時の競合がないことを保証するものではない。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+</section>
+
+<section id="step-3"><h2>3. サーバで履歴を取り込んで競合を解消する</h2>
+
+<p><strong>実行場所：サーバ。</strong>専用の参照<code>offline/master</code>へ読み込み、その履歴を現在のブランチへ統合する。</p>
+
+<pre><code class="language-shell">cd ~/.dotfiles
+git bundle verify /tmp/dotfiles-master.bundle
+git fetch /tmp/dotfiles-master.bundle refs/remotes/origin/master:refs/remotes/offline/master
+git status --short --branch
+git merge --no-edit offline/master</code></pre>
+
+<p>競合が起きるとマージは途中で止まる。今回競合したのは<code>.shell_profile</code>と<code>.zshrc</code>だった。競合ファイルと差分は次で確認する。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+<pre><code class="language-shell">git diff --name-only --diff-filter=U
+git --no-pager diff -- .shell_profile .zshrc</code></pre>
+
+<pre><code class="language-shell">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+サーバ側の内容
+=======
+GitHubから取り込んだ側の内容
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; offline/master</code></pre>
+
+<p>競合範囲を意図した最終内容へ編集し、3種類のマーカーを除去する。条件分岐はマーカー外の<code>else</code>や<code>fi</code>まで含めて整合性を確認する。今回のConda設定では、Mac判定条件とインストール先の存在確認を残し、サーバの<code>MAMBA_ROOT_PREFIX</code>を維持した。実行パス中の<code>$HOME</code>は展開されるようダブルクォートに直した。これらのホスト別条件やパスは各環境に合わせて判断する。</p>
+
+<p><code>.zshrc</code>では、<code>~/.local/bin/env</code>が存在するときだけ読み込み、対象サーバで<code>~/.local/bin</code>をPATHの先頭へ置く設定を残した。シェル設定を編集中は現在の接続を維持し、競合中のファイルを<code>source</code>して実行しない。</p>
+
+<pre><code class="language-shell">bash -n .shell_profile
+# Zshが利用できる環境でのみ実行する
+zsh -n .shell_profile
+zsh -n .zshrc
+
+grep -nE &#x27;^(&lt;&lt;&lt;&lt;&lt;&lt;&lt;|=======|&gt;&gt;&gt;&gt;&gt;&gt;&gt;)&#x27; .shell_profile .zshrc
+git diff --check</code></pre>
+
+<p>今回のサーバにはZshがなく、<code>zsh: コマンドが見つかりません</code>となった。Zshの構文検証はMacなどZshのある環境で行う。Bashの構文チェックはZsh固有構文の代わりにはならない。マーカー検索は出力なしが期待されるが、その場合のgrepの終了コードは1になる。構文チェックと差分チェックはエラーがないことを確認する。構文が正しくても、パスの存在や設定の動作までは保証されない。</p>
+
+<p>確認後、解消したファイルだけをステージしてマージコミットを確定する。バックアップを誤って追加しないよう、対象を明示する。</p>
+
+<pre><code class="language-shell">git add .shell_profile .zshrc
+git commit --no-edit</code></pre>
+
+<p>取り消して開始前へ戻したい場合は、マージが未確定の間に<code>git merge --abort</code>を使う。今回のように開始時の作業ツリーがクリーンな状態で実施する。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+</section>
+
+<section id="step-4"><h2>4. サーバが転送された最新履歴を含むことを確認する</h2>
+
+<pre><code class="language-shell">git status --short --branch
+git diff --name-only --diff-filter=U
+git merge-base --is-ancestor offline/master HEAD
+echo $?</code></pre>
+
+<p><code>echo $?</code>は直前のコマンドの終了コードを表示するので、間に別のコマンドを挟まず実行する。<code>0</code>なら<code>offline/master</code>は現在のHEADの祖先で、転送したGitHubの履歴が含まれている。<code>1</code>は含まれていないことを示し、それ以外はエラーとして調べる。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+
+<p>今回の結果は<code>ahead 58</code>、未解消ファイルなし、祖先確認は<code>0</code>だった。<code>origin/master</code>は更新していないため、ahead数は古い参照との比較になっている。確認の基準には今回更新した<code>offline/master</code>を使う。</p>
+
+<p><code>?? .shell_profile_20260918</code>と<code>?? .zshrc_20260918</code>は手作業で作成した未追跡バックアップだった。これらが残っていても取り込み完了は確認できる。ただし作業ツリーが完全にクリーンとは表現しない。認証情報を含むバックアップは公開対象に追加しない。</p>
+
+</section>
+
+<section id="step-5"><h2>5. サーバの変更と競合解消結果をMacへ戻す</h2>
+
+<p><strong>実行場所：サーバ。</strong>マージコミットを含む<code>master</code>をbundleへ保存する。</p>
+
+<pre><code class="language-shell">cd ~/.dotfiles
+git bundle create /tmp/dotfiles-server.bundle master</code></pre>
+
+<p><strong>実行場所：Mac。</strong>bundleを受け取り、専用の参照へ取り込む。</p>
+
+<pre><code class="language-shell">scp user@server.example:/tmp/dotfiles-server.bundle /tmp/
+cd ~/.dotfiles
+git status --short --branch
+git bundle verify /tmp/dotfiles-server.bundle
+git fetch /tmp/dotfiles-server.bundle master:refs/remotes/server/master
+git --no-pager log --oneline master..server/master
+git --no-pager diff master server/master -- .shell_profile .zshrc</code></pre>
+
+<p><code>fetch</code>で作られるのは<code>server/master</code>という参照で、Macの<code>master</code>はまだ更新されない。今回も、この段階での<code>git push</code>は<code>Everything up-to-date</code>になった。差分を確認し、サーバの設定がMacでも適切か判断してから統合する。</p>
+
+<pre><code class="language-shell">git merge-base --is-ancestor server/master master
+echo $?
+
+# 1で、Macの作業ツリーがクリーンなら統合する
+git status --short --branch
+git merge --ff-only server/master</code></pre>
+
+<p><code>--ff-only</code>はMacのブランチをそのまま先へ進められる場合にだけ成功し、履歴が分岐していれば停止する。停止した場合は差分と履歴を確認して通常のマージを検討する。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+<pre><code class="language-shell">git status --short --branch
+git merge-base --is-ancestor server/master HEAD
+echo $?</code></pre>
+
+<p>最後が<code>0</code>ならMacにもサーバの履歴が含まれる。今回の作業ではここまで確認済み。未追跡バックアップはbundleに含まれず、Macには転送されない。</p>
+
+</section>
+
+<section id="step-6"><h2>6. MacからGitHubへpushして反映を確認する</h2>
+
+<p><strong>実行場所：Mac。</strong>GitHubにもサーバの変更を保存する場合はpushする。今回の会話ではこのpushの成功までは確認していないため、以下は次に行う手順。</p>
+
+<pre><code class="language-shell">git status --short --branch
+git push origin master
+git rev-parse HEAD
+git ls-remote origin refs/heads/master</code></pre>
+
+<p>pushの成功を確認し、2つのコマンドが表示するコミットIDが一致することを確かめる。GitHub側が更新されてpushが拒否された場合は、<code>git fetch origin</code>で最新履歴を取得し、状態と差分を確認して統合する。GitHubで追加された変更をサーバにも渡す場合は、再びMacでbundleを作って転送する。</p>
+
+</section>
+
+<h2>bundleで移るものと、確認できた範囲を区別する</h2>
+
+<p>この手順で往復するのは指定した参照からたどれるコミット履歴で、未コミット変更、未追跡ファイル、端末固有のGit設定は別途扱う。Git LFSやサブモジュールを使うリポジトリは追加のデータ転送も検討する。記事には実際の認証情報や接続先を載せず、bundle自体も履歴に機密情報を含み得るファイルとして扱う。</p>
+
+<p>今回確認したのは、サーバ上の競合解消とマージ確定、そしてMacへの履歴の統合。シェル設定の実行時動作と最終pushの成功は、それぞれ別の確認項目として残る。</p>
+<section class="references" aria-labelledby="references-heading"><h2 id="references-heading">参照</h2><ol>
+<li id="ref-1"><a href="https://git-scm.com/docs/git-bundle">Git公式ドキュメント：git bundle</a></li>
+<li id="ref-2"><a href="https://git-scm.com/docs/git-merge">Git公式ドキュメント：git merge</a></li>
+<li id="ref-3"><a href="https://git-scm.com/docs/git-merge-base">Git公式ドキュメント：git merge-base</a></li>
+</ol></section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
