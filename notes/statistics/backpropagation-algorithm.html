@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>誤差逆伝搬法（backpropagation）とは？ | k-notes</title>
+    <meta name="description" content="ニューラルネットワークの誤差逆伝搬法を、連鎖律、計算グラフ、1ニューロンの数値例、勾配降下法との違いから説明します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>誤差逆伝搬法（backpropagation）とは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-10-01">2026-10-01</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>back propagation algorithm 誤差逆伝搬とは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><strong>誤差逆伝搬法（backpropagation、バックプロパゲーション）</strong>は、ニューラルネットワークの損失を各重みとバイアスで偏微分し、学習に必要な勾配を出力側から入力側へ効率よく計算するアルゴリズムです。順伝播で記録した各演算の値を使い、微分の連鎖律を逆向きに適用します。多層ネットワークの隠れ層を訓練する代表的な手続きとして、Rumelhart、Hinton、Williamsが1986年に広く普及させました。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>要点</h3>
+          <ul>
+            <li><strong>順伝播:</strong> 入力から予測値と損失を計算し、途中の値を保存する。</li>
+            <li><strong>逆伝播:</strong> 損失から逆向きに連鎖律を適用し、全パラメータの勾配を求める。</li>
+            <li><strong>パラメータ更新:</strong> SGDやAdamが、求めた勾配を使って重みとバイアスを動かす。</li>
+          </ul>
+          <p>したがって、誤差逆伝搬法が直接行う中心的な仕事は<strong>勾配の計算</strong>です。勾配降下法などの最適化アルゴリズムが、その勾配を使ってパラメータを更新します。</p>
+
+          <h3>順伝播で予測と損失を計算する</h3>
+          <p>第 \(l\) 層の入力を \(z_j^{(l)}\)、出力を \(a_j^{(l)}\)、重みを \(w_{ji}^{(l)}\)、バイアスを \(b_j^{(l)}\)、活性化関数を \(f\) とします。ニューロンの順伝播は式 (1) です。</p>
+          <p>
+            \[
+              z_j^{(l)} = \sum_i w_{ji}^{(l)} a_i^{(l-1)} + b_j^{(l)},
+              \qquad
+              a_j^{(l)} = f\!\left(z_j^{(l)}\right)
+              \tag{1}
+            \]
+          </p>
+          <p>最終層の出力 \(\hat{y}\) と正解 \(y\) のずれを、損失関数 \(L\) で1つの値にまとめます。単純な例として二乗誤差を使うと式 (2) になります。</p>
+          <p>
+            \[
+              L = \frac{1}{2}\left(\hat{y}-y\right)^2
+              \tag{2}
+            \]
+          </p>
+
+          <h3>逆伝播は連鎖律を逆向きに適用する</h3>
+          <p>重み \(w\) が中間値 \(z\) と予測値 \(\hat{y}\) を経由して損失 \(L\) に影響するとき、必要な勾配は式 (3) の積に分解できます。</p>
+          <p>
+            \[
+              \frac{\partial L}{\partial w}
+              =
+              \frac{\partial L}{\partial \hat{y} }
+              \frac{\partial \hat{y} }{\partial z}
+              \frac{\partial z}{\partial w}
+              \tag{3}
+            \]
+          </p>
+          <p>右端の各項は、それぞれの演算だけを微分した<strong>局所勾配</strong>です。逆伝播では、出力側から届いた勾配に局所勾配を掛けて前の演算へ渡します。同じ途中結果を再利用するため、各重みについて損失を最初から計算し直す必要がありません。現在の自動微分フレームワークも、計算グラフを逆向きにたどり、連鎖律によって葉のテンソルまで勾配を伝えます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>1ニューロンの数値例で計算する</h3>
+          <p>活性化関数を使わない1ニューロン \(\hat{y}=wx+b\) を考えます。入力 \(x=2\)、重み \(w=0.5\)、バイアス \(b=0\)、正解 \(y=3\) とすると、順伝播では \(\hat{y}=1\)、式 (2) の損失は \(L=2\) です。</p>
+          <p>逆伝播では、式 (3) に対応する局所勾配を掛けます。</p>
+          <p>
+            \[
+              \begin{aligned}
+                \frac{\partial L}{\partial \hat{y} }
+                &amp;= \hat{y}-y = -2, \\
+                \frac{\partial \hat{y} }{\partial w}
+                &amp;= x = 2, \\
+                \frac{\partial L}{\partial w}
+                &amp;= (-2)\times 2 = -4
+              \end{aligned}
+              \tag{4}
+            \]
+          </p>
+          <p>学習率を \(\eta=0.1\) とする勾配降下法なら、重みは式 (5) のように更新されます。</p>
+          <p>
+            \[
+              w_{\mathrm{new} } = w - \eta\frac{\partial L}{\partial w}
+              = 0.5 - 0.1\times(-4) = 0.9
+              \tag{5}
+            \]
+          </p>
+          <p>勾配が負なので、損失を下げる方向は \(w\) を大きくする向きです。更新後の予測は \(1.8\) となり、正解 \(3\) に近づきます。</p>
+
+          <h3>多層ネットワークでは勾配を再利用する</h3>
+          <p>多層ネットワークでは、ある隠れ層の勾配を \(g^{(l)}=\partial L/\partial z^{(l)}\) と置くと、次の層から受け取った勾配を式 (6) で前の層へ伝えられます。\(W^{(l+1)}\) は次の層の重み行列、\(\odot\) は要素ごとの積です。</p>
+          <p>
+            \[
+              g^{(l)}
+              = \left(W^{(l+1)}\right)^{\mathsf{T} } g^{(l+1)}
+              \odot f'\!\left(z^{(l)}\right)
+              \tag{6}
+            \]
+          </p>
+          <p>この \(g^{(l)}\) を使えば、同じ層の重みとバイアスの勾配をまとめて計算できます。出力が1つの損失で、パラメータが非常に多いニューラルネットワークでは、この逆向きの計算が特に効率的です。</p>
+
+          <h3>学習全体の中での位置づけを分ける</h3>
+          <ol>
+            <li><strong>順伝播:</strong> ミニバッチをモデルに通し、予測と損失を求める。</li>
+            <li><strong>誤差逆伝搬:</strong> 損失を起点に、各パラメータの勾配を求める。</li>
+            <li><strong>最適化:</strong> SGDやAdamが勾配を使ってパラメータを更新する。</li>
+            <li><strong>反復:</strong> 次のミニバッチで同じ処理を繰り返す。</li>
+          </ol>
+          <p>PyTorchでは、順伝播中に演算履歴から動的な計算グラフを作り、<code>loss.backward()</code> が逆伝播を実行します。勾配はパラメータの <code>.grad</code> に蓄積されるため、通常は各反復で勾配を初期化してから次の逆伝播を行います。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>「誤差をそのまま後ろへ送る」という意味ではない</h3>
+          <p>名称から、予測誤差 \(\hat{y}-y\) を各層へ同じ形で配る操作に見えるかもしれません。実際に逆向きへ伝えるのは、各中間変数を少し変えたときに損失がどれだけ変わるかを表す<strong>微分値</strong>です。層ごとの局所微分と重みが掛かるため、前の層へ届く値は層ごとに異なります。</p>
+          <p>また、逆伝播で勾配を正しく計算できても、学習が必ず成功するとは限りません。深いネットワークでは勾配消失や勾配爆発が起こり得ます。活性化関数、初期化、正規化、残差接続、学習率なども学習結果を左右します。</p>
+
+          <h3>まとめ</h3>
+          <p>誤差逆伝搬法は、順伝播でできた計算の道筋を逆向きにたどり、連鎖律で各パラメータの勾配を求める方法です。直感的には「最終的な損失に対する各部品の責任の大きさを、出力側から分配する計算」と捉えられます。逆伝播が勾配を計算し、SGDやAdamがその勾配を使ってパラメータを更新する、という役割分担を押さえると理解しやすくなります。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://doi.org/10.1038/323533a0">Rumelhart, Hinton, Williams (1986): Learning representations by back-propagating errors</a></li>
+            <li id="ref-2"><a href="https://docs.pytorch.org/tutorials/beginner/basics/autograd_tutorial.html">PyTorch: Automatic Differentiation with torch.autograd</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
