@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ムーア・ペンローズ逆行列とは？ | k-notes</title>
+    <meta name="description" content="ムーア・ペンローズ逆行列（擬似逆行列）を、4つの定義条件、最小二乗解、最小ノルム解、特異値分解、具体例から説明します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>ムーア・ペンローズ逆行列とは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-10-01">2026-10-01</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>ムーア・ベンローズ行列とは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><strong>ムーア・ペンローズ逆行列</strong>（Moore–Penrose inverse）は、正方でない行列や、正方でも通常の逆行列を持たない行列へ「逆行列」の考え方を拡張したものです。<strong>ムーア・ペンローズ擬似逆行列</strong>とも呼び、行列 (A) に対して (A^+) と書きます。任意の実行列・複素行列に一意に存在し、通常の逆行列が存在するときは (A^+=A^{-1}) になります。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>要点</h3>
+          <ul>
+            <li><strong>対象が広い:</strong> 長方形行列やランク落ちした行列にも定義できる。</li>
+            <li><strong>最小二乗解を選ぶ:</strong> (Ax=b) に厳密解がなければ、残差 (lVert Ax-bVert_2) を最小にする。</li>
+            <li><strong>最小ノルム解を選ぶ:</strong> 最小二乗解が複数あれば、その中で (lVert xVert_2) が最小の解を返す。</li>
+            <li><strong>SVDで計算できる:</strong> ゼロでない特異値だけ逆数にする。</li>
+          </ul>
+
+          <h3>4つの条件が「逆らしさ」を定める</h3>
+          <p>(A) を (m\times n) 行列とすると、(A^+) は (n\times m) 行列です。ムーア・ペンローズ逆行列は、次の4条件をすべて満たす唯一の行列として定義されます。(^{\ast}) は複素共役転置であり、実行列では通常の転置 (^{\mathsf{T} }) と同じです。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>
+            \[
+              AA^+A=A
+              \tag{1}
+            \]
+          </p>
+          <p>
+            \[
+              A^+AA^+=A^+
+              \tag{2}
+            \]
+          </p>
+          <p>
+            \[
+              \left(AA^+\right)^{\ast}=AA^+
+              \tag{3}
+            \]
+          </p>
+          <p>
+            \[
+              \left(A^+A\right)^{\ast}=A^+A
+              \tag{4}
+            \]
+          </p>
+          <p>式 (1) と式 (2) は、(A) と (A^+) を往復しても行列の働きが変わらないことを表します。式 (3) と式 (4) は、(AA^+) と (A^+A) が直交射影になるための対称性を与えます。この4条件により、一般化された逆行列の候補が複数あっても (A^+) は1つに定まります。</p>
+
+          <h3>連立方程式では「最もよく合う、最も短い解」になる</h3>
+          <p>連立方程式 (Ax=b) に対して、ムーア・ペンローズ逆行列で得る解は式 (5) です。</p>
+          <p>
+            \[
+              x^+=A^+b
+              \tag{5}
+            \]
+          </p>
+          <p>方程式に厳密解がない場合、式 (5) は残差のユークリッドノルムを最小化します。最小二乗解が複数ある場合には、その集合から解自身のユークリッドノルムが最小のものを選びます。NumPyの <code>lstsq</code> も、この最小二乗・最小ノルム解を返します。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>
+            \[
+              x^+
+              = \operatorname*{arg\,min}_{x\,\in\,\mathcal{S } }
+                \lVert x\rVert_2,
+              \qquad
+              \mathcal{S}
+              = \operatorname*{arg\,min}_{z}
+                \lVert Az-b\rVert_2
+              \tag{6}
+            \]
+          </p>
+          <p>式 (6) は二段階の選択です。まず (\mathcal{S}) として残差が最小の解をすべて集め、その中から長さが最小の (x^+) を選びます。</p>
+
+          <h3>解が複数ある例では中央の解を選ぶ</h3>
+          <p>1本の方程式 (x_1+x_2=2) を考えます。この式を (Ax=b) と書くと、(A)、(A^+)、(b) は次のとおりです。</p>
+          <p>
+            \[
+              A=\begin{bmatrix}1&amp;1\end{bmatrix},
+              \qquad
+              A^+=\begin{bmatrix}1/2\\1/2\end{bmatrix},
+              \qquad
+              b=\begin{bmatrix}2\end{bmatrix}
+              \tag{7}
+            \]
+          </p>
+          <p>式 (5) を使うと、解は式 (8) になります。</p>
+          <p>
+            \[
+              x^+=A^+b
+              =\begin{bmatrix}1/2\\1/2\end{bmatrix}2
+              =\begin{bmatrix}1\\1\end{bmatrix}
+              \tag{8}
+            \]
+          </p>
+          <p>((0,2))、((1,1))、((2,0)) などはすべて (x_1+x_2=2) を満たします。その中で原点に最も近く、(lVert xVert_2) が最小なのが ((1,1)) です。擬似逆行列は、2つの変数へ均等に割り振るという規則を直接仮定したのではなく、最小ノルムという幾何学的な基準からこの解を選びます。</p>
+
+          <h3>特異値分解ではゼロでない特異値を反転する</h3>
+          <p>行列 (A) の特異値分解（SVD）を式 (9) とします。(U) と (V) はユニタリ行列、(Sigma) は特異値を対角に並べた行列です。</p>
+          <p>
+            \[
+              A=U\Sigma V^{\ast}
+              \tag{9}
+            \]
+          </p>
+          <p>(Sigma^+) を、ゼロでない各特異値 (sigma_i) を (1/\sigma_i) に置き換え、転置した形の行列とします。このとき擬似逆行列は式 (10) で計算できます。NumPyの <code>np.linalg.pinv</code> もSVDを用い、指定したしきい値以下の小さな特異値をゼロとして扱います。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <p>
+            \[
+              A^+=V\Sigma^+U^{\ast}
+              \tag{10}
+            \]
+          </p>
+          <p>非常に小さい特異値の逆数は非常に大きくなるため、データのわずかな誤差を解で増幅することがあります。数値計算では、どの特異値をゼロとみなすかという許容誤差が結果に影響します。</p>
+
+          <h3>フルランクなら簡単な式でも表せる</h3>
+          <p>(A) が実行列で、列が線形独立な縦長または正方の行列なら式 (11)、行が線形独立な横長または正方の行列なら式 (12) が使えます。</p>
+          <p>
+            \[
+              A^+=\left(A^{\mathsf{T} }A\right)^{-1}A^{\mathsf{T} }
+              \qquad\text{（列フルランク）}
+              \tag{11}
+            \]
+          </p>
+          <p>
+            \[
+              A^+=A^{\mathsf{T} }\left(AA^{\mathsf{T} }\right)^{-1}
+              \qquad\text{（行フルランク）}
+              \tag{12}
+            \]
+          </p>
+          <p>これらはランク条件を満たす場合だけ有効です。また、実際の数値計算で解 (x) だけが必要なら、(A^+) や (A^{\mathsf{T} }A) を明示的に作るより、QR分解やSVDを使う最小二乗ソルバーを直接利用する方が一般に安定です。</p>
+
+          <h3>Pythonでは擬似逆行列自体が必要かを区別する</h3>
+          <p>擬似逆行列そのものが必要なら <code>np.linalg.pinv</code>、(Ax=b) の解だけが必要なら通常は <code>np.linalg.lstsq</code> を使います。</p>
+          <pre><code>import numpy as np
+
+A = np.array([[1.0, 1.0]])
+b = np.array([2.0])
+
+A_pinv = np.linalg.pinv(A)
+x_from_pinv = A_pinv @ b
+x_from_lstsq, *_ = np.linalg.lstsq(A, b, rcond=None)
+
+print(A_pinv)       # [[0.5], [0.5]]
+print(x_from_pinv)  # [1. 1.]
+print(x_from_lstsq) # [1. 1.]</code></pre>
+          <p>擬似逆行列、MATLABのbackslash、LASSOの目的の違いは、別記事「<a href="pseudo-inverse-backslash-lasso-differences.html">pseudo-inverse、backslash、LASSOの違いは？</a>」で整理しています。</p>
+
+          <h3>まとめ</h3>
+          <p>ムーア・ペンローズ逆行列 (A^+) は、あらゆる形状とランクの行列に対して一意に定まる、逆行列の標準的な一般化です。(A^+b) は「残差が最小で、その中でも解の長さが最小」という明確な基準を満たします。したがって、解がない過決定系と、解が多すぎる劣決定系を同じ枠組みで扱えます。計算の中心はSVDですが、小さな特異値を反転すると誤差が増幅される点には注意が必要です。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://doi.org/10.1017/S0305004100030401">Penrose (1955): A Generalized Inverse for Matrices</a></li>
+            <li id="ref-2"><a href="https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html">NumPy: numpy.linalg.lstsq</a></li>
+            <li id="ref-3"><a href="https://numpy.org/doc/stable/reference/generated/numpy.linalg.pinv.html">NumPy: numpy.linalg.pinv</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
