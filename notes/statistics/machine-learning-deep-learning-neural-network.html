@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>機械学習・深層学習・ニューラルネットワークの違いは？ | k-notes</title>
+    <meta name="description" content="機械学習、ニューラルネットワーク、深層学習の入れ子関係と、それぞれの意味・代表例・使い分けを整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>機械学習・深層学習・ニューラルネットワークの違いは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-10-01">2026-10-01</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>機械学習と深層学習とニューラルネットワークの違いは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>3者はおおむね入れ子の関係です。<strong>機械学習</strong>はデータから予測や生成の方法を学ぶ手法の総称、<strong>ニューラルネットワーク</strong>は機械学習で使われるモデルの一群、<strong>深層学習</strong>は多層の表現を重ねて学習する機械学習です。現在の深層学習では、多数の層を持つニューラルネットワークが代表的に使われます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>包含関係で捉える</h3>
+          <ul>
+            <li><strong>機械学習:</strong> 最も広い枠組み。線形回帰、決定木、k-means、ニューラルネットワークなどを含む。</li>
+            <li><strong>ニューラルネットワーク:</strong> 入力を重み付きで結び、層を通して非線形な関係を表現するモデル群。</li>
+            <li><strong>深層学習:</strong> 多段階の表現を学ぶ機械学習。典型例は複数の隠れ層を持つ深層ニューラルネットワーク。</li>
+          </ul>
+          <p>したがって、ニューラルネットワークを使わない機械学習もあります。また、隠れ層が少ないニューラルネットワークは、通常は深層学習と呼びません。</p>
+
+          <h3>同じ軸の用語ではない</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th scope="col">用語</th>
+                <th scope="col">何を表すか</th>
+                <th scope="col">代表例</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">機械学習</th>
+                <td data-label="何を表すか">データからモデルを学習する方法全体</td>
+                <td data-label="代表例">回帰、決定木、クラスタリング、ニューラルネットワーク</td>
+              </tr>
+              <tr>
+                <th scope="row">ニューラルネットワーク</th>
+                <td data-label="何を表すか">層状に接続した計算単位からなるモデル構造</td>
+                <td data-label="代表例">多層パーセプトロン、畳み込みニューラルネットワーク</td>
+              </tr>
+              <tr>
+                <th scope="row">深層学習</th>
+                <td data-label="何を表すか">多数の段階を通して表現を学ぶ方法</td>
+                <td data-label="代表例">深層ニューラルネットワーク、Transformer</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>機械学習にはニューラルネットワーク以外も含まれる</h3>
+          <p>機械学習は、データを使って予測や生成を行うモデルを訓練する方法です。教師あり学習、教師なし学習、強化学習などに分類でき、使われるモデルも一種類ではありません。Googleの解説も、線形回帰、決定木、ニューラルネットワークを異なるモデルの例として挙げています。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup><sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>たとえば表形式のデータでは、決定木を多数組み合わせるRandom Forestや勾配ブースティングが有力です。この場合、機械学習ではあっても、ニューラルネットワークや深層学習ではありません。</p>
+
+          <h3>ニューラルネットワークはモデルの構造を指す</h3>
+          <p>ニューラルネットワークは、入力層、隠れ層、出力層を持ち、各計算単位が前の層から受け取った値を重み付けして次の層へ渡すモデルです。非線形な関係を表現でき、画像、音声、言語など複雑なデータで広く使われます。Googleの用語集では、少なくとも1つの隠れ層を持つモデルとして説明されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>名称は生物の神経回路に由来しますが、実際には数学的な計算モデルです。「人工ニューラルネットワーク」と呼ぶ場合もあります。</p>
+
+          <h3>深層学習は表現を何段も重ねて学ぶ</h3>
+          <p>深層学習では、単純な特徴を組み合わせて、より抽象的な特徴を段階的に作ります。画像認識なら、画素から線や輪郭、部品、物体というように、複数段階の表現を学ぶイメージです。代表的な実装が、複数の隠れ層を持つ深層ニューラルネットワークです。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>「何層以上なら深層か」という普遍的な境界はありません。資料や分野によって数え方も異なります。重要なのは層数のラベルそのものより、多段階の関数や概念を合成し、階層的な表現を学んでいる点です。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>用途とデータに応じて選ぶ</h3>
+          <ul>
+            <li><strong>表形式でデータが少ない:</strong> 線形モデルや決定木系を含めて比較する。深層学習が常に優位とは限らない。</li>
+            <li><strong>画像・音声・文章を扱う:</strong> 深層学習が複雑な特徴を自動的に学びやすい。</li>
+            <li><strong>解釈しやすさや計算量を重視する:</strong> 単純な機械学習モデルが適する場合がある。</li>
+            <li><strong>大量データと計算資源がある:</strong> 深層学習の表現力を生かしやすい。</li>
+          </ul>
+
+          <h3>まとめ</h3>
+          <p>機械学習は学習方法全体、ニューラルネットワークはその中で使うモデル構造、深層学習は多層の表現を学ぶ方法です。「機械学習か深層学習か」は広い枠組みとその一部を比べる言い方であり、「ニューラルネットワークか深層学習か」はモデル構造と学習アプローチを比べる言い方です。3語の階層と観点を分けると混同しにくくなります。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://developers.google.com/machine-learning/glossary">Google for Developers: Machine Learning Glossary</a></li>
+            <li id="ref-2"><a href="https://www.deeplearningbook.org/contents/intro.html">Goodfellow, Bengio, Courville: Deep Learning, Chapter 1</a></li>
+            <li id="ref-3"><a href="https://developers.google.com/machine-learning/intro-to-ml/what-is-ml">Google for Developers: What is Machine Learning?</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
