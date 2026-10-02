@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Taylor Diagram はどう読む？ | k-notes</title>
+    <meta name="description" content="Taylor Diagram でモデルと観測の相関、標準偏差、中心化 RMSE を読み、モデルの再現性を比較する方法を整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>Taylor Diagram はどう読む？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-10-02">2026-10-02</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>モデルの精度を測る時に使うTaylor Diagramはどうやって読むもの？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><strong>Taylor Diagram は、モデルと観測の対応を「相関係数」「標準偏差」「中心化 RMSE」の三つで一度に比較する図です。</strong>観測（参照データ）の点に近いモデルほど、変動の大きさと空間・時間パターンの両方が観測に近いと読めます。各モデル点は、原点からの距離で標準偏差、角度で相関係数、観測点からの距離で中心化 RMSE を表します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>最初に見る場所は観測の基準点</h3>
+          <p>図上の <strong>REF</strong>、<strong>Observation</strong>、または <strong>Reference</strong> と書かれた点が基準点です。通常は横軸上の相関 1 の位置に置かれます。モデル点がこの点に近いほど中心化 RMSE が小さく、観測の偏差パターンをよく再現しています。標準偏差を観測の標準偏差で割った正規化図では、基準点は半径 1 の位置になります。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>原点からの距離で変動幅を読む</h3>
+          <p>モデル点の原点からの距離 ( sigma_m ) は、モデルの標準偏差です。基準点の距離 ( sigma_o ) と比べます。( sigma_m &gt; sigma_o ) ならモデルの変動は大きすぎ、( sigma_m &lt; sigma_o ) なら小さすぎます。正規化されている図では、半径 1 が観測と同じ変動幅です。したがって、相関が高くても半径が 1 から大きく外れていれば、振幅の再現には問題があります。</p>
+
+          <h3>扇形の角度でパターンの一致を読む</h3>
+          <p>原点からモデル点へ向かう線と横軸のなす角を ( 	heta ) とすると、相関係数 ( r ) は ( r=cos	heta ) です。横軸に近いほど ( r ) は 1 に近く、観測とモデルの増減・空間分布がよくそろいます。たとえば半円図の目盛りが 0.9、0.8、0.7 と下がるにつれ、点は横軸から上方へ離れます。相関が負の値も表示する拡張図では、角度が 90 度を超えた領域が負の相関です。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>基準点までの距離で中心化 RMSE を読む</h3>
+          <p>モデル点と基準点を直線で結んだ距離は、平均を各データから引いた後の RMSE、すなわち中心化 RMSE ( E' ) です。図に基準点を中心とした円弧が描かれていれば、それが等しい中心化 RMSE の等値線です。<strong>基準点に近いほど ( E' ) は小さく、良い一致</strong>を意味します。円弧のラベルは図によって絶対値の場合と、観測標準偏差で正規化した値の場合があるため、軸ラベルを確認します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>三つの量が一つの距離にまとまる理由</h3>
+          <p>モデルの偏差を ( m' )、観測の偏差を ( o' ) とし、それぞれの標準偏差を ( sigma_m )、( sigma_o )、相関係数を ( r ) とすると、中心化 RMSE は次の関係を満たします。これは余弦定理と同じ形なので、Taylor Diagram では基準点までの距離として表せます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>
+            \[
+              E'^2 = \sigma_m^2 + \sigma_o^2 - 2\sigma_m\sigma_o r
+            \tag{1}
+            \]
+          </p>
+          <p>式 (1) は、三指標を別々に眺めるよりも比較しやすくする一方で、どの要因が差を生んだかは半径と角度へ戻って確認する必要があることも示します。</p>
+
+          <h3>モデルを比べるときの順番</h3>
+          <ol>
+            <li><strong>基準点に近いモデル</strong>を探し、中心化 RMSE が小さい候補を絞る。</li>
+            <li>その候補の<strong>半径</strong>を見て、標準偏差が観測と合っているか確認する。</li>
+            <li><strong>相関の目盛り</strong>を見て、パターン一致が十分か確認する。</li>
+            <li>目的変数、季節、地域、前処理が同じモデル同士だけを比較する。異なる基準データや正規化方法の図を横断して、点の位置だけで優劣を決めない。</li>
+          </ol>
+
+          <h3>平均バイアスは別に確認する</h3>
+          <p>古典的な Taylor Diagram の中心化 RMSE は、各系列から平均を引いた偏差を比較します。そのため、平均気温が一貫して 2 K 高い、降水量が系統的に多い、といった<strong>平均バイアスはこの図の中心指標には含まれません</strong>。平均バイアス、サンプル数、統計的有意性、極端値の再現性は、別の図表や指標と併せて評価します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>まとめ</h3>
+          <p>Taylor Diagram は、<strong>基準点への近さ</strong>で中心化 RMSE、<strong>原点からの距離</strong>で標準偏差、<strong>横軸からの角度</strong>で相関を読む図です。実務では「基準点に近いか」を入口にし、次に変動幅と相関のどちらが差の原因かを分けて読みます。平均バイアスを評価する図ではない点を押さえると、モデルの長所と不足を取り違えにくくなります。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://doi.org/10.1029/2000JD900719">Taylor, K. E. (2001): Summarizing Multiple Aspects of Model Performance in a Single Diagram, Journal of Geophysical Research: Atmospheres</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
