@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>プランク関数・ウィーンの変位則・キルヒホッフの法則とは？ | k-notes</title>
-    <meta name="description" content="黒体放射を記述するプランク関数、ピーク波長を与えるウィーンの変位則、吸収率と放射率を結ぶキルヒホッフの法則を、式と温度別スペクトルのグラフで整理します。">
+    <title>プランク関数・ウィーンの変位則・シュテファン＝ボルツマン則・キルヒホッフ則 | k-notes</title>
+    <meta name="description" content="黒体放射を記述する4つの法則を、式、温度別スペクトル、大気ガスの吸収帯の模式図から一つの流れで整理します。">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
@@ -24,9 +24,10 @@
       <article class="article">
         <a class="back-link" href="../../index.html">一覧に戻る</a>
 
-        <h1>プランク関数・ウィーンの変位則・キルヒホッフの法則とは？</h1>
+        <h1>黒体放射の4法則と大気ガスの吸収を一つの流れで理解する</h1>
         <div class="article-meta">
           <p>作成日: <time datetime="2026-10-14">2026-10-14</time></p>
+          <p>更新日: <time datetime="2026-10-14">2026-10-14</time></p>
           <p>カテゴリ: meteorology</p>
         </div>
 
@@ -37,7 +38,7 @@
 
         <section aria-labelledby="answer-heading">
           <h2 id="answer-heading">回答</h2>
-          <p><strong>プランク関数</strong>は黒体放射のスペクトル形を、<strong>ウィーンの変位則</strong>はそのピーク位置を、<strong>キルヒホッフの法則</strong>は実在物体の吸収しやすさと放射しやすさの関係を表します。3つをつなぐと、「温度 \(T\) の黒体が作る基準スペクトル \(B_\lambda(T)\) に、物質の波長別放射率 \(\varepsilon_\lambda\) を掛けると、熱平衡にある実在物体の放射が得られる」と整理できます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <p><strong>プランク関数</strong>は黒体放射のスペクトル形を、<strong>ウィーンの変位則</strong>はそのピーク位置を、<strong>シュテファン＝ボルツマンの法則</strong>は全波長を合計した放射量を、<strong>キルヒホッフの法則</strong>は実在物体の吸収しやすさと放射しやすさの関係を表します。最初の3つで温度 \(T\) の黒体放射を記述し、最後の法則で実在の地表や大気ガスへつなげる、と考えると全体を見通せます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
 
           <h3>1. プランク関数：黒体放射のスペクトル</h3>
           <p>黒体は、入射した放射をすべて吸収する理想物体です。真空中で、波長 \(\lambda\) ごとの黒体の<strong>分光放射輝度</strong>を表すプランク関数 \(B_\lambda(T)\) は、</p>
@@ -97,36 +98,132 @@
           </ul>
           <p><strong>注意:</strong> 式 (2) は \(B_\lambda\) のピークに対する法則です。周波数表示 \(B_\nu\) のピークは別の位置にあり、\(\nu_{\max}=c/\lambda_{\max}\) とはなりません。横軸を波長から周波数へ変えるとき、区間幅も変わるためです。NISTも波長版と周波数版の変位定数を別々に掲げています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
 
-          <h3>3. キルヒホッフの法則：よく吸収する波長では、よく放射する</h3>
+          <h3>3. シュテファン＝ボルツマンの法則：全波長の放射を合計する</h3>
+          <p>プランク関数をすべての波長について積分し、黒体表面から上向き半球へ出る放射を合計すると、分光量ではない全放射発散度 \(M\) が得られます。</p>
+          <p>
+            \[
+              \begin{aligned}
+                M(T)
+                &amp;=\int_0^\infty M_\lambda(T)\,\mathrm{d}\lambda \\
+                &amp;=\sigma T^4
+              \end{aligned}
+              \tag{3}
+            \]
+          </p>
+          <p>これが<strong>シュテファン＝ボルツマンの法則</strong>です。2022 CODATAによるシュテファン＝ボルツマン定数は、</p>
+          <p>
+            \[
+              \sigma
+              =5.670\,374\,419\times10^{-8}
+              \ \mathrm{W\,m^{-2}\,K^{-4} }
+              \tag{4}
+            \]
+          </p>
+          <p>です。現在のSIでは、\(h\)、\(c\)、\(k_\mathrm{B}\) の定義値から導かれるため、この値は厳密値です。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <p>たとえば \(T=288\ \mathrm{K}\) の黒体なら \(M\approx390\ \mathrm{W\,m^{-2} }\) です。温度が2倍になると放射は \(2^4=16\) 倍になります。ただし、これは黒体表面の放射です。実在表面を波長によらない灰色体として近似する場合は \(M=\varepsilon\sigma T^4\) とします。</p>
+
+          <h3>4. キルヒホッフの法則：よく吸収する波長では、よく放射する</h3>
           <p>物体の波長別吸収率を \(\alpha_\lambda\)、波長別放射率を \(\varepsilon_\lambda\) とします。熱平衡では、同じ波長・方向・偏光について、</p>
           <p>
             \[
               \varepsilon_\lambda(T)=\alpha_\lambda(T)
-              \tag{3}
+              \tag{5}
             \]
           </p>
-          <p>が成り立ちます。これが<strong>熱放射に関するキルヒホッフの法則</strong>です。厳密には、分光・方向別の放射率と、逆向きに入射する同じモードの吸収率を対応させます。NISTの原論文は「同じ方向から入る放射」に対する分光吸収率と分光方向放射率の等価として記述しています。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <p>が成り立ちます。これが<strong>熱放射に関するキルヒホッフの法則</strong>です。厳密には、分光・方向別の放射率と、逆向きに入射する同じモードの吸収率を対応させます。NISTの原論文は「同じ方向から入る放射」に対する分光吸収率と分光方向放射率の等価として記述しています。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
           <p>この法則により、熱平衡にある不透明な実在表面の放射は、</p>
           <p>
             \[
               L_\lambda(T)
               =\varepsilon_\lambda B_\lambda(T)
               =\alpha_\lambda B_\lambda(T)
-              \tag{4}
+              \tag{6}
             \]
           </p>
-          <p>と書けます。黒体では \(\alpha_\lambda=\varepsilon_\lambda=1\) なので、あらゆる物体のうち同じ温度・波長で最大の放射をします。NASAの熱制御資料も、不透明面では \(\alpha+\rho=1\)、黒体では反射率 \(\rho=0\)、そして条件を満たすとき \(\alpha_\lambda=\varepsilon_\lambda\) と整理しています。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+          <p>と書けます。黒体では \(\alpha_\lambda=\varepsilon_\lambda=1\) なので、あらゆる物体のうち同じ温度・波長で最大の放射をします。NASAの熱制御資料も、不透明面では \(\alpha+\rho=1\)、黒体では反射率 \(\rho=0\)、そして条件を満たすとき \(\alpha_\lambda=\varepsilon_\lambda\) と整理しています。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></p>
 
-          <h3>3つの法則を一つの流れで見る</h3>
+          <h3>4つの法則を一つの流れで見る</h3>
           <ol>
             <li><strong>温度を決める:</strong> プランク関数 \(B_\lambda(T)\) が黒体の基準スペクトルを与える。</li>
             <li><strong>ピークを見る:</strong> ウィーンの変位則が \(\lambda_{\max}=b/T\) を与える。</li>
+            <li><strong>全放射を求める:</strong> シュテファン＝ボルツマンの法則が、スペクトル全体の面積 \(M=\sigma T^4\) を与える。</li>
             <li><strong>物質の性質を入れる:</strong> キルヒホッフの法則により、実在物体では吸収率と同じ波長依存性をもつ放射率 \(\varepsilon_\lambda\) を掛ける。</li>
           </ol>
-          <p>たとえば大気中の気体は、特定の赤外波長帯だけを強く吸収します。同じ波長帯では放射もしやすいため、実在の大気放射スペクトルは滑らかな黒体曲線そのものではなく、分子の吸収・放射帯が重なった形になります。ただし、式 (3) を使うには物質が局所熱平衡にあることなどの条件を確認する必要があります。</p>
+
+          <h3>5. 地球大気では、ガスごとに吸収する波長が異なる</h3>
+          <p>地球大気の分子は、すべての波長を一様に吸収する灰色体ではありません。分子の回転・振動・電子遷移に対応する特定の波長帯だけを吸収します。HITRANは、地球大気の主要な赤外吸収体として当初から \(\mathrm{H_2O}\)、\(\mathrm{CO_2}\)、\(\mathrm{O_3}\)、\(\mathrm{N_2O}\)、\(\mathrm{CO}\)、\(\mathrm{CH_4}\)、\(\mathrm{O_2}\) の線パラメータを収録してきました。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
+
+          <figure class="climate-chart">
+            <figcaption>地球大気の主な気体吸収帯（位置を概観する模式図）</figcaption>
+            <svg viewBox="0 0 780 430" role="img" aria-labelledby="gas-bands-title gas-bands-desc">
+              <title id="gas-bands-title">地球大気中の水蒸気、二酸化炭素、オゾン、メタン、亜酸化窒素、酸素の主な吸収帯</title>
+              <desc id="gas-bands-desc">0.2から30マイクロメートルの対数波長軸上に各気体の代表的な吸収帯を横棒で示す。8から12マイクロメートル付近には大気の窓があるが、9.6マイクロメートル付近にオゾン吸収がある。</desc>
+              <rect x="120" y="52" width="620" height="320" rx="4" fill="#fbfcfa" stroke="#d5ddd9"/>
+              <rect x="577" y="52" width="50" height="320" fill="#e7f3ef"/>
+              <text x="602" y="72" text-anchor="middle" fill="#26736c">8–12 µm window</text>
+              <g class="climate-chart__grid">
+                <line x1="120" y1="82" x2="120" y2="372"/><line x1="206" y1="82" x2="206" y2="372"/>
+                <line x1="319" y1="82" x2="319" y2="372"/><line x1="405" y1="82" x2="405" y2="372"/>
+                <line x1="499" y1="82" x2="499" y2="372"/><line x1="597" y1="82" x2="597" y2="372"/>
+                <line x1="740" y1="82" x2="740" y2="372"/>
+              </g>
+              <g font-weight="700">
+                <text x="105" y="112" text-anchor="end">H₂O</text>
+                <text x="105" y="157" text-anchor="end">CO₂</text>
+                <text x="105" y="202" text-anchor="end">O₃</text>
+                <text x="105" y="247" text-anchor="end">CH₄</text>
+                <text x="105" y="292" text-anchor="end">N₂O</text>
+                <text x="105" y="337" text-anchor="end">O₂</text>
+              </g>
+              <g fill="#26736c">
+                <rect x="269" y="96" width="14" height="20" rx="4"/><rect x="300" y="96" width="16" height="20" rx="4"/>
+                <rect x="340" y="96" width="28" height="20" rx="4"/><rect x="390" y="96" width="31" height="20" rx="4"/>
+                <rect x="430" y="96" width="27" height="20" rx="4"/><rect x="532" y="96" width="32" height="20" rx="4"/>
+                <rect x="640" y="96" width="100" height="20" rx="4"/>
+              </g>
+              <g fill="#d85a30">
+                <rect x="351" y="141" width="17" height="20" rx="4"/><rect x="395" y="141" width="24" height="20" rx="4"/>
+                <rect x="430" y="141" width="24" height="20" rx="4"/><rect x="487" y="141" width="27" height="20" rx="4"/>
+                <rect x="635" y="141" width="39" height="20" rx="4"/>
+              </g>
+              <g fill="#635b9e">
+                <rect x="120" y="186" width="64" height="20" rx="4"/><rect x="233" y="186" width="42" height="20" rx="4"/>
+                <rect x="588" y="186" width="22" height="20" rx="4"/>
+              </g>
+              <g fill="#d88a30">
+                <rect x="365" y="231" width="14" height="20" rx="4"/><rect x="418" y="231" width="18" height="20" rx="4"/>
+                <rect x="456" y="231" width="21" height="20" rx="4"/><rect x="562" y="231" width="21" height="20" rx="4"/>
+              </g>
+              <g fill="#7a8f55">
+                <rect x="412" y="276" width="14" height="20" rx="4"/><rect x="442" y="276" width="18" height="20" rx="4"/>
+                <rect x="503" y="276" width="18" height="20" rx="4"/><rect x="564" y="276" width="20" height="20" rx="4"/>
+              </g>
+              <g fill="#527ea3">
+                <rect x="120" y="321" width="35" height="20" rx="4"/><rect x="272" y="321" width="10" height="20" rx="4"/>
+                <rect x="284" y="321" width="10" height="20" rx="4"/><rect x="340" y="321" width="10" height="20" rx="4"/>
+              </g>
+              <g class="climate-chart__axis">
+                <line x1="120" y1="372" x2="740" y2="372"/>
+              </g>
+              <text x="120" y="392" text-anchor="middle">0.2</text><text x="206" y="392" text-anchor="middle">0.4</text>
+              <text x="319" y="392" text-anchor="middle">1</text><text x="405" y="392" text-anchor="middle">2</text>
+              <text x="499" y="392" text-anchor="middle">4.3</text><text x="597" y="392" text-anchor="middle">10</text>
+              <text x="740" y="392" text-anchor="middle">30</text>
+              <text x="430" y="418" text-anchor="middle">Wavelength [µm, log scale]</text>
+            </svg>
+          </figure>
+          <p><strong>この図は吸収帯の代表的な位置を示す模式図で、吸収率や透過率の定量グラフではありません。</strong>実際の透過率は、気体濃度、光路長、気圧、温度、雲、エアロゾル、線の重なりに依存します。分子吸収線そのものは非常に細く、低分解能で見ると帯として見えます。</p>
+          <ul>
+            <li><strong>水蒸気:</strong> 近赤外から遠赤外まで広い範囲に吸収帯を持ちますが、約 \(8\text{--}12\ \mu\mathrm{m}\) には比較的透過しやすい「大気の窓」があります。</li>
+            <li><strong>二酸化炭素:</strong> \(4.3\ \mu\mathrm{m}\) と \(15\ \mu\mathrm{m}\) 付近に強い帯があり、長波側から大気の窓の一部へかかります。</li>
+            <li><strong>オゾン:</strong> 紫外域を強く吸収し、可視域にも弱く広い帯、熱赤外の \(9.6\ \mu\mathrm{m}\) 付近にも吸収帯があります。</li>
+            <li><strong>メタンと亜酸化窒素:</strong> \(3\text{--}5\ \mu\mathrm{m}\) および \(7\text{--}8\ \mu\mathrm{m}\) 付近などに帯があり、他の気体の吸収と重なります。</li>
+            <li><strong>酸素:</strong> 紫外域と可視・近赤外の狭い帯を吸収します。よく知られたA帯は約 \(0.76\ \mu\mathrm{m}\) です。</li>
+          </ul>
+          <p>NASAは、\(1\text{--}15\ \mu\mathrm{m}\) の主要吸収体を \(\mathrm{CO_2}\)、\(\mathrm{H_2O}\)、\(\mathrm{O_3}\) とし、\(\mathrm{N_2O}\) や \(\mathrm{CH_4}\) との重なりによって透過窓が限られると整理しています。<sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup> 地表温度付近のプランク曲線は約 \(10\ \mu\mathrm{m}\) にピークを持つため、大気の窓は地表放射が宇宙へ抜けるうえで重要です。一方、キルヒホッフの法則により、各気体は吸収しやすい波長で放射もしやすくなります。ただし、この対応を局所的な大気へ使うときは局所熱平衡などの条件を確認します。</p>
 
           <h3>まとめ</h3>
-          <p>プランク関数は「黒体が各波長でどれだけ放射するか」、ウィーンの変位則は「そのピークがどこにあるか」、キルヒホッフの法則は「実在物体の吸収と放射がどう対応するか」を表します。温度が上がるとスペクトルは強くなり、ピークは短波長側へ移ります。実在物体では、その黒体スペクトルに波長別放射率を掛けて考えます。</p>
+          <p>プランク関数でスペクトル形を求め、ウィーンの変位則でピーク波長を読み、シュテファン＝ボルツマンの法則で全放射量を求めます。そこへキルヒホッフの法則を適用すると、吸収率が波長ごとに異なる実在物質の放射へ進めます。地球大気では複数の気体の吸収・放射帯が重なり、その間に地表放射が比較的通りやすい大気の窓が残ります。</p>
         </section>
 
         <section class="references" aria-labelledby="references-heading">
@@ -134,8 +231,11 @@
           <ol>
             <li id="ref-1"><a href="https://nvlpubs.nist.gov/nistpubs/Legacy/TN/nbstechnicalnote910-8.pdf">NIST Technical Note 910-8, Self-Study Manual on Optical Radiation Measurements: Concepts, Chapter 12</a></li>
             <li id="ref-2"><a href="https://physics.nist.gov/cgi-bin/cuu/Results?search_for=Wien">NIST CODATA: Wien displacement law constants</a></li>
-            <li id="ref-3"><a href="https://nvlpubs.nist.gov/nistpubs/jres/69B/jresv69Bn3p165_A1b.pdf">Kelly (1965), On Kirchhoff's Law and Its Generalized Application to Absorption and Emission by Cavities</a></li>
-            <li id="ref-4"><a href="https://ntrs.nasa.gov/api/citations/20150002905/downloads/20150002905.pdf">NASA, Small Spacecraft Technology State of the Art: Thermal Control</a></li>
+            <li id="ref-3"><a href="https://physics.nist.gov/cuu/pdf/JPCRD2022CODATA.pdf">NIST, 2022 CODATA Recommended Values of the Fundamental Physical Constants</a></li>
+            <li id="ref-4"><a href="https://nvlpubs.nist.gov/nistpubs/jres/69B/jresv69Bn3p165_A1b.pdf">Kelly (1965), On Kirchhoff's Law and Its Generalized Application to Absorption and Emission by Cavities</a></li>
+            <li id="ref-5"><a href="https://ntrs.nasa.gov/api/citations/20150002905/downloads/20150002905.pdf">NASA, Small Spacecraft Technology State of the Art: Thermal Control</a></li>
+            <li id="ref-6"><a href="https://hitran.org/about/">HITRANonline: About HITRAN</a></li>
+            <li id="ref-7"><a href="https://ntrs.nasa.gov/api/citations/19850003096/downloads/19850003096.pdf">NASA Reference Publication 1159, Atmospheric Effects on Remotely Sensed Optical Measurements</a></li>
           </ol>
         </section>
       </article>
