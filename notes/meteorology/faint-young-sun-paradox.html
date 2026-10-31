@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>暗い太陽のパラドックスを放射平衡の式で考える | k-notes</title>
+    <meta name="description" content="太陽が今の70％の明るさなら地球はどう冷えるか。シュテファン＝ボルツマンの法則から計算し、地表温度と温室効果を区別します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] } };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+        <h1>暗い太陽のパラドックスを放射平衡の式で考える</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-10-31">2026-10-31</time></p>
+          <p>カテゴリ: meteorology</p>
+        </div>
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>暗い太陽のパラドックスについて、シュテファンボルツマンの式で簡単に説明して？</p>
+        </section>
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><strong>昔の太陽は今より暗かったはずなのに、地球には液体の水があった。</strong>この食い違いが「暗い太陽のパラドックス」です。初期の太陽から地球が受け取るエネルギーは、現在の約70％だったと考えられています。ここでは70％を簡単な計算例に使います。初期地球の全期間を通じて同じ値だったという意味ではありません。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <h3>1. 入ってくる光と、出ていく熱を釣り合わせる</h3>
+          <p>黒体が単位面積・単位時間に放つエネルギーを \(I\)、絶対温度を \(T\)、シュテファン＝ボルツマン定数を \(\sigma\) とすると、放射の法則は式 (1) です。温度にはケルビンを使います。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>\[I=\sigma T^4 \tag{1}\]</p>
+          <p>地球が宇宙へ放つ熱放射を黒体に換算した温度を、有効放射温度 \(T_{\mathrm e}\) と呼びます。太陽光に垂直な面が大気の外で受ける日射量を \(S\)、地球全体の反射率を \(\alpha\) とすると、放射平衡は式 (2) になります。内部熱を無視し、地球全体で吸収と放射が釣り合うと仮定しています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>\[\frac{(1-\alpha)S}{4}=\sigma T_{\mathrm e}^{4} \tag{2}\]</p>
+          <p>左辺は吸収する日射、右辺は宇宙へ放つ熱です。4で割るのは、光を受ける円盤の面積に対して、地球の球面全体の面積が4倍あるためです。</p>
+          <h3>2. 日射が70％なら、温度は何％になるか</h3>
+          <p>反射率を現在と同じに固定します。過去と現在の有効放射温度をそれぞれ \(T_{\mathrm{e,past} }\)、\(T_{\mathrm{e,now} }\) とすると、式 (2) の比から次を得ます。</p>
+          <p>\[\frac{T_{\mathrm{e,past} } }{T_{\mathrm{e,now} } }=0.70^{1/4}\simeq0.915 \tag{3}\]</p>
+          <p>現在の代表値として、日射量を約1360 W/m²、反射率を0.30に丸めて使います。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup> 式 (2) から現在は約255 K、式 (3) から過去は約233 Kと計算できます。摂氏では約−18℃から約−40℃へ、約22℃の低下です。</p>
+          <h3>3. 温室効果を含めると、何が問題なのか</h3>
+          <p><strong>233 Kは地表温度の予測値ではありません。</strong>現在も有効放射温度は氷点下ですが、温室効果によって平均地表温度は約15℃に保たれています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>規模をつかむための仮定として、温室効果による地表と有効放射温度の差を現在と同じ約33 Kに固定してみます。この概算では、過去の地表は約266 K、約−7℃になります。ただし、温室効果は一定の温度差として働くわけではありません。この数値は古気候の再現結果ではなく、冷却の大きさを示す例です。全球平均が氷点下でも、液体の水が局所的に存在する可能性は残ります。</p>
+          <p>そこで問われるのは、<strong>弱い日射の下で、どのような大気や反射率なら海を維持できるか</strong>です。二酸化炭素やメタンによる温室効果、雲や氷による反射率の変化を含めた気候モデルでは、液体の水を維持できる条件が示されています。シュテファン＝ボルツマンの法則への反例ではなく、当時の気候条件を説明する問題です。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+        </section>
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://www.nasa.gov/science-research/heliophysics/nasa-solar-storms-may-have-been-key-to-life-on-earth/">NASA: Solar Storms May Have Been Key to Life on Earth</a> — 初期の太陽と液体の水の問題。</li>
+            <li id="ref-2"><a href="https://science.nasa.gov/earth/earth-observatory/climate-and-earths-energy-budget/">NASA: Climate and Earth’s Energy Budget</a> — 日射、反射、熱放射、温室効果の基礎。数値例は本文の丸めた条件による独自計算。</li>
+            <li id="ref-3"><a href="https://arxiv.org/abs/1310.4286">Charnay et al. (2013): Exploring the faint young Sun problem and the possible climates of the Archean Earth with a 3-D GCM</a> — 温室効果と雲・氷を含めた気候モデル研究。</li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
