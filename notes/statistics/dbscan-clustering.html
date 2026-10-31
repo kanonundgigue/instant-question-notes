@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DBSCANというクラスタリング手法とは？ | k-notes</title>
+    <meta name="description" content="DBSCANが密度からクラスタを見つける仕組みを、コア点・境界点・ノイズ、2つの主要パラメータ、長所と注意点、Python例から説明します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>DBSCANというクラスタリング手法とは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-10-28">2026-10-28</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>DBSCANというクラスタリング手法とは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><strong>DBSCANは、点が十分に密集した領域を連結してクラスタにし、どの密集領域にも属さない点をノイズとして分けるクラスタリング手法</strong>です。クラスタ数を先に指定せず、細長い形や曲がった形のクラスタも見つけられます。名称は <span lang="en">Density-Based Spatial Clustering of Applications with Noise</span> の頭文字です。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>2つの設定値で「密集」を決める</h3>
+          <p>DBSCANの中心となる設定は、近傍の半径 \(\varepsilon\) と、その近傍に必要な点の最小数 \(m\) です。実装では後者を <code>min_samples</code> と呼ぶことが多く、自分自身も個数に含めます。点 \(p\) の \(\varepsilon\) 近傍を、距離関数 \(d\) を使って式 (1) のように定めます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>
+            \[
+              N_{\varepsilon}(p)
+              = \{q \mid d(p,q) \leq \varepsilon\}
+              \tag{1}
+            \]
+          </p>
+          <p>この近傍に \(m\) 個以上の点があれば、\(p\) はコア点です。つまり式 (2) を満たす点が、クラスタを成長させる起点になります。</p>
+          <p>
+            \[
+              \lvert N_{\varepsilon}(p) \rvert \geq m
+              \tag{2}
+            \]
+          </p>
+
+          <h3>コア点・境界点・ノイズ</h3>
+          <ul>
+            <li><strong>コア点：</strong>自分の \(\varepsilon\) 近傍に \(m\) 個以上の点がある。</li>
+            <li><strong>境界点：</strong>自分だけではコア点の条件を満たさないが、あるコア点の近傍に入る。</li>
+            <li><strong>ノイズ：</strong>コア点でも境界点でもない。scikit-learnではラベル <code>-1</code> が付く。</li>
+          </ul>
+          <p>アルゴリズムは、未処理のコア点を見つけると、その近傍の点を同じクラスタへ追加します。追加された点もコア点なら、さらにその近傍へ広げます。この連鎖が止まるまで探索するので、中心からの距離だけでは表しにくい形のクラスタもたどれます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>k-means法との違い</h3>
+          <table class="mobile-table">
+            <caption>DBSCANとk-means法の主な違い</caption>
+            <thead>
+              <tr><th scope="col">観点</th><th scope="col">DBSCAN</th><th scope="col">k-means法</th></tr>
+            </thead>
+            <tbody>
+              <tr><td data-label="観点">事前に決めるもの</td><td data-label="DBSCAN">近傍半径と最小点数</td><td data-label="k-means法">クラスタ数</td></tr>
+              <tr><td data-label="観点">得意な形</td><td data-label="DBSCAN">密度で連結できる複雑な形</td><td data-label="k-means法">重心の周囲にまとまる形</td></tr>
+              <tr><td data-label="観点">外れた点</td><td data-label="DBSCAN">ノイズとして残せる</td><td data-label="k-means法">いずれかのクラスタに割り当てる</td></tr>
+            </tbody>
+          </table>
+          <p>ただし、DBSCANがクラスタ数を自動で正しく推定する、と考えるのは正確ではありません。\(\varepsilon\) と \(m\) を変えれば、クラスタ数もノイズ点の数も変わります。</p>
+
+          <h3>パラメータをどう考えるか</h3>
+          <ul>
+            <li><strong>\(\varepsilon\) が小さすぎる：</strong>多くの点がノイズになり、1つのまとまりが細かく分断されやすい。</li>
+            <li><strong>\(\varepsilon\) が大きすぎる：</strong>本来は別の密集領域が橋渡しされ、1つのクラスタになりやすい。</li>
+            <li><strong>\(m\) を大きくする：</strong>より高い密度を満たす領域だけがクラスタとして残る。</li>
+          </ul>
+          <p>さらに、距離に基づくため特徴量の単位と尺度が結果を左右します。例えば気温を数十という値、降水量を数百という値のままユークリッド距離へ入れると、数値範囲の大きい特徴量が距離を支配しやすくなります。標準化するか、研究上の意味に合う距離と重みを設計してから、複数の設定値で結果の安定性を確認します。</p>
+
+          <h3>Pythonでの最小例</h3>
+          <p>scikit-learnでは、<code>eps</code> が \(\varepsilon\)、<code>min_samples</code> が \(m\) に対応します。次の例では、近い2群にラベル <code>0</code> と <code>1</code> が付き、遠く離れた1点は <code>-1</code>、つまりノイズになります。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <pre><code class="language-python">import numpy as np
+from sklearn.cluster import DBSCAN
+
+points = np.array([
+    [1.0, 2.0],
+    [2.0, 2.0],
+    [2.0, 3.0],
+    [8.0, 7.0],
+    [8.0, 8.0],
+    [25.0, 80.0],
+])
+
+labels = DBSCAN(eps=3.0, min_samples=2).fit_predict(points)
+print(labels)  # [ 0  0  0  1  1 -1]</code></pre>
+
+          <h3>向く場面と向かない場面</h3>
+          <p>空間座標上の観測、移動軌跡、画像中の点群など、近さに意味があり、ノイズを含むデータに向きます。反対に、クラスタごとの密度が大きく異なるデータでは、1組の \(\varepsilon\) と \(m\) ですべてを捉えるのが難しくなります。また、高次元では近傍探索そのものが難しくなるため、距離尺度や次元削減を含めた検討が必要です。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+
+          <h3>まとめ</h3>
+          <p>DBSCANは「近い点を機械的に同数へ分ける」のではなく、<strong>一定半径内の点数で局所的な密度を定義し、密な領域をつないでいく</strong>手法です。クラスタ数が未知で、複雑な形とノイズを扱いたいときに有力ですが、距離の定義、特徴量の尺度、\(\varepsilon\) と \(m\) の感度確認が結果の解釈に欠かせません。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://cdn.aaai.org/KDD/1996/KDD96-037.pdf">Ester, M., Kriegel, H.-P., Sander, J., and Xu, X. (1996), “A Density-Based Algorithm for Discovering Clusters in Large Spatial Databases with Noise”</a>, Proceedings of KDD-96, pp. 226–231.</li>
+            <li id="ref-2"><a href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html">scikit-learn developers, “DBSCAN” API reference</a>（パラメータ、出力ラベル、実装例）。</li>
+            <li id="ref-3"><a href="https://doi.org/10.1145/3068335">Schubert, E., Sander, J., Ester, M., Kriegel, H.-P., and Xu, X. (2017), “DBSCAN Revisited, Revisited: Why and How You Should (Still) Use DBSCAN”</a>, ACM Transactions on Database Systems, 42(3), Article 19.</li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
