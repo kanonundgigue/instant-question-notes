@@ -30,7 +30,7 @@
         <section aria-labelledby="answer-heading">
           <h2 id="answer-heading">回答</h2>
           <p><strong>交差検証（cross-validation）は、手元のデータを学習用と検証用に繰り返し分け、未知のデータに対するモデルの予測性能を見積もる方法</strong>です。略して CV とも呼ばれます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
-          <p>学習に使ったデータ上の成績だけを見ると、そのデータを過度に覚えたモデルも高く評価されます。交差検証では、各回の学習に使わなかったデータで評価するため、過学習を見つけたり、モデルやハイパーパラメータを比較したりできます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>学習データ上の成績だけでは、そのデータを過度に覚えたモデルまで高く評価してしまいます。交差検証では、各回の学習に使わなかったデータで性能を測ります。この分離により、過学習を見つけたり、モデルやハイパーパラメータを比較したりできます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
 
           <h3>代表的なk-fold交差検証</h3>
           <p>最も一般的なのが <strong>k-fold交差検証</strong>です。データをほぼ同じ大きさの <var>k</var> 個のグループ（fold）に分け、次の処理を <var>k</var> 回行います。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>

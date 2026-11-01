@@ -42,7 +42,7 @@ rsync -avn source/ dest/</code></pre>
           <p><code>-a</code> は archive mode、<code>-v</code> は詳細表示、<code>-n</code> は dry run です。archive mode は再帰コピーに加えて、シンボリックリンク、権限、時刻、所有者、グループなどを保つための複数オプションをまとめたものです。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup> 実務では、まず <code>rsync -avn ...</code> で確認し、問題なければ <code>n</code> を外して実行する癖を付けると安全です。</p>
 
           <h3>末尾のスラッシュが一番重要</h3>
-          <p><code>rsync</code> で最も間違えやすいのは、コピー元の末尾に <code>/</code> を付けるかどうかです。公式 manpage は、コピー元末尾の <code>/</code> は「そのディレクトリの中身をコピーする」という意味に近く、付けない場合は「ディレクトリ名ごとコピーする」と考えられる、と説明しています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p><code>rsync</code> で特に間違えやすいのが、コピー元の末尾に <code>/</code> を付けるかどうかです。公式 manpage によると、末尾に <code>/</code> を付けると「そのディレクトリの中身」をコピーし、付けなければ「ディレクトリ名ごと」コピーします。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
 
           <table class="mobile-table">
             <thead>

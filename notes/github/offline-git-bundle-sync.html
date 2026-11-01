@@ -29,7 +29,7 @@
 
 <h2>Macを経由してGitの履歴を往復させる</h2>
 
-<p>サーバがGitHubへ接続できなくても、ネット接続できるMacからSSH・SCPでサーバへアクセスできれば、<code>git bundle</code>で履歴を転送できる。サーバ独自のコミットも維持し、通常のマージとして競合を解消する。bundleはオフラインでGitのオブジェクトと参照を渡す仕組みで、<code>git fetch</code>の入力にできる。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+<p>サーバがGitHubへ接続できなくても、ネット接続できるMacからSSH・SCPでサーバへアクセスできれば、<code>git bundle</code>で履歴を転送できる。サーバ独自のコミットは維持し、競合は通常のマージとして解消する。bundleはGitのオブジェクトと参照をオフラインで渡す仕組みで、<code>git fetch</code>の入力として使える。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
 
 <pre><code class="language-shell">GitHub → Macでfetch → bundleをSCP → サーバでfetch・merge
 サーバで競合解消・commit → bundleをSCP → Macでfetch・merge → GitHubへpush</code></pre>

@@ -121,7 +121,7 @@ zip -0 -X -q -u "/abs/path/deck.key" Index/DocumentStylesheet.iwa Index/Slide-XX
           </ul>
 
           <h3>まとめ：戦略の型</h3>
-          <p>通常の作業では、この一連の処理を実装した <strong>KeyFontChanger</strong> を使うのが簡単です。その内部では、<strong>「表示の上書き（AppleScript・再帰）」＋「既定の書き換え（IWA 編集・画像非破壊）」＋「再オープン／再解析による検証」</strong>という三点セットを採用しています。独自に処理する場合も、フォント名は PostScript 名で渡すこと、グループ内まで再帰すること、再 ZIP では画像を触らないことの 3 つが重要です。</p>
+          <p>通常の作業では、この一連の処理を実装した <strong>KeyFontChanger</strong> を使うのが簡単です。内部では、<strong>表示を再帰的に上書きする AppleScript、画像を変更せずに既定を書き換える IWA 編集、再オープンと再解析による検証</strong>の三段階を実行します。独自に処理する場合も、フォント名を PostScript 名で渡すこと、グループ内まで再帰すること、ZIP の再作成時に画像を変更しないことが重要です。</p>
         </section>
 
         <section class="references" aria-labelledby="references-heading">

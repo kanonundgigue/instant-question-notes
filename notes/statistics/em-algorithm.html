@@ -37,7 +37,7 @@
 
         <section aria-labelledby="answer-heading">
           <h2 id="answer-heading">回答</h2>
-          <p>EMアルゴリズム（Expectation-Maximization algorithm、期待値最大化法）は、<strong>観測できない潜在変数や欠損データを含む確率モデルのパラメータを、最尤法で推定するための反復アルゴリズム</strong>です。直接最大化しにくい観測データの尤度を、潜在変数まで分かっていると仮定した「完全データ」の問題に置き換え、EステップとMステップを交互に実行します。Dempster、Laird、Rubinの1977年の論文が、EステップとMステップを一般形として定式化しました。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>EMアルゴリズム（Expectation-Maximization algorithm、期待値最大化法）は、<strong>観測できない潜在変数や欠損データを含む確率モデルのパラメータを、最尤法で推定するための反復アルゴリズム</strong>です。観測データの尤度を直接最大化するのが難しいときに、潜在変数まで分かっていると仮定した「完全データ」の問題を利用します。そのうえで、EステップとMステップを交互に実行します。Dempster、Laird、Rubinの1977年の論文が、EステップとMステップを一般形として定式化しました。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
 
           <h3>何が難しいのか</h3>
           <p>観測データを \(x\)、観測できない潜在変数を \(z\)、推定したいパラメータを \(\theta\) とします。\(z\) が離散変数なら、求めたいのは観測データ対数尤度</p>

@@ -37,7 +37,7 @@
 
         <section aria-labelledby="answer-heading">
           <h2 id="answer-heading">直近のspin-up履歴から平衡状態を外挿する</h2>
-          <p><strong>一般的な名称は Anderson acceleration（Anderson加速、AA）です。</strong> 通常のspin-upが「ある期間だけモデルを進め、その出力を次の初期値にする」という反復なら、AAは直近数回の状態と平衡からのずれを保存し、ずれが小さくなる状態の線形結合を次の初期値にします。モデル内部の方程式やヤコビアンを直接書き換えず、既存の時間積分モデルを関数として扱えることが大きな利点です。手法はDonald G. Andersonが1965年に提案し、現在は固定点反復の一般的な加速法として定式化されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p><strong>一般的な名称は Anderson acceleration（Anderson加速、AA）です。</strong> 通常のspin-upでは、モデルを一定期間進め、その出力を次の初期値にする反復を続けます。AAは代わりに、直近数回の状態と平衡からのずれを保存し、そのずれを小さくする線形結合を次の初期値に使います。モデル内部の方程式やヤコビアンを直接書き換えず、既存の時間積分モデルを関数として扱えることが大きな利点です。Donald G. Andersonが1965年に提案し、現在は固定点反復の一般的な加速法として定式化されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
 
           <h3>spin-upを1周期写像の固定点問題として表す</h3>
           <p>モデルの全状態をベクトル \(x\) とします。海洋生物地球化学モデルなら、各格子点の栄養塩、溶存無機炭素、酸素などを並べた巨大なベクトルです。1年周期の外力を使う場合、関数 \(g\) は「状態 \(x\) からモデルを1年間積分し、翌年の同じ日付の状態を返す操作」を表します。求める周期平衡状態 \(x^*\) は、1年進めても変わらないため、式 (1) を満たします。</p>

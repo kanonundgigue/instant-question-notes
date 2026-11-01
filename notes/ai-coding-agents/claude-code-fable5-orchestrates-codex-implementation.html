@@ -29,7 +29,7 @@
         <section aria-labelledby="answer-heading">
           <h2 id="answer-heading">回答</h2>
           <p>実用上は、Claude Code Fable 5 を「リードエージェント」、Codex を「実装エージェント」として分けます。Claude Code は要求の分解、設計判断、タスク順序、レビュー観点の整理を担当し、Codex はリポジトリ内で実際にファイルを編集し、テストや lint を回して差分を作ります。</p>
-          <p>最重要のルールは 1 つだけです。<strong>同じファイルを Claude Code と Codex の両方に編集させない</strong>こと。最初は「Claude が計画を作る → 人間が承認する → Codex が実装する → Claude が差分をレビューする」という直列ループにするのが安全で、慣れてから並列化を検討します。</p>
+          <p>特に重要なのは、<strong>同じファイルを Claude Code と Codex の両方に編集させない</strong>ことです。最初は「Claude が計画を作る → 人間が承認する → Codex が実装する → Claude が差分をレビューする」という直列ループで運用し、慣れてから並列化を検討します。</p>
 
           <h3>前提</h3>
           <p>Anthropic のモデル一覧では、Claude Fable 5 はモデル ID <code>claude-fable-5</code> で提供される最上位モデル（Opus より上位の新ティア）で、1M トークンのコンテキストを持ち、長い自律作業や高度な推論向けと説明されています。Claude Code の subagent 設定でも <code>model: fable</code> を指定できます。設計判断とレビューという「考える側」をここに置く理由です。</p>

@@ -28,7 +28,7 @@
 
         <section aria-labelledby="answer-heading">
           <h2 id="answer-heading">回答</h2>
-          <p><strong>AICとBICの原理的な違いは、罰則の強さではなく、何を推定・近似しているか</strong>にあります。AICは、推定したモデルを新しいデータに使うときの期待対数損失を推定します。BICは、各候補モデルを一つの仮説として扱い、パラメータを積分消去した周辺尤度を大標本近似します。式の <code>2k</code> と <code>k log n</code> は、この異なる目的から生じた結果です。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p><strong>AICとBICの原理的な違いは、罰則の強さではなく、何を推定・近似しているか</strong>にあります。AICが推定するのは、推定済みのモデルを新しいデータに使ったときの期待対数損失です。一方、BICは各候補モデルを一つの仮説として扱い、パラメータを積分消去した周辺尤度を大標本で近似します。<code>2k</code> と <code>k log n</code> という罰則の違いは、両者が異なる目的を持つことから生じます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
 
           <table class="mobile-table">
             <thead>

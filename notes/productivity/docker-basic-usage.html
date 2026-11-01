@@ -286,7 +286,7 @@ docker compose down</code></pre>
           </ul>
 
           <h3>まとめ</h3>
-          <p>Docker の最初の理解は、「image から container を起動して、その中でアプリやコマンドを動かす」で十分です。最初に覚えるのは <code>docker run</code>、<code>docker ps</code>、<code>docker logs</code>、<code>docker stop</code>、<code>docker rm</code> です。Web アプリを見るときは port、データを残すときは volume や bind mount、毎回同じ環境を作りたいときは Dockerfile、複数 container をまとめたいときは Docker Compose、という順番で広げると混乱しにくくなります。</p>
+          <p>最初は、Docker を「image から container を起動し、その中でアプリやコマンドを動かす仕組み」と理解すれば十分です。まず <code>docker run</code>、<code>docker ps</code>、<code>docker logs</code>、<code>docker stop</code>、<code>docker rm</code> を覚えます。その後、Web アプリには port、データの保存には volume や bind mount、環境の再現には Dockerfile、複数 container の管理には Docker Compose、という順に範囲を広げると混乱しにくくなります。</p>
         </section>
 
         <section class="references" aria-labelledby="references-heading">

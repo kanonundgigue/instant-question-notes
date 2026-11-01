@@ -28,7 +28,7 @@
 
         <section aria-labelledby="answer-heading">
           <h2 id="answer-heading">回答</h2>
-          <p>MacPorts 版 GrADS で <code>draw map</code> や <code>d u</code> を実行しても XQuartz のウィンドウが黒いままなのに、<code>printim</code> で保存した PNG は正しく描ける場合、まず疑うべきなのはデータや GrADS コマンドではなく、XQuartz のライブ表示経路です。MacPorts の <code>grads</code> port は GrADS 2.2.1 を提供し、地球科学データの対話的な可視化ツールとして説明されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>MacPorts 版 GrADS で <code>draw map</code> や <code>d u</code> を実行しても XQuartz のウィンドウが黒い一方、<code>printim</code> で保存した PNG は正しく描けることがあります。この場合、まず疑うべきなのはデータや GrADS コマンドではなく、XQuartz のライブ表示経路です。MacPorts の <code>grads</code> port は GrADS 2.2.1 を提供し、地球科学データの対話的な可視化ツールとして説明されています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
 
           <p>この症状では、最短の対処として GrADS の表示 backend を既定の Cairo から X11 に切り替えます。MacPorts 版の手元の環境では <code>/opt/local/share/grads/udpt</code> に <code>Cairo</code> と <code>X11</code> の表示 plugin があり、<code>grads -d X11</code> で X11 backend を明示できます。</p>
 

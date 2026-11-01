@@ -166,7 +166,7 @@ bin_total, _ = np.histogram(values, bins=bins, weights=values)</code></pre>
           </ol>
 
           <h3>まとめ</h3>
-          <p>Dask を効果的に使うとは、Dask object を最後まで保つことではありません。むしろ、<strong>Dask に任せる範囲を「大きくて並列化できる部分」に限定し、小さくなったら早めに通常の配列へ戻す</strong>ことです。xarray/NetCDF の notebook では、変数選択、空間サブセット、サイト抽出をまとめて Dask にやらせ、抽出後の小さな時系列を <code>load()</code> してから季節別・bin 別の細かい Python 処理へ進む、という設計にすると失敗しにくくなります。</p>
+          <p>Dask object を最後まで保つことが、Dask を効果的に使うことではありません。<strong>Dask に任せる範囲を大きくて並列化できる処理に限定し、データが小さくなったら通常の配列へ戻す</strong>ことが要点です。xarray/NetCDF の notebook では、変数選択、空間サブセット、サイト抽出をまとめて Dask で処理します。抽出後の小さな時系列を <code>load()</code> してから、季節別・bin 別の細かい Python 処理へ進むと失敗しにくくなります。</p>
         </section>
 
         <section class="references" aria-labelledby="references-heading">

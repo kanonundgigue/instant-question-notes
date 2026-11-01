@@ -37,7 +37,7 @@
 
         <section aria-labelledby="answer-heading">
           <h2 id="answer-heading">回答</h2>
-          <p><strong>Common Basis Function（CBF）は、観測・再解析から得たEOFパターンを共通の基底として固定し、各気候モデルの偏差場をその基底へ射影して比較する方法</strong>です。通常のEOF解析をモデルごとに独立に行うと、観測EOF1に対応する変動がモデルEOF2やEOF3へ移ったり、複数モードへ分かれたり、EOFの符号が反転したりします。CBFは同じ観測基底を全モデルへ適用することで、このモード対応付けの曖昧さを避けます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p><strong>Common Basis Function（CBF）は、観測・再解析から得たEOFパターンを共通の基底として固定し、各気候モデルの偏差場を同じ基底へ射影して比較する方法</strong>です。通常のEOF解析をモデルごとに行うと、観測EOF1に対応する変動がモデルEOF2やEOF3に現れたり、複数のモードに分かれたり、符号が反転したりします。CBFでは全モデルに同じ観測基底を適用し、どのモードが対応するかという曖昧さを避けます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
 
           <h3>何を計算しているか</h3>
           <p>観測偏差場から求めた対象モードのEOFを \(\boldsymbol{e}_{\mathrm{obs} }\)、モデルの時刻 \(t\) における偏差場を \(\boldsymbol{x}_{m}(t)\)、格子面積などの空間重みを行列 \(\mathbf{W}\) とします。正規化方法の細部を省いた模式的なCBF PCは、</p>

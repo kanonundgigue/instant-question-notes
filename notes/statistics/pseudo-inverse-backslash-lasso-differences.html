@@ -28,7 +28,7 @@
 
         <section aria-labelledby="answer-heading">
           <h2 id="answer-heading">回答</h2>
-          <p><strong>pseudo-inverse（疑似逆行列）と backslash は、線形方程式や通常の最小二乗問題を数値的に解く方法です。一方、LASSO は L1 罰則を加えて目的関数そのものを変える統計モデルです。</strong></p>
+          <p><strong>pseudo-inverse（疑似逆行列）と backslash は、線形方程式や通常の最小二乗問題を数値的に解く方法です。これに対してLASSOは、L1罰則を加えて目的関数そのものを変える統計モデルです。</strong> 三者は同じ係数を別の計算法で求めるものではありません。</p>
           <p>設計行列を <code>X</code>、目的変数を <code>y</code>、係数を <code>beta</code> とすると、Python では概ね次の対応になります。Python には backslash 演算子がないため、通常の最小二乗には NumPy の <code>lstsq</code> を使います。</p>
 
           <pre><code>import numpy as np

@@ -29,7 +29,7 @@
         <section aria-labelledby="answer-heading">
           <h2 id="answer-heading">回答</h2>
           <p><code>gh</code> は GitHub CLI のコマンドで、リポジトリ、Issue、Pull Request、GitHub Actions などの GitHub 上の操作をブラウザではなく端末から扱うための道具です。公式マニュアルでは <code>gh</code> の下に <code>auth</code>、<code>repo</code>、<code>issue</code>、<code>pr</code>、<code>run</code> などのサブコマンドが並び、操作対象ごとに命令を組み立てる構造になっています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
-          <p>最初は「認証する」「今いるリポジトリを確認する」「Issue と PR を見る」「必要なときだけ作成する」の 4 つを覚えると十分です。破壊的ではない確認系コマンドから使い始め、作成系は <code>--web</code> や明示的な <code>--title</code> / <code>--body</code> つきで実行すると、意図しない投稿を避けやすくなります。</p>
+          <p>最初に覚える操作は、「認証する」「現在のリポジトリを確認する」「Issue と PR を見る」「必要なときだけ作成する」の 4 つで十分です。まず確認系コマンドを使い、作成系は <code>--web</code> または明示的な <code>--title</code> / <code>--body</code> を付けて実行すると、意図しない投稿を避けやすくなります。</p>
 
           <h3>まず認証する</h3>
           <p>対話的にログインする基本形は <code>gh auth login</code> です。公式マニュアルでは、既定のホストは <code>github.com</code>、既定の認証はブラウザを使うフローで、完了後のトークンは通常システムの資格情報ストアに保存されると説明されています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
