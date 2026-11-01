@@ -95,7 +95,7 @@
             <li class="category-card">
               <span class="category-card__label">new</span>
               <a class="category-card__title" href="#recent">新着</a>
-              <span class="category-card__meta">最近追加・更新した 13 件</span>
+              <span class="category-card__meta">最近追加・更新した 17 件</span>
             </li>
 
             <li class="category-card">
@@ -107,7 +107,7 @@
             <li class="category-card">
               <span class="category-card__label">statistics</span>
               <a class="category-card__title" href="#statistics">統計・機械学習</a>
-              <span class="category-card__meta">21 件の記事</span>
+              <span class="category-card__meta">22 件の記事</span>
             </li>
 
             <li class="category-card">
@@ -149,7 +149,7 @@
             <li class="category-card">
               <span class="category-card__label">meteorology</span>
               <a class="category-card__title" href="#meteorology">気象・大気物理</a>
-              <span class="category-card__meta">10 件の記事</span>
+              <span class="category-card__meta">14 件の記事</span>
             </li>
 
             <li class="category-card">
@@ -201,6 +201,42 @@
         </div>
 
         <div class="note-grid">
+          <article class="note-card">
+            <p class="note-card__category">気象・大気物理 / 放射収支</p>
+            <h3><a href="notes/meteorology/solar-constant-calculation.html">太陽定数の求め方：太陽光度・有効温度・地球の放射収支</a></h3>
+            <p class="note-card__summary">約1361 W/m²を求める2つの計算と、全球平均で4で割る理由、観測値との関係を説明します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-11-01">2026-11-01</time></p>
+          </article>
+
+          <article class="note-card">
+            <p class="note-card__category">気象・大気物理 / 古気候</p>
+            <h3><a href="notes/meteorology/faint-young-sun-paradox.html">暗い太陽のパラドックスを放射平衡の式で考える</a></h3>
+            <p class="note-card__summary">太陽が今の70％の明るさなら地球はどう冷えるかを計算し、有効放射温度と地表温度の違いを説明します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-10-31">2026-10-31</time></p>
+          </article>
+
+          <article class="note-card">
+            <p class="note-card__category">統計・機械学習 / クラスタリング</p>
+            <h3><a href="notes/statistics/dbscan-clustering.html">DBSCANというクラスタリング手法とは？</a></h3>
+            <p class="note-card__summary">密度からクラスタを見つける仕組みを、コア点・境界点・ノイズ、2つの主要パラメータ、長所と注意点から説明します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-10-28">2026-10-28</time></p>
+          </article>
+
+          <article class="note-card">
+            <p class="note-card__category">気象・大気物理 / メソスケール</p>
+            <h3><a href="notes/meteorology/meso-beta-vortex.html">メソβスケール渦とは？</a></h3>
+            <p class="note-card__summary">水平20〜200 kmという規模の意味と、日本海の下層渦・メソ対流渦（MCV）の違いを整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-10-28">2026-10-28</time></p>
+          </article>
+
+          <article class="note-card">
+            <p class="note-card__category">黒体放射 / 放射伝達 / 大気物理</p>
+            <h3><a href="notes/meteorology/planck-wien-kirchhoff-laws.html">黒体放射の4法則と大気ガスの吸収を一つの流れで理解する</a></h3>
+            <p class="note-card__summary">プランク関数、ウィーンの変位則、シュテファン＝ボルツマン則、キルヒホッフ則を、大気ガスの吸収帯までつなげます。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-10-14">2026-10-14</time></p>
+            <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-10-14">2026-10-14</time></p>
+          </article>
+
           <article class="note-card">
             <p class="note-card__category">統計・機械学習 / モデル評価</p>
             <h3><a href="notes/statistics/taylor-diagram-reading.html">Taylor Diagram はどう読む？</a></h3>
@@ -294,14 +330,6 @@
             <p class="note-card__date">作成日: <time datetime="2026-08-14">2026-08-14</time></p>
           </article>
 
-          <article class="note-card">
-            <p class="note-card__category">多目的最適化 / 意思決定</p>
-            <h3><a href="notes/statistics/pareto-optimization.html">パレート最適化とは？</a></h3>
-            <p class="note-card__summary">支配関係、Pareto front、気象予報モデルを題材にしたPython演習を整理します。</p>
-            <p class="note-card__date">作成日: <time datetime="2026-07-31">2026-07-31</time></p>
-            <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-08-11">2026-08-11</time></p>
-          </article>
-
         </div>
       </section>
 
@@ -334,6 +362,13 @@
         </div>
 
         <div class="note-grid note-grid--compact">
+          <article class="note-card">
+            <p class="note-card__category">統計・機械学習 / クラスタリング</p>
+            <h3><a href="notes/statistics/dbscan-clustering.html">DBSCANというクラスタリング手法とは？</a></h3>
+            <p class="note-card__summary">密度からクラスタを見つける仕組みを、コア点・境界点・ノイズ、2つの主要パラメータ、長所と注意点から説明します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-10-28">2026-10-28</time></p>
+          </article>
+
           <article class="note-card">
             <p class="note-card__category">統計・機械学習 / モデル評価</p>
             <h3><a href="notes/statistics/taylor-diagram-reading.html">Taylor Diagram はどう読む？</a></h3>
@@ -712,6 +747,35 @@
         </div>
 
         <div class="note-grid note-grid--compact">
+          <article class="note-card">
+            <p class="note-card__category">気象・大気物理 / 放射収支</p>
+            <h3><a href="notes/meteorology/solar-constant-calculation.html">太陽定数の求め方：太陽光度・有効温度・地球の放射収支</a></h3>
+            <p class="note-card__summary">約1361 W/m²を求める2つの計算と、全球平均で4で割る理由、観測値との関係を説明します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-11-01">2026-11-01</time></p>
+          </article>
+
+          <article class="note-card">
+            <p class="note-card__category">気象・大気物理 / 古気候</p>
+            <h3><a href="notes/meteorology/faint-young-sun-paradox.html">暗い太陽のパラドックスを放射平衡の式で考える</a></h3>
+            <p class="note-card__summary">太陽が今の70％の明るさなら地球はどう冷えるかを計算し、有効放射温度と地表温度の違いを説明します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-10-31">2026-10-31</time></p>
+          </article>
+
+          <article class="note-card">
+            <p class="note-card__category">気象・大気物理 / メソスケール</p>
+            <h3><a href="notes/meteorology/meso-beta-vortex.html">メソβスケール渦とは？</a></h3>
+            <p class="note-card__summary">水平20〜200 kmという規模の意味と、日本海の下層渦・メソ対流渦（MCV）の違いを整理します。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-10-28">2026-10-28</time></p>
+          </article>
+
+          <article class="note-card">
+            <p class="note-card__category">黒体放射 / 放射伝達 / 大気物理</p>
+            <h3><a href="notes/meteorology/planck-wien-kirchhoff-laws.html">黒体放射の4法則と大気ガスの吸収を一つの流れで理解する</a></h3>
+            <p class="note-card__summary">プランク関数、ウィーンの変位則、シュテファン＝ボルツマン則、キルヒホッフ則を、大気ガスの吸収帯までつなげます。</p>
+            <p class="note-card__date">作成日: <time datetime="2026-10-14">2026-10-14</time></p>
+            <p class="note-card__date note-card__date--updated">更新日: <time datetime="2026-10-14">2026-10-14</time></p>
+          </article>
+
           <article class="note-card">
             <p class="note-card__category">力学系 / tipping point / 気候変動</p>
             <h3><a href="notes/meteorology/three-types-of-tipping.html">tipping現象の3種類とは？</a></h3>
