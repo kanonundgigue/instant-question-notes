@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>太陽定数の求め方 | k-notes</title>
+    <meta name="description" content="太陽光度と有効温度から約1361 W/m²を求める計算と、全球平均・吸収短波放射・有効放射温度の関係を説明します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] } };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>太陽定数の求め方：太陽光度・有効温度・地球の放射収支</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-11-01">2026-11-01</time></p>
+          <p>カテゴリ: meteorology / 放射収支</p>
+        </div>
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>太陽定数の求め方は？下記をさんこうに記事にして</p>
+          <p>提示された説明をもとに、太陽光度からの計算、有効温度からの計算、地球全体の平均日射量を整理します。</p>
+        </section>
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">太陽定数は1 auでの放射照度</h2>
+          <p>太陽定数は、大気の影響を受けない位置で、太陽光に垂直な単位面積が単位時間に受け取る太陽放射エネルギーを、太陽からの距離1 auにそろえた値です。全波長を積分した全太陽放射照度（total solar irradiance、TSI）の代表値として約1361 W/m²を用います。IAUは2015年、この値を公称太陽放射照度として採用しました。公称値は換算のために固定した基準であり、実際の太陽が常に同じ放射を出すという意味ではありません。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>求め方の基本は、太陽が単位時間に放出する全エネルギーを、地球の位置を通る球面の面積で割ることです。以下では、太陽光度からの計算、有効温度からの計算、地球全体への平均化の順に説明します。</p>
+        </section>
+        <nav aria-label="目次">
+          <ul>
+            <li><a href="#luminosity">太陽光度から求める</a></li>
+            <li><a href="#temperature">有効温度と半径から求める</a></li>
+            <li><a href="#observation">観測値と計算値の関係</a></li>
+            <li><a href="#global-mean">地球全体では4で割る</a></li>
+            <li><a href="#variation">距離と太陽活動による変化</a></li>
+            <li><a href="#references-heading">参照</a></li>
+          </ul>
+        </nav>
+        <section aria-labelledby="luminosity">
+          <h2 id="luminosity">太陽光度から求める</h2>
+          <p>太陽が全方向に等方的に放射し、途中でエネルギーが吸収されないと仮定します。太陽光度を \(L_\odot\)（単位 W）、太陽中心からの距離を \(r\)（単位 m）、その距離で太陽光に垂直な面の放射照度を \(S(r)\) とします。放射は半径 \(r\) の球面全体に広がるため、面積 \(4\pi r^2\) で割ると、単位面積あたりの値になります。</p>
+          <p>\[ S(r)=\frac{L_\odot}{4\pi r^2}. \tag{1} \]</p>
+          <p>太陽定数 \(S_0\) は、式 (1) を基準距離 \(r_0=1\,\mathrm{au}\) で評価したものです。計算には、公称太陽光度 \(3.828\times10^{26}\,\mathrm{W}\) と、1 auの定義値 \(149\,597\,870\,700\,\mathrm{m}\) を用います。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>\[ \begin{aligned}
+            S_0 &amp;=\frac{L_\odot}{4\pi r_0^2} \\
+                &amp;=\frac{3.828\times10^{26} }{4\pi(1.495978707\times10^{11})^2} \\
+                &amp;\approx1361.17\,\mathrm{W\,m^{-2} }.
+          \end{aligned} \tag{2} \]</p>
+          <p>式 (2) の計算結果を丸めると約1361 W/m²です。分子が W、分母が m²なので、結果は W/m²になります。球面積が距離の2乗に比例するため、放射照度は距離の2乗に反比例します。</p>
+        </section>
+        <section aria-labelledby="temperature">
+          <h2 id="temperature">有効温度と半径から求める</h2>
+          <p>太陽半径と有効温度が分かれば、ステファン・ボルツマンの法則から太陽光度を表せます。太陽半径を \(R_\odot\)、有効温度を \(T_{\mathrm{eff} }\)、ステファン・ボルツマン定数を \(\sigma\approx5.67\times10^{-8}\,\mathrm{W\,m^{-2}\,K^{-4} }\) とします。有効温度は、実際の太陽と同じ単位面積あたりの全放射を出す黒体の温度として定義されます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>\[ L_\odot=4\pi R_\odot^2\sigma T_{\mathrm{eff} }^4. \tag{3} \]</p>
+          <p>式 (3) を式 (2) の最初の等式に代入すると、両方の球面積に含まれる因子が消え、半径と距離の比だけが残ります。</p>
+          <p>\[ S_0=\sigma T_{\mathrm{eff} }^4\left(\frac{R_\odot}{r_0}\right)^2. \tag{4} \]</p>
+          <p>IAUの公称値 \(R_\odot=6.957\times10^8\,\mathrm{m}\)、\(T_{\mathrm{eff} }=5772\,\mathrm{K}\) を使うと、式 (4) からも約1361 W/m²が得られます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup>太陽表面の単位面積あたりの全放射は約 \(6.29\times10^7\,\mathrm{W\,m^{-2} }\) で、これに約 \(2.16\times10^{-5}\) という面積比を掛ける計算です。</p>
+          <p>この計算で使う温度は有効温度です。太陽大気のどこか1点の温度や、中心温度を代入するものではありません。また、全放射量を有効温度で表すことと、各波長のスペクトルまで黒体と一致すると仮定することは区別します。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+        </section>
+        <section aria-labelledby="observation">
+          <h2 id="observation">観測値と計算値の関係</h2>
+          <p>約1361 W/m²という値の根拠は、宇宙空間での放射観測にあります。たとえばSORCE衛星のTIMは、地球大気上端に届く全太陽放射照度を測定しました。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <p>IAUの公称太陽光度は、1 auでの放射照度と距離から求めた値を丸めたものです。公称有効温度も光度と半径に整合するように定められています。したがって、これらの公称値を式 (2) と式 (4) に代入する計算は、1361 W/m²を観測から独立に予言する計算ではなく、同じ放射を別の物理量で表したときの関係を確かめる計算です。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+        </section>
+        <section aria-labelledby="global-mean">
+          <h2 id="global-mean">地球全体では4で割る</h2>
+          <p>地球全体の放射収支を考えるときは、入射する全エネルギーを昼夜を含む地球全表面積で割ります。これにより、太陽光に垂直な面での約1361 W/m²は、全球平均では約340 W/m²になります。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <p>地球を半径 \(R_E\) の球とし、太陽光を平行光線とみなします。太陽から見た地球の断面積は \(\pi R_E^2\)、全表面積は \(4\pi R_E^2\) です。全球平均の大気上端入射放射を \(\overline{S}\) とすると、次のようになります。</p>
+          <p>\[ \overline{S}=\frac{S_0\pi R_E^2}{4\pi R_E^2}=\frac{S_0}{4}=340.25\,\mathrm{W\,m^{-2} }. \tag{5} \]</p>
+          <p>式 (5) は1 auでの値を全球平均した計算です。340.25 W/m²を小数第1位に丸めると、提示文の340.3 W/m²になります。個々の地点の正午の日射量や、地表に到達する日射量とは区別します。</p>
+          <h3>吸収される短波放射</h3>
+          <p>惑星アルベド \(\alpha\) は、入射した太陽放射のうち地球全体が宇宙へ反射する割合です。残りが大気と地表に吸収されます。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup>ここでは計算例として \(\alpha=0.30\) と置き、全球平均の吸収短波放射を \(Q_{\mathrm{abs} }\) とします。</p>
+          <p>\[ Q_{\mathrm{abs} }=\frac{S_0(1-\alpha)}{4}=238.175\,\mathrm{W\,m^{-2} }. \tag{6} \]</p>
+          <p>約238 W/m²は、大気と地表を合わせた地球全体の吸収量です。地表だけの吸収量を求めるには、大気による吸収や散乱も考える必要があります。</p>
+          <h3>有効放射温度への接続</h3>
+          <p>地球が放射平衡にあり、宇宙への熱放射を黒体放射で表すと仮定します。地球の有効放射温度を \(T_e\) とすると、吸収と放出の釣り合いから次式を得ます。この考え方はSORCEの全球エネルギー収支の説明に対応します。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <p>\[ \begin{aligned}
+            \sigma T_e^4 &amp;=Q_{\mathrm{abs} } \\
+            T_e &amp;=\left[\frac{S_0(1-\alpha)}{4\sigma}\right]^{1/4}\approx254.6\,\mathrm{K}.
+          \end{aligned} \tag{7} \]</p>
+          <p>式 (7) の約255 Kは、宇宙へ放射する量に対応する温度です。実際の地表温度には、大気の温室効果などが関わります。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup>詳しくは<a href="faint-young-sun-paradox.html">暗い太陽のパラドックスの記事</a>も参照してください。</p>
+        </section>
+        <section aria-labelledby="variation">
+          <h2 id="variation">距離と太陽活動による変化</h2>
+          <p>実際に地球へ届く放射照度を扱うときは、距離の変化と太陽自身の変化を分けます。式 (1) から、太陽光度を一定とした場合の距離補正は次のように書けます。</p>
+          <p>\[ S(r)=S_0\left(\frac{r_0}{r}\right)^2. \tag{8} \]</p>
+          <p>1 auに距離をそろえたTSIにも、太陽活動による変動が残ります。11年程度の太陽活動周期に伴う変化は約0.1％の規模で、より短い時間スケールにも変動があります。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup>したがって、1361 W/m²を使う基礎計算と、特定の日時の放射量を求める計算では、必要な入力が異なります。</p>
+        </section>
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://www.iau.org/common/Uploaded%20files/IAUGA2015-Resolution-B3-recommended-nominal-conversion.pdf">IAU（2015）, Resolution B3</a>：公称値、1 auの定義、公称値と実測値の区別。</li>
+            <li id="ref-2"><a href="https://arxiv.org/html/1605.09788v1">Prša et al.（2016）, Nominal values for selected solar and planetary quantities: IAU 2015 Resolution B3</a>：光度・半径・有効温度の関係と採用値の根拠。</li>
+            <li id="ref-3"><a href="https://lasp.colorado.edu/sorce/instruments/tim/science/">LASP / SORCE, TIM Science</a>：衛星観測、全球平均、地球の放射収支、太陽活動による変動。</li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
