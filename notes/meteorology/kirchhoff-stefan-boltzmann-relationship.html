@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>キルヒホッフの法則とシュテファン＝ボルツマンの法則の関係 | k-notes</title>
+    <meta name="description" content="キルヒホッフの法則が吸収率と放射率を結び、シュテファン＝ボルツマンの法則が黒体の全放射量を与える関係を、スペクトル積分と灰色体近似から説明します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>キルヒホッフの法則とシュテファン＝ボルツマンの法則の関係</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-11-02">2026-11-02</time></p>
+          <p>カテゴリ: meteorology / 熱放射</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>キルヒホッフの法則とシュテファン・ボルツマンの法則の関係は？</p>
+          <p>真鍋先生の教科書にある、暖かい地表からの上向きフラックスが大気の吸収で減る量は、冷たい大気の射出で増える量を上回る、という説明の意味を知りたい。</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">一方が物質の性質を、もう一方が黒体の放射総量を与える</h2>
+          <p><strong>シュテファン＝ボルツマンの法則は黒体が全波長にわたって放つ総量を与え、熱放射に関するキルヒホッフの法則は実在物体の吸収率を放射率へ結びつけます。</strong>したがって、黒体の放射を基準にして実在物体の放射を求めるとき、両法則を組み合わせます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>シュテファン＝ボルツマン則は黒体の全放射を与える</h3>
+          <p>絶対温度を \(T\)、黒体表面の全放射発散度を \(M_b\)、シュテファン＝ボルツマン定数を \(\sigma\) とします。全放射発散度は、単位面積から単位時間に外向き半球へ放たれる全波長のエネルギーです。</p>
+          <p>
+            \[
+              M_b(T)=\sigma T^4
+              \tag{1}
+            \]
+          </p>
+          <p>式 (1) がシュテファン＝ボルツマンの法則です。2022 CODATAによる \(\sigma\) の値は \(5.670\,374\,419\times10^{-8}\ \mathrm{W\,m^{-2}\,K^{-4} }\) で、現在のSIでは厳密値です。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup><sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+
+          <h3>キルヒホッフ則は吸収率と放射率を結ぶ</h3>
+          <p>波長 \(\lambda\) における分光吸収率を \(\alpha_\lambda\)、分光放射率を \(\varepsilon_\lambda\) とします。熱平衡では、対応する波長・方向・偏光について式 (2) が成り立ちます。方向まで区別するときは、入射と放射の相反する方向を対応させます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>
+            \[
+              \varepsilon_\lambda(T)=\alpha_\lambda(T)
+              \tag{2}
+            \]
+          </p>
+          <p>式 (2) は、ある波長をよく吸収する物体ほど、同じ条件のその波長でよく放射することを表します。黒体は全波長で \(\alpha_\lambda=1\) なので、\(\varepsilon_\lambda=1\) となります。</p>
+
+          <h3>両法則はスペクトル積分でつながる</h3>
+          <p>黒体の分光放射発散度を \(M_{b,\lambda}(T)\) とします。実在面の分光放射発散度は、黒体値に分光放射率を掛けた \(\varepsilon_\lambda M_{b,\lambda}\) です。キルヒホッフ則を使えば、同じ量を吸収率でも表せます。</p>
+          <p>
+            \[
+              \begin{aligned}
+                M(T)
+                &amp;=\int_0^\infty \varepsilon_\lambda(T)M_{b,\lambda}(T)\,\mathrm{d}\lambda \\
+                &amp;=\int_0^\infty \alpha_\lambda(T)M_{b,\lambda}(T)\,\mathrm{d}\lambda
+              \end{aligned}
+              \tag{3}
+            \]
+          </p>
+          <p>式 (3) が両法則の厳密な接続です。黒体では \(\varepsilon_\lambda=1\) なので、式 (3) は全波長の黒体放射の積分となり、式 (1) の \(\sigma T^4\) に一致します。</p>
+
+          <h3>灰色体近似では単一の放射率を掛ける</h3>
+          <p>放射率が重要な波長域でほぼ一定の灰色体を仮定し、その全半球放射率を \(\varepsilon\) とすると、式 (3) は式 (4) に簡略化できます。</p>
+          <p>
+            \[
+              M(T)=\varepsilon\sigma T^4
+              \tag{4}
+            \]
+          </p>
+          <p>たとえば、温度 \(T=300\ \mathrm{K}\)、放射率 \(\varepsilon=0.80\) の灰色体なら、放射発散度は約 \(367\ \mathrm{W\,m^{-2} }\) です。同温度の黒体の約 \(459\ \mathrm{W\,m^{-2} }\) に0.80を掛けています。</p>
+
+          <h3>正味の熱交換には周囲からの入射も含める</h3>
+          <p>式 (4) は物体自身が放つ量です。物体が温度 \(T_{\mathrm{s} }\)、大きな等温環境が \(T_{\mathrm{env} }\) で、両者を同じ灰色体近似で扱える場合、単位面積あたりの正味放射熱流束は式 (5) で表せます。</p>
+          <p>
+            \[
+              q_{\mathrm{net} }
+              =\varepsilon\sigma
+              \left(T_{\mathrm{s} }^4-T_{\mathrm{env} }^4\right)
+              \tag{5}
+            \]
+          </p>
+          <p>物体が周囲から吸収する項にも同じ \(\varepsilon=\alpha\) が現れることが、キルヒホッフ則の役割です。実際の形状、方向依存性、波長依存性、透過性が重要なら、式 (5) より詳しい放射伝達計算が必要です。</p>
+
+          <h3>真鍋先生の説明は「同じ係数でも温度が違う」という意味</h3>
+          <p>引用された説明を、一つの波長と一様な大気層で考えます。地表温度を \(T_s\)、大気温度を \(T_a\)、その波長における大気層の吸収率を \(a_\lambda\) とします。局所熱力学平衡を仮定すると、キルヒホッフ則により同じ層の射出率も \(a_\lambda\) です。</p>
+          <p>ここで \(B_\lambda(T)\) は温度 \(T\) の黒体放射の強さを表すものとします。大気が地表放射から吸収する量と、大気が上向きに射出する量は、それぞれ次のように比べられます。</p>
+          <p>
+            \[
+              \begin{aligned}
+                \text{地表放射から減る量}
+                &amp;=a_\lambda B_\lambda(T_s), \\
+                \text{大気放射で増える量}
+                &amp;=a_\lambda B_\lambda(T_a)
+              \end{aligned}
+              \tag{6}
+            \]
+          </p>
+          <p>対流圏では一般に地表のほうが大気の放射温度より高く、\(T_s&gt;T_a\) です。同じ波長では温度が高いほどプランク関数が大きいため、\(B_\lambda(T_s)&gt;B_\lambda(T_a)\) となります。したがって、両者に同じ \(a_\lambda\) を掛けても、地表放射から減る量のほうが大きくなります。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>大気上端へ出ていく上向き放射を、大気がない場合の地表放射からどれだけ減るかで書くと、式 (7) になります。</p>
+          <p>
+            \[
+              \begin{aligned}
+                F_{\lambda,\mathrm{top} }^{\uparrow}
+                &amp;=(1-a_\lambda)B_\lambda(T_s)
+                  +a_\lambda B_\lambda(T_a), \\
+                B_\lambda(T_s)-F_{\lambda,\mathrm{top} }^{\uparrow}
+                &amp;=a_\lambda
+                  \left[B_\lambda(T_s)-B_\lambda(T_a)\right]&gt;0
+              \end{aligned}
+              \tag{7}
+            \]
+          </p>
+          <p>第1項は大気を透過した地表放射、第2項は大気が上向きに射出した放射です。引用文の「吸収されて減少する分が、射出による増加分を上回る」とは、式 (7) の角括弧が温度差のため正になることを文章で述べています。</p>
+          <p>たとえば灰色体として \(a=0.80\)、地表を \(300\ \mathrm{K}\)、大気を \(260\ \mathrm{K}\) と置くと、地表の黒体放射は約 \(459\ \mathrm{W\,m^{-2} }\) です。大気による減少は約 \(367\ \mathrm{W\,m^{-2} }\)、大気の上向き射出による増加は約 \(207\ \mathrm{W\,m^{-2} }\) なので、正味では約 \(160\ \mathrm{W\,m^{-2} }\) 減ります。この数値例は仕組みを示す一層・灰色大気の概算です。</p>
+          <p><strong>吸収率と射出率が等しいことは、吸収するエネルギー量と射出するエネルギー量が等しいことを意味しません。</strong>前者は物質の無次元の性質です。後者のエネルギー量は、その性質に入射放射または温度で決まる黒体放射を掛けて求めます。地表と大気が同温度の熱平衡に達した場合だけ、式 (7) の差はゼロになります。</p>
+
+          <h3>まとめ</h3>
+          <p>シュテファン＝ボルツマン則は黒体の基準量 \(\sigma T^4\) を与えます。キルヒホッフ則は、実在物体の放射率を同じ条件の吸収率と結びつけます。したがって、一般には波長ごとに \(\alpha_\lambda M_{b,\lambda}\) を積分し、灰色体近似では \(\varepsilon\sigma T^4\) とします。地表と大気の放射を比べるときは、同じ吸収率・射出率に、それぞれ異なる温度の黒体放射を掛ける点が要点です。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://nvlpubs.nist.gov/nistpubs/jres/69B/jresv69Bn3p165_A1b.pdf">Kelly (1965), On Kirchhoff's Law and Its Generalized Application to Absorption and Emission by Cavities</a> — 分光方向放射率と分光吸収率の対応。</li>
+            <li id="ref-2"><a href="https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir7203.pdf">NIST IR 7203, Spaceborne Optoelectronic Sensors and Their Radiometric Calibration: Terms and Definitions, Part 1</a> — シュテファン＝ボルツマン則と黒体の放射発散度の定義。</li>
+            <li id="ref-3"><a href="https://physics.nist.gov/cgi-bin/cuu/Value?sigma">NIST CODATA Value: Stefan-Boltzmann constant</a> — 2022 CODATAの定数値。</li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
