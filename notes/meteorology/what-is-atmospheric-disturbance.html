@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>気象学における擾乱とは？ | k-notes</title>
+    <meta name="description" content="気象学の擾乱を、基本場からの偏差という力学的な意味と、低気圧や積乱雲群などの気象システムを指す意味に分けて説明します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>気象学における擾乱とは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-11-04">2026-11-04</time></p>
+          <p>カテゴリ: meteorology</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>気象学における擾乱とは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><strong>擾乱（じょうらん）とは、大気の基準となる状態からのずれ、またはそのずれがまとまって現れた気象システムです。</strong>力学気象学では風・気圧・気温などの「基本場からの偏差」を指し、天気図や予報の文脈では低気圧、台風、積乱雲群など、周囲と異なる構造をもつ現象を指します。米国気象学会の用語集も、定常状態からの乱れという一般的な意味に加えて、低気圧性循環や、雲・降水を伴う流れや気圧の偏差など複数の用法を挙げています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>力学では「基本場からの偏差」を擾乱と呼ぶ</h3>
+          <p>ある気象要素を (A)、基準に選んだ基本場を (overline{A})、擾乱を (A') とすると、場を次のように分けます。</p>
+          <p>
+            \[
+              A = \overline{A} + A'
+              \tag{1}
+            \]
+          </p>
+          <p>式 (1) は、擾乱を次の差として定義しているだけです。</p>
+          <p>
+            \[
+              A' = A - \overline{A}
+              \tag{2}
+            \]
+          </p>
+          <p>たとえば、ある地点の基準気圧を (1010\ \mathrm{hPa})、実際の気圧を (1002\ \mathrm{hPa}) とすれば、気圧擾乱は (p'=-8\ \mathrm{hPa}) です。同じ考え方で、東西風なら (u')、気温なら (T')、高度なら (Z') を定義できます。</p>
+
+          <h3>何を基本場にするかで擾乱は変わる</h3>
+          <p><strong>擾乱は、それ単独で決まる絶対的な物体ではありません。</strong>時間平均を基本場にすれば時間変動が擾乱になり、東西平均を基本場にすれば東西に非一様な波や高・低気圧が擾乱になります。理論では、厳密な定常解や理想化した一様流を基本場にすることもあります。</p>
+          <p>同じ実際の大気でも、日平均から見た偏差と、30年平年値から見た偏差は異なります。そのため論文や解析では、プライム記号 (A') を見ただけで判断せず、平均の取り方、期間、領域を確認する必要があります。</p>
+
+          <h3>現象としての擾乱は大小さまざまである</h3>
+          <p>擾乱という語は、偏差の数値だけでなく、その偏差が空間的にまとまった気象現象にも使われます。気象庁は、天気予報に関係する気象擾乱として、水平規模約10 kmの積乱雲、積乱雲の集団、台風、中緯度の高・低気圧、ブロッキング高気圧を挙げています。つまり、擾乱には低気圧だけでなく高気圧も含まれ、水平規模や持続時間も一つに決まりません。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>この二つの用法は矛盾しません。たとえば温帯低気圧は、天気図では一つの気象システムです。一方、力学的には、平均的な西風や温度分布という基本場に重なった気圧・風・気温の擾乱として表せます。</p>
+
+          <h3>擾乱は必ずしも小さくない</h3>
+          <p>線形安定性解析では、まず微小な擾乱を基本場に加え、その振幅が時間とともに増えるかを調べます。この文脈では擾乱を小さいと仮定します。しかし、発達した低気圧や台風も擾乱と呼ばれるため、<strong>「擾乱」という語自体に微小という条件はありません。</strong>微小であることを強調する場合は「微小擾乱」や「摂動」と呼びます。</p>
+          <p>また、擾乱は無意味なノイズとも限りません。小さな誤差やランダムな揺らぎを擾乱として与える場合もありますが、成長したロスビー波や低気圧のように、明瞭な構造と物理機構をもつ擾乱もあります。</p>
+
+          <h3>「熱帯擾乱」は狭い意味の用語である</h3>
+          <p>熱帯擾乱は、熱帯・亜熱帯で対流活動がある程度まとまった気象システムを指す、より具体的な用語です。米国国立気象局は、組織化した対流を伴い、前線性がなく、移動しながら24時間以上まとまりを保つ熱帯の気象システムと定義しています。風の場に明瞭な擾乱が検出できない場合もあります。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <p>日本の気象庁では、熱帯じょう乱のうち低気圧性循環の中心が不明瞭なものを、原則として「低圧部」と解析します。したがって、熱帯擾乱、熱帯低気圧、台風は同義ではなく、循環の明瞭さや最大風速などで扱いが変わります。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+
+          <h3>一言で覚える</h3>
+          <p><strong>擾乱とは「背景から浮き出た変化」です。</strong>数式では基本場からの偏差、天気図ではその偏差がまとまった低気圧・高気圧・積乱雲群などを指します。何が擾乱かを正確に読むには、基準とする基本場、対象の気象要素、空間・時間スケールの三つを確認します。</p>
+
+          <h3>まとめ</h3>
+          <p>気象学の擾乱は、基本場に重なった風・気圧・気温などの偏差です。その偏差が組織化した気象システムも擾乱と呼びます。低気圧だけに限らず、必ずしも微小でもランダムでもありません。「何からのずれか」を明示すると、擾乱という語の意味を一意に読み取れます。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://glossary.ametsoc.org/wiki/disturbance/">American Meteorological Society, Glossary of Meteorology: disturbance</a></li>
+            <li id="ref-2"><a href="https://www.jma.go.jp/jma/kishou/know/whitep/1-1-2.html">気象庁「さまざまな気象現象」</a></li>
+            <li id="ref-3"><a href="https://forecast.weather.gov/glossary.php?word=Tropical+disturbance">NOAA National Weather Service Glossary: Tropical disturbance</a></li>
+            <li id="ref-4"><a href="https://www.jma.go.jp/jma/kishou/know/yougo_hp/haichi2.html">気象庁「気圧配置 台風に関する用語」</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
