@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>フィリップスの鉛直2層GCMで、シアから擾乱が育つ仕組み | k-notes</title>
+    <meta name="description" content="1950年代のフィリップスの鉛直2層GCMで、鉛直シアが大きくなると大規模な擾乱が成長する理由を、傾圧不安定とエネルギー変換から初心者向けに説明します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>フィリップスの鉛直2層GCMで、シアから擾乱が育つ仕組み</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-11-04">2026-11-04</time></p>
+          <p>カテゴリ: meteorology</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>1950年代のフィリップスの鉛直2層GCMで、鉛直シアが大きくなると擾乱・惑星波が生じるが、気象初心者向けに説明して？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><strong>上下の風速差が大きい大気は、南北の温度差に由来する「使える位置エネルギー」を多く蓄えています。小さな蛇行が暖気を極側へ、寒気を赤道側へ運べる配置になると、そのエネルギーが蛇行の運動エネルギーへ変わり、蛇行は自ら成長します。</strong>これが<strong>傾圧不安定</strong>です。フィリップスの鉛直2層モデルは、この仕組みを上層と下層の2枚だけで表しました。1956年の数値実験では、南北温度差を作った後に小さなランダム擾乱を加えると、約6000 kmの大規模な波が発達しました。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>まず「2層」を上下2本のベルトコンベヤーとして考える</h3>
+          <p>モデルの大気は、上層と下層の2枚で表されます。現実の連続した鉛直構造を粗く切ったものなので、雲や積乱雲の細部を再現するモデルではありません。その代わり、上層の西風と下層の西風の速さが違うという、大規模な大気の重要な性質を最小限の構造で残せます。</p>
+          <p>上層の風を \(U_{\mathrm{upper} }\)、下層の風を \(U_{\mathrm{lower} }\) とすれば、その差</p>
+          <p>
+            \[
+              \Delta U
+              = U_{\mathrm{upper} }-U_{\mathrm{lower} }
+              \tag{1}
+            \]
+          </p>
+          <p>が鉛直シアの簡単な目安です。式 (1) が大きいほど、上下の空気は異なる速さで東へ進もうとします。</p>
+
+          <h3>鉛直シアの背後には南北温度差がある</h3>
+          <p>中緯度の大規模な流れでは、鉛直シアと南北温度差は<strong>温度風の関係</strong>で結びついています。北向きの座標を \(y\)、高さを \(z\)、地衡風の東西成分を \(u_g\)、重力加速度を \(g\)、コリオリパラメータを \(f\)、代表温度を \(T\) とすると、近似的に</p>
+          <p>
+            \[
+              \frac{\partial u_g}{\partial z}
+              \approx
+              -\frac{g}{fT}\frac{\partial T}{\partial y}
+              \tag{2}
+            \]
+          </p>
+          <p>となります。北半球で赤道側が暖かく極側が寒いと、\(\partial T/\partial y&lt;0\) なので、一般に西風は上空ほど強くなります。したがって「シアが大きい」は、上下の風がずれているという情報に加えて、<strong>南北温度差が大きく、暖かい空気と冷たい空気の配置にエネルギーが蓄えられている</strong>ことの目印でもあります。</p>
+
+          <h3>平らな境界が少し波打つと、エネルギーを取り出せる</h3>
+          <p>暖気が南、寒気が北に整然と並んでいる状態を考えます。最初から完全にまっすぐな流れだけが存在する必要はなく、数値の丸め、地形、加熱のむらなどに相当する小さな揺らぎがあれば、暖気と寒気の境界は少し蛇行します。</p>
+          <ol>
+            <li><strong>小さな蛇行ができる:</strong> ある場所では暖気が北へ張り出し、別の場所では寒気が南へ張り出す。</li>
+            <li><strong>南北の熱輸送が始まる:</strong> 暖気が極側へ、寒気が赤道側へ動く。</li>
+            <li><strong>位置エネルギーが解放される:</strong> 南北温度差が少しならされ、その際に上昇・下降運動が生じる。</li>
+            <li><strong>蛇行が強くなる:</strong> 解放されたエネルギーが擾乱の風を強め、さらに多くの暖気と寒気を運ぶ。</li>
+          </ol>
+          <p>この正のフィードバックを、エネルギーの流れだけで書けば、</p>
+          <p>
+            \[
+              \text{平均場の有効位置エネルギー}
+              \longrightarrow
+              \text{擾乱の位置エネルギー}
+              \longrightarrow
+              \text{擾乱の運動エネルギー}
+              \tag{3}
+            \]
+          </p>
+          <p>です。フィリップスの1954年の二層モデル解析では、不安定波の擾乱エネルギーの約95%が基本場の「位置エネルギー」に由来し、基本場の運動エネルギーから来る分は小さいと示されました。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup> つまり、強い西風が直接波へ姿を変えるというより、<strong>西風の鉛直シアと結びついた温度配置が主な燃料</strong>です。</p>
+
+          <h3>上下の波のずれが、暖気と寒気を運ぶ</h3>
+          <p>二層が同じ形で完全に重なって蛇行するだけでは、南北温度差から効率よくエネルギーを取り出せません。成長する傾圧波では、上層と下層の気圧の谷・尾根の位置がずれます。この鉛直方向の傾きによって、南北風と温度偏差の組み合わせが生まれ、暖気を極側へ、寒気を赤道側へ運びます。</p>
+          <p>このため、フィリップスのモデルで上下2層を用意したことには大きな意味があります。1層だけでは表せない<strong>上層と下層の位相差、温度輸送、位置エネルギーから運動エネルギーへの変換</strong>を、2層なら最小限表現できます。</p>
+
+          <h3>1956年の実験では何が起きたか</h3>
+          <p>フィリップスは、簡略化したβ面上の準地衡風二層モデルを用いました。まず東西方向に一様な状態で約130日計算し、低緯度を加熱、高緯度を冷却して南北温度差と西風の鉛直シアを作りました。その後、上層と下層に小さなランダム擾乱を加えて計算を続けました。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>擾乱は最初の約5日間には一度弱まりましたが、その後は規則的な大規模波が成長しました。波は東へ進み、低気圧・高気圧、寒気・暖気の舌、上昇流・下降流など、実際の天気図に似た特徴を示しました。また、擾乱が顕熱を極向きに運んだため、増え続けていた南北温度差は止まり、最終的には小さくなりました。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>「シアが波を作る」を正確に言い直す</h3>
+          <table class="mobile-table">
+            <thead>
+              <tr>
+                <th>短い言い方</th>
+                <th>より正確な意味</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="短い言い方">シアが波を作る</td>
+                <td data-label="より正確な意味">シアと結びついた温度傾度をエネルギー源として、小さな擾乱のうち成長可能な波が増幅する。</td>
+              </tr>
+              <tr>
+                <td data-label="短い言い方">臨界値を超えると突然波が生まれる</td>
+                <td data-label="より正確な意味">小さな擾乱はすでにあり、その成長率が正になって目立つ大きさへ増幅する。</td>
+              </tr>
+              <tr>
+                <td data-label="短い言い方">強い風が波の燃料になる</td>
+                <td data-label="より正確な意味">主な燃料は、南北温度差に蓄えられた有効位置エネルギーである。</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>また、シアが大きければどんな波でも成長するわけではありません。大気の静的安定度、波長、地球自転の緯度変化であるβ効果、摩擦などによって、成長できる条件と最も成長しやすい波長が決まります。フィリップス自身も、二層モデルが見積もった臨界温度差などには現実とのずれがあると指摘しています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>「擾乱」と「惑星波」は同じとは限らない</h3>
+          <p>この実験で成長した約6000 kmの波は、地球規模の大きな波状擾乱です。ただし気象学で「惑星波」は、しばしばβ効果を復元機構とするロスビー波全般、またはさらに波数の小さい超長波を指します。一方、フィリップスの実験で中心となる成長機構は傾圧不安定で、現実の温帯低気圧に近い移動性の傾圧波です。</p>
+          <p>したがって初心者向けには、まず<strong>「鉛直シアのある中緯度大気で、大規模な蛇行と低気圧・高気圧が育った」</strong>と理解するのが安全です。その波が地球の回転とβ効果の影響も受けるという順に整理すると、傾圧不安定とロスビー波を混同しにくくなります。</p>
+
+          <h3>まとめ</h3>
+          <p><strong>加熱差が南北温度差を作り、温度風の関係によって鉛直シアが生まれ、その温度差からエネルギーを得られる小さな蛇行が傾圧不安定で成長する</strong>、という順番です。成長した波は暖気を極側へ、寒気を赤道側へ運び、元の温度差を弱めます。フィリップスの二層GCMは、複雑な大気を2枚にまで単純化しながら、この「温度差が低気圧・高気圧の活動へ変わる」基本的な循環を再現した点に歴史的な意義があります。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://doi.org/10.1002/qj.49708235202">Phillips, N. A. (1956), The general circulation of the atmosphere: A numerical experiment, Quarterly Journal of the Royal Meteorological Society, 82, 123–164</a></li>
+            <li id="ref-2"><a href="https://doi.org/10.1111/j.2153-3490.1954.tb01123.x">Phillips, N. A. (1954), Energy Transformations and Meridional Circulations associated with simple Baroclinic Waves in a two-level, Quasi-geostrophic Model, Tellus, 6, 273–286</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
