@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ニューラルネットワークに二重振り子の運動を学習させる | k-notes</title>
+    <meta name="description" content="二重振り子の数値解から教師データを作り、PyTorchのニューラルネットワークで1ステップの状態変化を学習し、未知の初期条件から軌道を予測します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>ニューラルネットワークに二重振り子の運動を学習させる</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-11-05">2026-11-05</time></p>
+          <p>カテゴリ: python</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>二重振り子をNNで学習したい。Qiitaの記事を更新して。コードのコメント文が少なすぎて初心者にはわかりづらい。</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>二重振り子の運動は、現在の状態から1ステップ後の状態変化を予測する回帰問題としてニューラルネットワーク（NN）に学習させられます。この記事では、運動方程式を <code>solve_ivp</code> で数値積分して教師データを作り、PyTorchで状態変化を学習します。最後に、NNの出力を次の入力へ繰り返し与え、未知の初期条件から軌道を予測します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>全体の流れ</h3>
+          <ol>
+            <li>運動方程式から多数の軌道を生成する。</li>
+            <li>現在状態と1ステップの変化量を教師データにする。</li>
+            <li>学習用と検証用の軌道を初期条件ごとに分ける。</li>
+            <li>NNで1ステップの変化量を学習する。</li>
+            <li>NNの予測を反復し、運動方程式による数値解と比較する。</li>
+          </ol>
+
+          <h3>実行環境を準備する</h3>
+          <p>NumPy、SciPy、PyTorch、Matplotlibを使います。プロジェクトへ依存関係を追加する場合は、次のように <code>uv add</code> を使います。</p>
+          <pre><code class="language-shell">uv add numpy scipy torch matplotlib</code></pre>
+          <p>コードを <code>double_pendulum_nn.py</code> として保存した場合は、次のコマンドで実行します。</p>
+          <pre><code class="language-shell">uv run python double_pendulum_nn.py</code></pre>
+
+          <h3>二重振り子の状態を定義する</h3>
+          <p>二重振り子の状態ベクトルを式 (1) で定義します。角度は鉛直下向きを \(0\) とし、2本目も鉛直下向きから測る絶対角度とします。</p>
+          <p>
+            \[
+              \boldsymbol{x}
+              =
+              \begin{bmatrix}
+                \theta_1 &amp; \omega_1 &amp; \theta_2 &amp; \omega_2
+              \end{bmatrix}^{\mathsf{T} }
+              \tag{1}
+            \]
+          </p>
+
+          <table class="mobile-table">
+            <thead><tr><th>記号</th><th>意味</th><th>単位</th></tr></thead>
+            <tbody>
+              <tr><td data-label="記号">\(\theta_1\)</td><td data-label="意味">1本目の角度</td><td data-label="単位">\(\mathrm{rad}\)</td></tr>
+              <tr><td data-label="記号">\(\omega_1\)</td><td data-label="意味">1本目の角速度</td><td data-label="単位">\(\mathrm{rad\,s^{-1} }\)</td></tr>
+              <tr><td data-label="記号">\(\theta_2\)</td><td data-label="意味">2本目の角度</td><td data-label="単位">\(\mathrm{rad}\)</td></tr>
+              <tr><td data-label="記号">\(\omega_2\)</td><td data-label="意味">2本目の角速度</td><td data-label="単位">\(\mathrm{rad\,s^{-1} }\)</td></tr>
+            </tbody>
+          </table>
+
+          <p>角度差を \(D=\theta_1-\theta_2\) とすると、角加速度は式 (2)、式 (3) になります。ここでは \(m_1,m_2\) を質量、\(L_1,L_2\) を棒の長さ、\(g\) を重力加速度とします。</p>
+          <p>
+            \[
+              \dot{\omega}_1 =
+              \frac{
+                -g(2m_1+m_2)\sin\theta_1
+                -m_2g\sin(\theta_1-2\theta_2)
+                -2m_2\sin D
+                \left(L_2\omega_2^2+L_1\omega_1^2\cos D\right)
+              }{
+                L_1\left[2m_1+m_2-m_2\cos(2D)\right]
+              }
+              \tag{2}
+            \]
+          </p>
+          <p>
+            \[
+              \dot{\omega}_2 =
+              \frac{
+                2\sin D
+                \left[L_1\omega_1^2(m_1+m_2)
+                +g(m_1+m_2)\cos\theta_1
+                +L_2\omega_2^2m_2\cos D\right]
+              }{
+                L_2\left[2m_1+m_2-m_2\cos(2D)\right]
+              }
+              \tag{3}
+            \]
+          </p>
+
+          <h3>NNには1ステップの変化量を学習させる</h3>
+          <p>時刻 \(t_k\) の状態を \(\boldsymbol{x}_k\) とします。時間間隔が短いと、次状態 \(\boldsymbol{x}_{k+1}\) は現在状態とほぼ同じです。そこで、NN \(F_{\boldsymbol{\phi} }\) には状態そのものではなく、式 (4) の変化量を学習させます。</p>
+          <p>
+            \[
+              \Delta\boldsymbol{x}_k
+              = \boldsymbol{x}_{k+1}-\boldsymbol{x}_k
+              \tag{4}
+            \]
+          </p>
+          <p>学習後は、式 (5) を繰り返して将来の状態を生成します。</p>
+          <p>
+            \[
+              \widehat{\boldsymbol{x} }_{k+1}
+              = \widehat{\boldsymbol{x} }_k
+              + F_{\boldsymbol{\phi} }\left(\widehat{\boldsymbol{x} }_k\right)
+              \tag{5}
+            \]
+          </p>
+
+          <h3>学習用と検証用を軌道単位で分ける</h3>
+          <p>同じ軌道を途中で分割すると、よく似た隣接状態が学習用と検証用の両方へ混入します。今回は異なる初期条件から160本の学習軌道と40本の検証軌道を作り、最終評価にはさらに別の初期条件を使います。</p>
+
+          <h3>コメント付きコードを実装する</h3>
+          <p>コードは、データ生成、標準化、NNの学習、反復予測、描画の順に並んでいます。最初に <code>main()</code> を読み、そこから呼ばれる関数を順番に確認すると流れを追いやすくなります。</p>
+          <pre><code class="language-python">"""ニューラルネットワークで二重振り子の時間発展を学習する。"""
+
+from copy import deepcopy
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
+from scipy.integrate import solve_ivp
+from torch import nn
+from torch.utils.data import DataLoader, TensorDataset
+
+
+# 乱数、物理パラメータ、データ生成条件
+SEED = 42
+G = 9.81
+M1 = M2 = 1.0
+L1 = L2 = 1.0
+DT = 0.02
+T_END = 8.0
+N_TRAIN_TRAJECTORIES = 160
+N_VALID_TRAJECTORIES = 40
+
+# 学習条件
+BATCH_SIZE = 1024
+MAX_EPOCHS = 300
+LEARNING_RATE = 1.0e-3
+PATIENCE = 30
+FIG_DIR = Path(__file__).resolve().parent / "figures"
+
+
+def double_pendulum_rhs(_time: float, state: np.ndarray) -&gt; np.ndarray:
+    """状態 [theta1, omega1, theta2, omega2] の時間微分を返す。"""
+    theta1, omega1, theta2, omega2 = state
+    angle_difference = theta1 - theta2
+    common = 2.0 * M1 + M2 - M2 * np.cos(2.0 * angle_difference)
+
+    alpha1 = (
+        -G * (2.0 * M1 + M2) * np.sin(theta1)
+        - M2 * G * np.sin(theta1 - 2.0 * theta2)
+        - 2.0 * M2 * np.sin(angle_difference)
+        * (omega2**2 * L2 + omega1**2 * L1 * np.cos(angle_difference))
+    ) / (L1 * common)
+
+    alpha2 = (
+        2.0 * np.sin(angle_difference)
+        * (
+            omega1**2 * L1 * (M1 + M2)
+            + G * (M1 + M2) * np.cos(theta1)
+            + omega2**2 * L2 * M2 * np.cos(angle_difference)
+        )
+    ) / (L2 * common)
+
+    return np.array([omega1, alpha1, omega2, alpha2])
+
+
+def simulate(initial_state: np.ndarray) -&gt; np.ndarray:
+    """1つの初期状態から、時刻ごとの状態を計算する。"""
+    times = np.arange(0.0, T_END + DT, DT)
+    solution = solve_ivp(
+        double_pendulum_rhs,
+        (times[0], times[-1]),
+        initial_state,
+        t_eval=times,
+        rtol=1.0e-10,
+        atol=1.0e-11,
+    )
+    if not solution.success:
+        raise RuntimeError(solution.message)
+
+    # solve_ivpの出力を (変数, 時刻) から (時刻, 変数) へ転置する。
+    return solution.y.T
+
+
+def generate_trajectories(
+    number_of_trajectories: int,
+    rng: np.random.Generator,
+) -&gt; np.ndarray:
+    """異なる初期条件から複数の軌道を生成する。"""
+    trajectories = []
+    for _ in range(number_of_trajectories):
+        initial_state = np.array([
+            rng.uniform(-np.pi, np.pi),
+            rng.uniform(-1.0, 1.0),
+            rng.uniform(-np.pi, np.pi),
+            rng.uniform(-1.0, 1.0),
+        ])
+        trajectories.append(simulate(initial_state))
+    return np.asarray(trajectories)
+
+
+def trajectories_to_pairs(
+    trajectories: np.ndarray,
+) -&gt; tuple[np.ndarray, np.ndarray]:
+    """軌道を「現在状態、次時刻までの変化量」の組へ変換する。"""
+    current_states = trajectories[:, :-1, :].reshape(-1, 4)
+    next_states = trajectories[:, 1:, :].reshape(-1, 4)
+    return current_states, next_states - current_states
+
+
+class Standardizer:
+    """変数ごとに平均0、標準偏差1へ標準化する。"""
+
+    def __init__(self, values: np.ndarray) -&gt; None:
+        self.mean = values.mean(axis=0)
+        self.std = values.std(axis=0)
+        self.std[self.std &lt; 1.0e-12] = 1.0
+
+    def transform(self, values: np.ndarray) -&gt; np.ndarray:
+        """元の値を標準化する。"""
+        return (values - self.mean) / self.std
+
+    def inverse_transform(self, values: np.ndarray) -&gt; np.ndarray:
+        """標準化した値を元の単位へ戻す。"""
+        return values * self.std + self.mean
+
+
+class DynamicsNN(nn.Module):
+    """4変数の現在状態から4変数の変化量を予測するNN。"""
+
+    def __init__(self) -&gt; None:
+        super().__init__()
+        self.network = nn.Sequential(
+            nn.Linear(4, 128),
+            nn.Tanh(),
+            nn.Linear(128, 128),
+            nn.Tanh(),
+            nn.Linear(128, 4),
+        )
+
+    def forward(self, states: torch.Tensor) -&gt; torch.Tensor:
+        """標準化された現在状態から変化量を予測する。"""
+        return self.network(states)
+
+
+def make_loader(
+    states: np.ndarray,
+    changes: np.ndarray,
+    shuffle: bool,
+) -&gt; DataLoader:
+    """NumPy配列をミニバッチで取り出せる形へ変換する。"""
+    dataset = TensorDataset(
+        torch.tensor(states, dtype=torch.float32),
+        torch.tensor(changes, dtype=torch.float32),
+    )
+    return DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=shuffle)
+
+
+def evaluate(
+    model: nn.Module,
+    loader: DataLoader,
+    loss_function: nn.Module,
+    device: torch.device,
+) -&gt; float:
+    """検証データ全体の平均損失を返す。"""
+    model.eval()
+    total_loss = 0.0
+    number_of_samples = 0
+    with torch.no_grad():
+        for states, changes in loader:
+            states, changes = states.to(device), changes.to(device)
+            loss = loss_function(model(states), changes)
+            total_loss += loss.item() * states.shape[0]
+            number_of_samples += states.shape[0]
+    return total_loss / number_of_samples
+
+
+def train_model(
+    model: nn.Module,
+    train_loader: DataLoader,
+    valid_loader: DataLoader,
+    device: torch.device,
+) -&gt; tuple[list[float], list[float]]:
+    """検証誤差を監視しながらNNを学習する。"""
+    loss_function = nn.MSELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    best_valid_loss = np.inf
+    best_parameters = deepcopy(model.state_dict())
+    epochs_without_improvement = 0
+    train_history, valid_history = [], []
+
+    for epoch in range(1, MAX_EPOCHS + 1):
+        model.train()
+        loss_sum = 0.0
+        sample_count = 0
+        for states, changes in train_loader:
+            states, changes = states.to(device), changes.to(device)
+            optimizer.zero_grad()
+            loss = loss_function(model(states), changes)
+            loss.backward()
+            optimizer.step()
+            loss_sum += loss.item() * states.shape[0]
+            sample_count += states.shape[0]
+
+        train_loss = loss_sum / sample_count
+        valid_loss = evaluate(model, valid_loader, loss_function, device)
+        train_history.append(train_loss)
+        valid_history.append(valid_loss)
+
+        if epoch == 1 or epoch % 10 == 0:
+            print(f"Epoch {epoch:03d}: train={train_loss:.3e}, valid={valid_loss:.3e}")
+
+        if valid_loss &lt; best_valid_loss:
+            best_valid_loss = valid_loss
+            best_parameters = deepcopy(model.state_dict())
+            epochs_without_improvement = 0
+        else:
+            epochs_without_improvement += 1
+
+        if epochs_without_improvement &gt;= PATIENCE:
+            print(f"Early stopping at epoch {epoch}")
+            break
+
+    model.load_state_dict(best_parameters)
+    return train_history, valid_history
+
+
+def predict_rollout(
+    model: nn.Module,
+    initial_state: np.ndarray,
+    number_of_steps: int,
+    state_scaler: Standardizer,
+    change_scaler: Standardizer,
+    device: torch.device,
+) -&gt; np.ndarray:
+    """1ステップ予測を反復して1本の軌道を作る。"""
+    prediction = np.zeros((number_of_steps, 4))
+    prediction[0] = initial_state
+    model.eval()
+
+    with torch.no_grad():
+        for step in range(number_of_steps - 1):
+            scaled_state = state_scaler.transform(prediction[step : step + 1])
+            input_tensor = torch.tensor(
+                scaled_state, dtype=torch.float32, device=device
+            )
+            scaled_change = model(input_tensor).cpu().numpy()
+            state_change = change_scaler.inverse_transform(scaled_change)[0]
+            prediction[step + 1] = prediction[step] + state_change
+    return prediction
+
+
+def end_mass_position(states: np.ndarray) -&gt; tuple[np.ndarray, np.ndarray]:
+    """状態から2番目の質点の座標を返す。"""
+    theta1, theta2 = states[:, 0], states[:, 2]
+    x1, y1 = L1 * np.sin(theta1), -L1 * np.cos(theta1)
+    return x1 + L2 * np.sin(theta2), y1 - L2 * np.cos(theta2)
+
+
+def plot_results(
+    times: np.ndarray,
+    truth: np.ndarray,
+    prediction: np.ndarray,
+    train_history: list[float],
+    valid_history: list[float],
+) -&gt; None:
+    """学習曲線と軌道の比較をPNGへ保存する。"""
+    plt.rcParams.update({
+        "font.family": "sans-serif", "font.size": 11,
+        "axes.labelsize": 12, "axes.titlesize": 12,
+        "figure.dpi": 100, "savefig.dpi": 150,
+        "savefig.bbox": "tight",
+    })
+    FIG_DIR.mkdir(parents=True, exist_ok=True)
+    fig, axes = plt.subplots(2, 2, figsize=(12, 7))
+
+    axes[0, 0].semilogy(train_history, label="Training", color="#2455A4")
+    axes[0, 0].semilogy(valid_history, label="Validation", color="#D1495B")
+    axes[0, 0].set_title("(a) Learning curve", loc="left", fontweight="bold")
+    axes[0, 0].set(xlabel="Epoch", ylabel="Normalized MSE")
+    axes[0, 0].legend()
+
+    for ax, column, label, title in [
+        (axes[0, 1], 0, r"$\theta_1$ [rad]", r"(b) First angle $\theta_1$"),
+        (axes[1, 0], 2, r"$\theta_2$ [rad]", r"(c) Second angle $\theta_2$"),
+    ]:
+        ax.plot(times, truth[:, column], label="True", color="#444444")
+        ax.plot(times, prediction[:, column], "--", label="NN", color="#D1495B")
+        ax.set_title(title, loc="left", fontweight="bold")
+        ax.set(xlabel="Time [s]", ylabel=label)
+        ax.legend()
+
+    true_x, true_y = end_mass_position(truth)
+    pred_x, pred_y = end_mass_position(prediction)
+    axes[1, 1].plot(true_x, true_y, label="True", color="#444444")
+    axes[1, 1].plot(pred_x, pred_y, "--", label="NN", color="#D1495B")
+    axes[1, 1].set_title("(d) End-mass trajectory", loc="left", fontweight="bold")
+    axes[1, 1].set(xlabel="Horizontal position [m]", ylabel="Vertical position [m]")
+    axes[1, 1].set_aspect("equal")
+    axes[1, 1].legend()
+
+    fig.tight_layout()
+    output_path = FIG_DIR / "double_pendulum_nn.png"
+    fig.savefig(output_path)
+    plt.close(fig)
+    print(f"Saved: {output_path}")
+
+
+def main() -&gt; None:
+    """教師データ生成、学習、予測、描画を順に実行する。"""
+    np.random.seed(SEED)
+    torch.manual_seed(SEED)
+    rng = np.random.default_rng(SEED)
+    device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+    print(f"Device: {device}")
+
+    train_trajectories = generate_trajectories(N_TRAIN_TRAJECTORIES, rng)
+    valid_trajectories = generate_trajectories(N_VALID_TRAJECTORIES, rng)
+    train_states, train_changes = trajectories_to_pairs(train_trajectories)
+    valid_states, valid_changes = trajectories_to_pairs(valid_trajectories)
+
+    # 平均・標準偏差は学習データだけから求める。
+    state_scaler = Standardizer(train_states)
+    change_scaler = Standardizer(train_changes)
+    train_loader = make_loader(
+        state_scaler.transform(train_states),
+        change_scaler.transform(train_changes),
+        shuffle=True,
+    )
+    valid_loader = make_loader(
+        state_scaler.transform(valid_states),
+        change_scaler.transform(valid_changes),
+        shuffle=False,
+    )
+
+    model = DynamicsNN().to(device)
+    train_history, valid_history = train_model(
+        model, train_loader, valid_loader, device
+    )
+
+    # 学習にも検証にも使っていない初期条件で評価する。
+    test_initial_state = np.array([
+        np.deg2rad(120.0), 0.0, np.deg2rad(-10.0), 0.0
+    ])
+    true_trajectory = simulate(test_initial_state)
+    predicted_trajectory = predict_rollout(
+        model, test_initial_state, len(true_trajectory),
+        state_scaler, change_scaler, device,
+    )
+    times = np.arange(0.0, T_END + DT, DT)
+    plot_results(
+        times, true_trajectory, predicted_trajectory,
+        train_history, valid_history,
+    )
+
+
+if __name__ == "__main__":
+    main()</code></pre>
+
+          <h3>結果を読み取る</h3>
+          <p>プログラムは、学習・検証損失、2本の角度、2番目の質点の軌道を <code>figures/double_pendulum_nn.png</code> に保存します。学習時の損失は、標準化した状態変化量の平均二乗誤差です。PyTorchの <code>MSELoss</code> は、予測値と正解の差の二乗を要素ごとに計算します。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <p>
+            \[
+              \mathcal{L}
+              = \frac{1}{N}\sum_{k=1}^{N}
+              \left\|
+                \widehat{\Delta\boldsymbol{x} }_k
+                -\Delta\boldsymbol{x}_k
+              \right\|_2^2
+              \tag{6}
+            \]
+          </p>
+          <p>検証誤差が小さくても、長期軌道が正確とは限りません。反復予測では1ステップの誤差が次の入力へ入り、二重振り子では小さな状態差が時間とともに拡大するためです。結果では、1ステップ誤差と、軌道が離れ始める時刻を分けて評価します。</p>
+
+          <h3>この方法の限界</h3>
+          <ul>
+            <li><strong>学習範囲の外挿:</strong> 初期角度は \([-\pi,\pi]\)、初期角速度は \([-1,1]\) から生成しています。この範囲から大きく外れた状態では予測が不安定になり得ます。</li>
+            <li><strong>角度の周期性:</strong> 現在の実装は \(\theta\) をそのまま入力します。\(-\pi\) と \(\pi\) の近さを表すには、\(\sin\theta\) と \(\cos\theta\) を入力する方法があります。</li>
+            <li><strong>エネルギー保存:</strong> 損失関数は力学的エネルギーを直接拘束しません。長期予測では人工的なエネルギー増減が生じ得ます。</li>
+            <li><strong>数値解も近似:</strong> 教師データは解析解ではなく <code>solve_ivp</code> の数値解です。<code>rtol</code> と <code>atol</code> は局所誤差制御に使われます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></li>
+          </ul>
+
+          <h3>まとめ</h3>
+          <p>二重振り子の運動は、現在状態から1ステップの変化量を予測するNNとして学習できます。軌道単位で学習・検証データを分け、学習データだけで標準化し、未知の初期条件で反復予測を評価することが重要です。短期予測と長期予測を区別すると、NNの近似誤差とカオス系の初期値鋭敏性を混同せずに結果を読めます。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.solve_ivp.html">SciPy API Reference: solve_ivp</a></li>
+            <li id="ref-2"><a href="https://www.cambridge.org/highereducation/books/data-driven-science-and-engineering/6F9A90BCA62D52ED6C2E98A7B0875F0A">Steven L. Brunton and J. Nathan Kutz, Data-Driven Science and Engineering, 2nd ed.</a></li>
+            <li id="ref-3"><a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.MSELoss.html">PyTorch Documentation: MSELoss</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
