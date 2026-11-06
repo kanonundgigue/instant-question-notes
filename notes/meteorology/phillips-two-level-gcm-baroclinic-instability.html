@@ -41,7 +41,7 @@
           <p><strong>上下の風速差が大きい大気は、南北の温度差に由来する「使える位置エネルギー」を多く蓄えています。小さな蛇行が暖気を極側へ、寒気を赤道側へ運べる配置になると、そのエネルギーが蛇行の運動エネルギーへ変わり、蛇行は自ら成長します。</strong>これが<strong>傾圧不安定</strong>です。フィリップスの鉛直2層モデルは、この仕組みを上層と下層の2枚だけで表しました。1956年の数値実験では、南北温度差を作った後に小さなランダム擾乱を加えると、約6000 kmの大規模な波が発達しました。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
 
           <h3>まず「2層」を上下2本のベルトコンベヤーとして考える</h3>
-          <p>モデルの大気は、上層と下層の2枚で表されます。現実の連続した鉛直構造を粗く切ったものなので、雲や積乱雲の細部を再現するモデルではありません。その代わり、上層の西風と下層の西風の速さが違うという、大規模な大気の重要な性質を最小限の構造で残せます。</p>
+          <p>モデルの大気は、上層と下層の2枚で表されます。現実の連続した鉛直構造を粗く切ったものなので、雲や積乱雲の細部を再現するモデルではありません。その代わり、上層の西風と下層の西風の速さが違うという、大規模な大気の重要な性質を最小限の構造で残せます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
           <p>上層の風を \(U_{\mathrm{upper} }\)、下層の風を \(U_{\mathrm{lower} }\) とすれば、その差</p>
           <p>
             \[
@@ -64,19 +64,30 @@
           </p>
           <p>となります。北半球で赤道側が暖かく極側が寒いと、\(\partial T/\partial y&lt;0\) なので、一般に西風は上空ほど強くなります。したがって「シアが大きい」は、上下の風がずれているという情報に加えて、<strong>南北温度差が大きく、暖かい空気と冷たい空気の配置にエネルギーが蓄えられている</strong>ことの目印でもあります。</p>
 
-          <h3>平らな境界が少し波打つと、エネルギーを取り出せる</h3>
-          <p><strong>波が成長する理由は、重い空気が下がり、軽い空気が上がるときに減った位置エネルギーが、擾乱の風の運動エネルギーへ移るからです。</strong> 暖気が南、寒気が北に整然と並んでいる状態から、次の4ステップを順に追うと理解しやすくなります。STEP 1と4は大気を上から見た水平断面、STEP 2は南北方向に切った鉛直断面、STEP 3はエネルギー変換を表す概念図です。</p>
+          <h3>傾いた温度配置が、使えるエネルギーを蓄える</h3>
+          <p><strong>南北の温度差は、鉛直断面では等温位面の傾きとして表れます。</strong>温位とは、空気を共通の気圧まで断熱的に移したときの温度で、圧縮・膨張の影響を除いて空気の暖かさを比べる目安です。等温位面は、その温位が同じ場所を結んだ面です。安定成層では温位が上ほど高く、北へ行くほど寒い中緯度では、等温位面は北に向かって高くなります。上層ほど強い西風とこの傾きが、温度風の関係で対応します。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <p>この傾いた配置を、暖気が寒気の上へ広がるように組み替えると、エネルギーを取り出せます。大気では、運動に変えられる部分を<strong>有効位置エネルギー</strong>と呼びます。圧縮・膨張する大気では内部エネルギーも関わるため、単に「重力による位置エネルギーの全量」と同じではありません。傾圧不安定は、主として平均場の有効位置エネルギーを使って擾乱を成長させる仕組みです。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+
+          <h3>4ステップで、温度差から風が育つ過程を見る</h3>
+          <p><strong>暖気を北へ、寒気を南へ運ぶ波と、暖気の上昇・寒気の下降が組み合わさると、擾乱はエネルギーを得て成長します。</strong>図のSTEP 1・4は上から見た水平断面で、上が北、右が東です。STEP 2・3は南北方向の鉛直断面で、上が高度、右が北です。これらは、同時に結びついて進む過程を順に読み解くための4ステップです。</p>
           <figure class="climate-chart" aria-labelledby="baroclinic-four-steps-caption">
-            <img src="../../images/baroclinic-instability-energy-four-steps.svg" alt="傾圧不安定の4ステップ。STEP 1と4は横軸を東西、縦軸を南北とする水平断面。STEP 2は横軸を南北、縦軸を高度とする鉛直断面。STEP 3は上昇と下降が高低の気圧差を作り、その気圧差が空気を押して風を強める模式図。">
-            <figcaption id="baroclinic-four-steps-caption">図1　傾圧不安定が南北温度差からエネルギーを取り出す4ステップ。STEP 1・4は水平断面、STEP 2は鉛直断面、STEP 3は気圧差が風を強める過程の模式図。</figcaption>
+            <a href="../../images/baroclinic-instability-energy-four-steps-textbook.png"><img src="../../images/baroclinic-instability-energy-four-steps-textbook.png" width="1024" height="1536" alt="傾圧不安定の4ステップ。1は水平断面で温度境界が蛇行する。2は南北・高度断面で暖気が斜めに上昇し、寒気が斜めに下降する。3は傾いた二層の境界が水平に近づき、重心が下がる簡略図。4は水平断面で強まった風が暖気を北へ、寒気を南へ運ぶ。"></a>
+            <figcaption id="baroclinic-four-steps-caption">図1　傾圧不安定のエネルギー変換を示す学習用模式図（AI生成）。STEP 1・4は水平断面、STEP 2・3は鉛直断面。STEP 3は密度の異なる二層で配置変化をたとえたもので、黒点と破線は重心が下がる方向を概念的に示します。重心の座標・低下量や粒子軌跡を計算した図ではありません。画像を選ぶと拡大できます。</figcaption>
           </figure>
           <ol>
-            <li><strong>小さな蛇行ができる:</strong> 最初から完全にまっすぐな流れだけが存在する必要はありません。数値の丸め、地形、加熱のむらなどに相当する小さな揺らぎがあると、ある場所では暖気が北へ、別の場所では寒気が南へ張り出します。</li>
-            <li><strong>暖気側で上昇し、寒気側で下降する:</strong> 成長する傾圧波では、暖かく密度の小さい空気が上昇する場所と、冷たく密度の大きい空気が下降する場所が組み合わさります。重い空気が低い位置へ移るため、大気全体の重心が下がります。</li>
-            <li><strong>気圧差が空気を押して風を強める:</strong> 暖気が上昇する側では地上付近の気圧が相対的に低くなり、寒気が下降する側では高くなります。この高低の気圧差が空気を押す仕事をするため、減った有効位置エネルギーが擾乱の風の運動エネルギーへ移り、東西風と南北風の振幅が大きくなります。</li>
-            <li><strong>強い南北風が熱輸送を増やす:</strong> 南北風が速くなると、同じ時間に南北の境界を横切る空気の量が増えます。暖気を北へ運ぶ流れと寒気を南へ運ぶ流れがともに強まり、南北温度差をならす熱輸送が増えます。</li>
+            <li><strong>小さな蛇行が生まれる:</strong> 初めの小さな擾乱に南北風があると、暖気が北へ、寒気が南へ張り出し、東西方向にも暖かい所・冷たい所ができます。これが、平均場から擾乱の有効位置エネルギーへエネルギーが移る段階です。</li>
+            <li><strong>暖気が斜めに上昇し、寒気が斜めに下降する:</strong> 成長する傾圧波では、同じ高度の周囲より暖かい空気の上昇と、冷たい空気の下降が平均的に組み合わさります。安定成層の中でも、南北移動と上下移動を組み合わせた斜めの運動なら、温度配置からエネルギーを取り出せます。</li>
+            <li><strong>配置のエネルギーが風の運動へ移る:</strong> 図の二層のたとえでは、密度の大きい寒気が低い所へ、密度の小さい暖気が高い所へ広がるほど、全体の重心が下がります。減った位置エネルギーに対応して流体の運動エネルギーが増えます。大気の成長する傾圧波でも、暖気上昇・寒気下降という組み合わせが、擾乱の有効位置エネルギーから運動エネルギーへの変換を担います。</li>
+            <li><strong>強まった南北風が熱輸送を増やす:</strong> 暖気を北へ、寒気を南へ運ぶ配置を保って風が強まれば、同じ時間に運ぶ熱も増えます。これが波の成長を支える一方、平均場の南北温度差は弱まり、エネルギー源は次第に減ります。</li>
           </ol>
-          <p>STEP 3の矢印は、「空気が高気圧から低気圧へ一直線に吹き続ける」という意味ではありません。実際の大規模な大気では、気圧差で動き始めた空気が地球の自転によるコリオリ力で曲げられ、低気圧・高気圧の周りを回る風になります。ここで重要なのは、<strong>気圧差が空気に仕事をして風速を増す</strong>というエネルギーの受け渡しです。</p>
+          <p>この4ステップは、温度配置から擾乱へのエネルギー変換を、図に沿って言い換えた説明です。平均場の有効位置エネルギーから、擾乱の有効位置エネルギーを経て、その運動エネルギーへ移る流れは、傾圧不安定のエネルギー収支に対応します。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+
+          <h3>STEP 3をもう一歩：「エネルギー」がどう風を速めるか</h3>
+          <p><strong>エネルギーは収支を表す量で、空気を実際に加速するのは力です。</strong>減った位置エネルギーが流体の運動へ移るとき、浮力と圧力による力が働きます。大規模な大気では上下方向はほぼ静水圧平衡にあり、暖気が上昇するからといって、鉛直風だけがどんどん速くなるわけではありません。圧力の仕事を通して、水平の擾乱風にも運動エネルギーが渡されます。フィリップスの二層モデルでも、成長する波の運動エネルギーは主として温度配置に由来するエネルギーから供給されます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>たとえば、動いている台車を進行方向へ押すと速くなるように、空気の動く向きに圧力による力の成分があれば、その力は正の仕事をして風の運動エネルギーを増やします。一方、地衡風では圧力による力は風と直角なので、それだけでは風速を増やしません。成長する波には地衡風からの小さなずれがあり、圧力による力がその流れに仕事をします。コリオリ力は運動の向きを変えますが、直接エネルギーを供給する力ではありません。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></p>
+          <p>なお、地上気圧は、その上にある空気柱の質量で決まります。上昇・下降と地上気圧の変化を結びつけるには、水平の収束・発散も含めた質量収支が必要です。「暖気が上がるから地上が低圧になる」という一段の説明では、傾圧波の成長を十分には表せません。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></p>
+
+          <h3>風が強まると、運ぶ熱が増える理由</h3>
           <p>最後のステップは、南北風の擾乱を \(v'\)、温度の擾乱を \(T'\) とすると、極向き熱輸送の強さが平均的に \(\overline{v'T'}\) で表されることから確認できます。北向きを正とすれば、暖気を北へ運ぶ場所では \(v'&gt;0\) かつ \(T'&gt;0\)、寒気を南へ運ぶ場所では \(v'&lt;0\) かつ \(T'&lt;0\) です。どちらも積 \(v'T'\) は正になり、極向き熱輸送へ寄与します。</p>
           <p>たとえば、暖気側が \(v'=+2\ \mathrm{m\,s^{-1} }\)、\(T'=+2\ \mathrm{K}\)、寒気側が \(v'=-2\ \mathrm{m\,s^{-1} }\)、\(T'=-2\ \mathrm{K}\) なら、どちらの積も \(+4\ \mathrm{K\,m\,s^{-1} }\) です。温度偏差が同じまま南北風が \(4\ \mathrm{m\,s^{-1} }\) へ倍増すれば、積も \(+8\ \mathrm{K\,m\,s^{-1} }\) へ倍増します。これが「風が強まると、さらに多くの暖気と寒気を運ぶ」の具体的な意味です。</p>
           <p>この正のフィードバックを、エネルギーの流れだけで書けば、</p>
@@ -84,7 +95,7 @@
             \[
               \text{平均場の有効位置エネルギー}
               \longrightarrow
-              \text{擾乱の位置エネルギー}
+              \text{擾乱の有効位置エネルギー}
               \longrightarrow
               \text{擾乱の運動エネルギー}
               \tag{3}
@@ -93,7 +104,7 @@
           <p>です。フィリップスの1954年の二層モデル解析では、不安定波の擾乱エネルギーの約95%が基本場の「位置エネルギー」に由来し、基本場の運動エネルギーから来る分は小さいと示されました。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup> つまり、強い西風が直接波へ姿を変えるというより、<strong>西風の鉛直シアと結びついた温度配置が主な燃料</strong>です。</p>
 
           <h3>上下の波のずれが、暖気と寒気を運ぶ</h3>
-          <p>二層が同じ形で完全に重なって蛇行するだけでは、南北温度差から効率よくエネルギーを取り出せません。成長する傾圧波では、上層と下層の気圧の谷・尾根の位置がずれます。この鉛直方向の傾きによって、南北風と温度偏差の組み合わせが生まれ、暖気を極側へ、寒気を赤道側へ運びます。</p>
+          <p>二層が同じ形で完全に重なって蛇行するだけでは、南北温度差から効率よくエネルギーを取り出せません。成長する傾圧波では、上層と下層の気圧の谷・尾根の位置がずれます。この鉛直方向の傾きによって、南北風と温度偏差の組み合わせが生まれ、暖気を極側へ、寒気を赤道側へ運びます。上下の波が互いに生み出す風を通じて、相手の波を強める配置になることが、波の成長を支えます。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
           <p>このため、フィリップスのモデルで上下2層を用意したことには大きな意味があります。1層だけでは表せない<strong>上層と下層の位相差、温度輸送、位置エネルギーから運動エネルギーへの変換</strong>を、2層なら最小限表現できます。</p>
 
           <h3>1956年の実験では何が起きたか</h3>
@@ -130,11 +141,11 @@
           <p>したがって初心者向けには、まず<strong>「鉛直シアのある中緯度大気で、大規模な蛇行と低気圧・高気圧が育った」</strong>と理解するのが安全です。その波が地球の回転とβ効果の影響も受けるという順に整理すると、傾圧不安定とロスビー波を混同しにくくなります。</p>
 
           <h3>回転水槽の動画で、波と熱輸送を見る</h3>
-          <p><strong>最初に見るなら、MIT OpenCourseWareの回転水槽実験が最も直接的です。</strong> 水槽中央の氷入り容器が「冷たい極」、外側が「暖かい赤道」に対応します。回転が速くなると、軸対称な循環から波状の渦へ移り、暖かい水を内側へ、冷たい水を外側へ運ぶ様子が見えます。これは大気で暖気が極側へ、寒気が赤道側へ運ばれる過程に対応します。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <p><strong>最初に見るなら、MIT OpenCourseWareの回転水槽実験が最も直接的です。</strong> 水槽中央の氷入り容器が「冷たい極」、外側が「暖かい赤道」に対応します。回転が速くなると、軸対称な循環から波状の渦へ移り、暖かい水を内側へ、冷たい水を外側へ運ぶ様子が見えます。これは大気で暖気が極側へ、寒気が赤道側へ運ばれる過程に対応します。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
           <ol>
-            <li><strong><a href="https://ocw.mit.edu/courses/12-003-atmosphere-ocean-and-climate-dynamics-fall-2008/resources/experiment-xi-baroclinic-instability-of-the-thermal-wind/">MIT OpenCourseWare: Experiment XI — Baroclinic Instability of the Thermal Wind</a></strong><br>氷で中央を冷やした回転水槽に、傾圧波と渦が育つ実験です。最初は円周方向に滑らかだった流れが蛇行し、複数の渦へ発達する点を見ます。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></li>
-            <li><strong><a href="https://diynamics.ucla.edu/videos/v/nr6xgglkby55atsthn72rj5z6pb3gx">UCLA DIYnamics: Baroclinic Eddies in a Tank &amp; in Earth's Atmosphere</a></strong><br>水槽内の傾圧渦と実際の大気を対応させた動画です。色の境界の蛇行を、天気図の暖気・寒気の舌や温帯低気圧の波と重ねて見られます。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></li>
-            <li><strong><a href="https://weathertank.mit.edu/links/projects/fronts-an-introduction/fronts-tank-examples">MIT Weather in a Tank: Fronts — Tank Examples</a></strong><br>密度の異なる二層の境界面と表面流を使い、水平密度差と鉛直シアの関係を示す補助教材です。斜面が急な場所ほど上側の流れが速い点が、式 (2) の温度風に対応します。ページ内の動画は回転するカメラから撮影されています。<sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></li>
+            <li><strong><a href="https://ocw.mit.edu/courses/12-003-atmosphere-ocean-and-climate-dynamics-fall-2008/resources/experiment-xi-baroclinic-instability-of-the-thermal-wind/">MIT OpenCourseWare: Experiment XI — Baroclinic Instability of the Thermal Wind</a></strong><br>氷で中央を冷やした回転水槽に、傾圧波と渦が育つ実験です。最初は円周方向に滑らかだった流れが蛇行し、複数の渦へ発達する点を見ます。<sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></li>
+            <li><strong><a href="https://diynamics.ucla.edu/videos/v/nr6xgglkby55atsthn72rj5z6pb3gx">UCLA DIYnamics: Baroclinic Eddies in a Tank &amp; in Earth's Atmosphere</a></strong><br>水槽内の傾圧渦と実際の大気を対応させた動画です。色の境界の蛇行を、天気図の暖気・寒気の舌や温帯低気圧の波と重ねて見られます。<sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup></li>
+            <li><strong><a href="https://weathertank.mit.edu/links/projects/fronts-an-introduction/fronts-tank-examples">MIT Weather in a Tank: Fronts — Tank Examples</a></strong><br>密度の異なる二層の境界面と表面流を使い、水平密度差と鉛直シアの関係を示す補助教材です。斜面が急な場所ほど上側の流れが速い点が、式 (2) の温度風に対応します。ページ内の動画は回転するカメラから撮影されています。<sup class="citation"><a href="#ref-8" aria-label="参照 8">[8]</a></sup></li>
           </ol>
           <p>水槽実験では、半径方向の温度差を地球の南北温度差に置き換えて読みます。中央が極、外周が赤道、円周方向が地球を一周する東西方向です。水槽の渦はフィリップスの二層モデルそのものではありませんが、<strong>温度差と回転がある流体で、まっすぐな平均流から波が育ち、その波が熱を運ぶ</strong>という共通の仕組みを可視化しています。</p>
 
@@ -147,9 +158,12 @@
           <ol>
             <li id="ref-1"><a href="https://doi.org/10.1002/qj.49708235202">Phillips, N. A. (1956), The general circulation of the atmosphere: A numerical experiment, Quarterly Journal of the Royal Meteorological Society, 82, 123–164</a></li>
             <li id="ref-2"><a href="https://doi.org/10.1111/j.2153-3490.1954.tb01123.x">Phillips, N. A. (1954), Energy Transformations and Meridional Circulations associated with simple Baroclinic Waves in a two-level, Quasi-geostrophic Model, Tellus, 6, 273–286</a></li>
-            <li id="ref-3"><a href="https://ocw.mit.edu/courses/12-003-atmosphere-ocean-and-climate-dynamics-fall-2008/pages/labs/lab11/">MIT OpenCourseWare, GFDXI: Atmospheric general circulation</a></li>
-            <li id="ref-4"><a href="https://diynamics.ucla.edu/videos/v/nr6xgglkby55atsthn72rj5z6pb3gx">UCLA DIYnamics, Baroclinic Eddies in a Tank &amp; in Earth's Atmosphere</a></li>
-            <li id="ref-5"><a href="https://weathertank.mit.edu/links/projects/fronts-an-introduction/fronts-tank-examples">MIT Weather in a Tank, Fronts: Tank — Examples</a></li>
+            <li id="ref-3"><a href="https://www.meteo.physik.uni-muenchen.de/~roger/Lectures/Adm_Lectures/Adm_Ch06a_WS2007.pdf#page=18">ミュンヘン大学講義資料, Chapter 6: Quasi-geostrophic waves（特に18–20ページ：Eady問題と不安定波の構造）</a></li>
+            <li id="ref-4"><a href="https://npg.copernicus.org/articles/27/147/2020/">Readほか (2020), Baroclinic and barotropic instabilities in planetary atmospheres: energetics, equilibration and adjustment, Nonlinear Processes in Geophysics, 27, 147–169（図1・エネルギー変換）</a></li>
+            <li id="ref-5"><a href="https://pog.mit.edu/src/GeneralCirculationNotes_withFigs.pdf">O’Gorman, P. (2010), MIT 12.812: The General Circulation of the Atmosphere and Climate Change（§2.2 連続の式、§4 Energetics：圧力の仕事・位置エネルギーから運動エネルギーへの変換）</a></li>
+            <li id="ref-6"><a href="https://ocw.mit.edu/courses/12-003-atmosphere-ocean-and-climate-dynamics-fall-2008/pages/labs/lab11/">MIT OpenCourseWare, GFDXI: Atmospheric general circulation</a></li>
+            <li id="ref-7"><a href="https://diynamics.ucla.edu/videos/v/nr6xgglkby55atsthn72rj5z6pb3gx">UCLA DIYnamics, Baroclinic Eddies in a Tank &amp; in Earth's Atmosphere</a></li>
+            <li id="ref-8"><a href="https://weathertank.mit.edu/links/projects/fronts-an-introduction/fronts-tank-examples">MIT Weather in a Tank, Fronts: Tank — Examples</a></li>
           </ol>
         </section>
       </article>
