@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="1320" viewBox="0 0 720 1320" role="img" aria-labelledby="title desc">
   <title id="title">傾圧不安定がエネルギーを取り出す4ステップ</title>
-  <desc id="desc">南北温度境界の蛇行、暖気の上昇と寒気の下降、位置エネルギーから風の運動エネルギーへの変換、強まった南北風による熱輸送の増加を上から順に示す。</desc>
+  <desc id="desc">ステップ1と4は上から見た水平断面で、横軸が東西、縦軸が南北。ステップ2は南北方向の鉛直断面で、横軸が南北、縦軸が高度。ステップ3はエネルギー変換の概念図。南北温度境界の蛇行、暖気の上昇と寒気の下降、位置エネルギーから風の運動エネルギーへの変換、強まった南北風による熱輸送の増加を上から順に示す。</desc>
   <defs>
     <linearGradient id="warmBg" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="#fff5ec"/>
@@ -25,6 +25,9 @@
       .heading { fill: #25312d; font: 700 28px sans-serif; }
       .label { fill: #25312d; font: 500 21px sans-serif; }
       .small { fill: #69736a; font: 500 18px sans-serif; }
+      .view { fill: #69736a; font: 700 16px sans-serif; }
+      .axis { fill: none; stroke: #69736a; stroke-width: 2.5; marker-end: url(#arrowDark); }
+      .axis-label { fill: #69736a; font: 700 15px sans-serif; }
       .warm { fill: #d85a30; font: 700 21px sans-serif; }
       .cold { fill: #26736c; font: 700 21px sans-serif; }
       .connector { fill: none; stroke: #69736a; stroke-width: 4; marker-end: url(#arrowDark); }
@@ -37,6 +40,7 @@
     <rect class="panel" width="660" height="270" rx="18"/>
     <text class="step" x="26" y="42">STEP 1</text>
     <text class="heading" x="26" y="82">温度の境界が少し蛇行する</text>
+    <text class="view" x="432" y="100">水平断面（上から見る）</text>
     <path d="M24 168 C120 126, 214 216, 320 168 S520 126, 636 168 L636 238 L24 238 Z" fill="url(#warmBg)"/>
     <path d="M24 168 C120 126, 214 216, 320 168 S520 126, 636 168 L636 106 L24 106 Z" fill="url(#coldBg)"/>
     <path d="M24 168 C120 126, 214 216, 320 168 S520 126, 636 168" fill="none" stroke="#25312d" stroke-width="4"/>
@@ -44,6 +48,10 @@
     <text class="warm" x="440" y="224">暖気（赤道側）</text>
     <path d="M180 210 C176 184, 182 160, 198 140" fill="none" stroke="#d85a30" stroke-width="5" marker-end="url(#arrowWarm)"/>
     <path d="M500 126 C510 148, 508 172, 492 196" fill="none" stroke="#26736c" stroke-width="5" marker-end="url(#arrowCold)"/>
+    <path class="axis" d="M580 232 L622 232"/>
+    <path class="axis" d="M580 232 L580 198"/>
+    <text class="axis-label" x="627" y="237">東</text>
+    <text class="axis-label" x="567" y="194">北</text>
   </g>
 
   <path class="connector" d="M360 310 L360 345"/>
@@ -60,6 +68,12 @@
     <text class="warm" x="145" y="250">軽い暖気</text>
     <text class="cold" x="390" y="250">重い寒気</text>
     <text class="small" x="502" y="122">重心が下がる</text>
+    <path class="axis" d="M72 210 L130 210"/>
+    <path class="axis" d="M72 210 L72 150"/>
+    <text class="axis-label" x="136" y="215">北</text>
+    <text class="axis-label" x="48" y="143">高度</text>
+    <text class="axis-label" x="50" y="228">南</text>
+    <text class="view" x="48" y="118">鉛直断面</text>
   </g>
 
   <path class="connector" d="M360 640 L360 675"/>
@@ -67,16 +81,29 @@
   <g transform="translate(30 690)">
     <rect class="panel" width="660" height="270" rx="18"/>
     <text class="step" x="26" y="42">STEP 3</text>
-    <text class="heading" x="26" y="82">位置エネルギーが風へ移る</text>
-    <rect x="46" y="112" width="226" height="112" rx="16" fill="#eef5f1" stroke="#d9ded5" stroke-width="2"/>
-    <text class="label" x="78" y="155">有効位置</text>
-    <text class="label" x="78" y="187">エネルギー</text>
-    <path d="M286 168 L370 168" fill="none" stroke="#d85a30" stroke-width="7" marker-end="url(#arrowWarm)"/>
-    <rect x="388" y="112" width="226" height="112" rx="16" fill="#fff5ec" stroke="#d85a30" stroke-width="2"/>
-    <text class="label" x="432" y="155">擾乱の風の</text>
-    <text class="label" x="432" y="187">運動エネルギー</text>
-    <path d="M430 232 C474 260, 550 258, 588 226" fill="none" stroke="#25312d" stroke-width="5" marker-end="url(#arrowDark)"/>
-    <text class="small" x="48" y="250">気圧の仕事を通して風速が増す</text>
+    <text class="heading" x="26" y="82">気圧差が空気を押し、風を強める</text>
+    <text class="view" x="497" y="103">模式図</text>
+
+    <rect x="40" y="116" width="260" height="116" rx="14" fill="#fbfcfa" stroke="#d9ded5" stroke-width="2"/>
+    <text class="axis-label" x="58" y="137">① 上昇・下降で気圧差ができる</text>
+    <circle cx="112" cy="191" r="22" fill="#fde1ce" stroke="#d85a30" stroke-width="3"/>
+    <path d="M112 183 L112 151" fill="none" stroke="#d85a30" stroke-width="7" marker-end="url(#arrowWarm)"/>
+    <text class="warm" x="82" y="222">低</text>
+    <circle cx="228" cy="159" r="22" fill="#e1f1f5" stroke="#26736c" stroke-width="3"/>
+    <path d="M228 167 L228 201" fill="none" stroke="#26736c" stroke-width="7" marker-end="url(#arrowCold)"/>
+    <text class="cold" x="218" y="222">高</text>
+
+    <path d="M312 174 L352 174" fill="none" stroke="#69736a" stroke-width="5" marker-end="url(#arrowDark)"/>
+
+    <rect x="366" y="116" width="254" height="116" rx="14" fill="#fff5ec" stroke="#d85a30" stroke-width="2"/>
+    <text class="axis-label" x="384" y="137">② 気圧差が空気を加速する</text>
+    <circle cx="404" cy="181" r="25" fill="#e1f1f5" stroke="#26736c" stroke-width="3"/>
+    <text class="cold" x="394" y="189">高</text>
+    <circle cx="582" cy="181" r="25" fill="#fde1ce" stroke="#d85a30" stroke-width="3"/>
+    <text class="warm" x="572" y="189">低</text>
+    <path d="M438 181 L548 181" fill="none" stroke="#25312d" stroke-width="8" marker-end="url(#arrowDark)"/>
+    <text class="small" x="445" y="221">風速が増す</text>
+    <text class="axis-label" x="44" y="254">減った位置エネルギー → 気圧の仕事 → 風の運動エネルギー</text>
   </g>
 
   <path class="connector" d="M360 970 L360 1005"/>
@@ -85,6 +112,7 @@
     <rect class="panel" width="660" height="270" rx="18"/>
     <text class="step" x="26" y="42">STEP 4</text>
     <text class="heading" x="26" y="82">強い南北風が熱を多く運ぶ</text>
+    <text class="view" x="432" y="100">水平断面（上から見る）</text>
     <rect x="46" y="112" width="568" height="112" rx="16" fill="#fbfcfa" stroke="#d9ded5" stroke-width="2"/>
     <text class="cold" x="64" y="142">極側</text>
     <text class="warm" x="64" y="210">赤道側</text>
@@ -94,5 +122,9 @@
     <path d="M448 156 L448 204" fill="none" stroke="#26736c" stroke-width="9" marker-end="url(#arrowCold)"/>
     <text class="warm" x="208" y="250">暖気を北へ</text>
     <text class="cold" x="402" y="250">寒気を南へ</text>
+    <path class="axis" d="M540 210 L594 210"/>
+    <path class="axis" d="M540 210 L540 158"/>
+    <text class="axis-label" x="600" y="215">東</text>
+    <text class="axis-label" x="527" y="151">北</text>
   </g>
 </svg>
