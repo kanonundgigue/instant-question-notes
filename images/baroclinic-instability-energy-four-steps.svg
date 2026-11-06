@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="1320" viewBox="0 0 720 1320" role="img" aria-labelledby="title desc">
+  <title id="title">傾圧不安定がエネルギーを取り出す4ステップ</title>
+  <desc id="desc">南北温度境界の蛇行、暖気の上昇と寒気の下降、位置エネルギーから風の運動エネルギーへの変換、強まった南北風による熱輸送の増加を上から順に示す。</desc>
+  <defs>
+    <linearGradient id="warmBg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff5ec"/>
+      <stop offset="1" stop-color="#fde1ce"/>
+    </linearGradient>
+    <linearGradient id="coldBg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e1f1f5"/>
+      <stop offset="1" stop-color="#eef8fa"/>
+    </linearGradient>
+    <marker id="arrowDark" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#25312d"/>
+    </marker>
+    <marker id="arrowWarm" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#d85a30"/>
+    </marker>
+    <marker id="arrowCold" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#26736c"/>
+    </marker>
+    <style>
+      .panel { fill: #fff; stroke: #d9ded5; stroke-width: 2; }
+      .step { fill: #d85a30; font: 700 22px sans-serif; }
+      .heading { fill: #25312d; font: 700 28px sans-serif; }
+      .label { fill: #25312d; font: 500 21px sans-serif; }
+      .small { fill: #69736a; font: 500 18px sans-serif; }
+      .warm { fill: #d85a30; font: 700 21px sans-serif; }
+      .cold { fill: #26736c; font: 700 21px sans-serif; }
+      .connector { fill: none; stroke: #69736a; stroke-width: 4; marker-end: url(#arrowDark); }
+    </style>
+  </defs>
+
+  <rect width="720" height="1320" rx="22" fill="#f6f7f4"/>
+
+  <g transform="translate(30 30)">
+    <rect class="panel" width="660" height="270" rx="18"/>
+    <text class="step" x="26" y="42">STEP 1</text>
+    <text class="heading" x="26" y="82">温度の境界が少し蛇行する</text>
+    <path d="M24 168 C120 126, 214 216, 320 168 S520 126, 636 168 L636 238 L24 238 Z" fill="url(#warmBg)"/>
+    <path d="M24 168 C120 126, 214 216, 320 168 S520 126, 636 168 L636 106 L24 106 Z" fill="url(#coldBg)"/>
+    <path d="M24 168 C120 126, 214 216, 320 168 S520 126, 636 168" fill="none" stroke="#25312d" stroke-width="4"/>
+    <text class="cold" x="40" y="132">寒気（極側）</text>
+    <text class="warm" x="440" y="224">暖気（赤道側）</text>
+    <path d="M180 210 C176 184, 182 160, 198 140" fill="none" stroke="#d85a30" stroke-width="5" marker-end="url(#arrowWarm)"/>
+    <path d="M500 126 C510 148, 508 172, 492 196" fill="none" stroke="#26736c" stroke-width="5" marker-end="url(#arrowCold)"/>
+  </g>
+
+  <path class="connector" d="M360 310 L360 345"/>
+
+  <g transform="translate(30 360)">
+    <rect class="panel" width="660" height="270" rx="18"/>
+    <text class="step" x="26" y="42">STEP 2</text>
+    <text class="heading" x="26" y="82">暖気が上昇し、寒気が下降する</text>
+    <line x1="42" y1="220" x2="618" y2="220" stroke="#d9ded5" stroke-width="3"/>
+    <ellipse cx="220" cy="184" rx="88" ry="42" fill="#fde1ce" stroke="#d85a30" stroke-width="3"/>
+    <ellipse cx="440" cy="132" rx="88" ry="42" fill="#e1f1f5" stroke="#26736c" stroke-width="3"/>
+    <path d="M220 178 L220 112" fill="none" stroke="#d85a30" stroke-width="8" marker-end="url(#arrowWarm)"/>
+    <path d="M440 138 L440 204" fill="none" stroke="#26736c" stroke-width="8" marker-end="url(#arrowCold)"/>
+    <text class="warm" x="145" y="250">軽い暖気</text>
+    <text class="cold" x="390" y="250">重い寒気</text>
+    <text class="small" x="502" y="122">重心が下がる</text>
+  </g>
+
+  <path class="connector" d="M360 640 L360 675"/>
+
+  <g transform="translate(30 690)">
+    <rect class="panel" width="660" height="270" rx="18"/>
+    <text class="step" x="26" y="42">STEP 3</text>
+    <text class="heading" x="26" y="82">位置エネルギーが風へ移る</text>
+    <rect x="46" y="112" width="226" height="112" rx="16" fill="#eef5f1" stroke="#d9ded5" stroke-width="2"/>
+    <text class="label" x="78" y="155">有効位置</text>
+    <text class="label" x="78" y="187">エネルギー</text>
+    <path d="M286 168 L370 168" fill="none" stroke="#d85a30" stroke-width="7" marker-end="url(#arrowWarm)"/>
+    <rect x="388" y="112" width="226" height="112" rx="16" fill="#fff5ec" stroke="#d85a30" stroke-width="2"/>
+    <text class="label" x="432" y="155">擾乱の風の</text>
+    <text class="label" x="432" y="187">運動エネルギー</text>
+    <path d="M430 232 C474 260, 550 258, 588 226" fill="none" stroke="#25312d" stroke-width="5" marker-end="url(#arrowDark)"/>
+    <text class="small" x="48" y="250">気圧の仕事を通して風速が増す</text>
+  </g>
+
+  <path class="connector" d="M360 970 L360 1005"/>
+
+  <g transform="translate(30 1020)">
+    <rect class="panel" width="660" height="270" rx="18"/>
+    <text class="step" x="26" y="42">STEP 4</text>
+    <text class="heading" x="26" y="82">強い南北風が熱を多く運ぶ</text>
+    <rect x="46" y="112" width="568" height="112" rx="16" fill="#fbfcfa" stroke="#d9ded5" stroke-width="2"/>
+    <text class="cold" x="64" y="142">極側</text>
+    <text class="warm" x="64" y="210">赤道側</text>
+    <circle cx="278" cy="196" r="26" fill="#fde1ce" stroke="#d85a30" stroke-width="3"/>
+    <path d="M278 180 L278 132" fill="none" stroke="#d85a30" stroke-width="9" marker-end="url(#arrowWarm)"/>
+    <circle cx="448" cy="140" r="26" fill="#e1f1f5" stroke="#26736c" stroke-width="3"/>
+    <path d="M448 156 L448 204" fill="none" stroke="#26736c" stroke-width="9" marker-end="url(#arrowCold)"/>
+    <text class="warm" x="208" y="250">暖気を北へ</text>
+    <text class="cold" x="402" y="250">寒気を南へ</text>
+  </g>
+</svg>
