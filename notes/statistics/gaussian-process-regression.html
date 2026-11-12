@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ガウス過程回帰とは？ | k-notes</title>
+    <meta name="description" content="ガウス過程回帰の考え方を、関数への確率分布、カーネル、予測平均と不確かさ、長所・限界、Python例から説明する。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>ガウス過程回帰とは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-11-12">2026-11-12</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>ガウス過程回帰とは？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><strong>ガウス過程回帰（Gaussian Process Regression、GPR）は、未知の関数そのものに確率分布を置き、観測データを使って予測値と予測の不確かさを同時に求めるベイズ回帰です。</strong>関数を有限個の係数で決める代わりに、入力点どうしの似近さを表すカーネルから、あり得る関数の集まりを定めます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>要点</h3>
+          <ul>
+            <li>観測点の近くではデータに沿い、観測点から離れるほど通常は予測の不確かさが大きくなります。</li>
+            <li>カーネルが「どれくらい滑らかか」「周期性があるか」など、関数についての仮定を表します。</li>
+            <li>標準的な実装は学習時にデータ数 \(n\) に対しておおむね \(O(n^3)\) の計算を要するため、少量から中規模のデータに向きます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></li>
+          </ul>
+
+          <h3>「関数に確率分布を置く」とは</h3>
+          <p>ガウス過程は、任意に選んだ有限個の入力点における関数値が、多変量正規分布に従う確率過程です。平均関数 \(m(x)\) と共分散関数、すなわちカーネル \(k(x,x')\) を使って次のように表します。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <p>
+            \[
+              f(x) \sim \mathcal{GP}\!\left(m(x), k(x,x')\right). \tag{1}
+            \]
+          </p>
+
+          <p>式 (1) の \(f(x)\) は未知の関数、\(m(x)\) はデータを見る前に想定する平均、\(k(x,x')\) は入力 \(x\) と \(x'\) における関数値がどれだけ一緒に変動しやすいかを表します。平均関数は簡単のため 0 と置く場合が多く、関数の形についての仮定は主にカーネルが担います。</p>
+
+          <h3>カーネルが「似た入力は似た出力」を数値化する</h3>
+          <p>代表例は RBF カーネル（平方指数カーネル）です。</p>
+
+          <p>
+            \[
+              k(x,x') = \sigma_f^2
+              \exp\!\left(-\frac{\lVert x-x' \rVert^2}{2\ell^2}\right). \tag{2}
+            \]
+          </p>
+
+          <p>式 (2) の \(\sigma_f^2\) は関数の変動幅、\(\ell\) は長さ尺度です。長さ尺度が大きいほど離れた入力どうしも似ているとみなし、ゆっくり変化する関数を想定します。RBF カーネルは非常に滑らかな関数を仮定します。粗い変化を許す Matérn カーネルや、周期性を表すカーネルなども選べます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>観測データから予測分布を求める</h3>
+          <p>入力 \(x_i\) に対する観測値を \(y_i=f(x_i)+\varepsilon_i\)、観測誤差を \(\varepsilon_i\sim\mathcal{N}(0,\sigma_n^2)\) とします。学習入力間のカーネル行列を \(K\)、新しい入力 \(x_*\) と学習入力の共分散ベクトルを \(k_*\) とすると、ゼロ平均ガウス過程の予測分布は正規分布になります。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <p>
+            \[
+              \begin{aligned}
+                \mu_* &amp;= k_*^{\mathsf{T} }
+                \left(K+\sigma_n^2 I\right)^{-1}y, \\
+                \sigma_*^2 &amp;= k(x_*,x_*)-
+                k_*^{\mathsf{T} }
+                \left(K+\sigma_n^2 I\right)^{-1}k_*.
+              \end{aligned} \tag{3}
+            \]
+          </p>
+
+          <p>式 (3) の \(\mu_*\) が予測平均、\(\sigma_*^2\) が潜在関数 \(f(x_*)\) の予測分散です。新しい観測値そのものの分散が必要なら、さらに観測誤差分散 \(\sigma_n^2\) を加えます。実装では逆行列を明示的に計算せず、通常は Cholesky 分解を使って連立方程式を解きます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>学習ではカーネルの設定をデータに合わせる</h3>
+          <p>カーネルの種類はモデル作成者が選び、長さ尺度や信号分散、観測誤差分散などのハイパーパラメータは、周辺尤度を最大化して推定する方法が一般的です。周辺尤度にはデータへの適合とモデルの複雑さの釣り合いが含まれます。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>ただし、得られる不確かさは選んだ平均関数、カーネル、誤差モデルが妥当であるという条件付きです。信頼区間の幅が狭くても、モデルの仮定が現象と合っていなければ、現実の不確かさを十分に表さない場合があります。</p>
+
+          <h3>線形回帰との違い</h3>
+          <table class="mobile-table">
+            <caption>線形回帰とガウス過程回帰の基本的な違い</caption>
+            <thead>
+              <tr>
+                <th scope="col">観点</th>
+                <th scope="col">線形回帰</th>
+                <th scope="col">ガウス過程回帰</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="観点">関数の形</td>
+                <td data-label="線形回帰">説明変数の線形結合を基本とする</td>
+                <td data-label="ガウス過程回帰">カーネルが許す非線形な関数を表せる</td>
+              </tr>
+              <tr>
+                <td data-label="観点">推定対象</td>
+                <td data-label="線形回帰">主に有限個の回帰係数</td>
+                <td data-label="ガウス過程回帰">関数値の同時分布</td>
+              </tr>
+              <tr>
+                <td data-label="観点">不確かさ</td>
+                <td data-label="線形回帰">仮定の下で平均応答や予測の区間を求める</td>
+                <td data-label="ガウス過程回帰">各入力における予測分布を直接得る</td>
+              </tr>
+              <tr>
+                <td data-label="観点">計算負荷</td>
+                <td data-label="線形回帰">比較的軽い</td>
+                <td data-label="ガウス過程回帰">標準法はデータ数の増加に弱い</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Pythonでの最小例</h3>
+          <p>scikit-learn では、RBF カーネルと観測誤差を表す WhiteKernel を組み合わせて実装できます。<code>return_std=True</code> を指定すると、予測平均と標準偏差を得られます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <pre><code class="language-python">import numpy as np
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import ConstantKernel, RBF, WhiteKernel
+
+x_train = np.array([0.0, 1.0, 2.0, 3.0])[:, np.newaxis]
+y_train = np.array([0.1, 0.9, 0.2, -0.8])
+
+kernel = (
+    ConstantKernel(1.0) * RBF(length_scale=1.0)
+    + WhiteKernel(noise_level=0.1)
+)
+model = GaussianProcessRegressor(
+    kernel=kernel,
+    normalize_y=True,
+    n_restarts_optimizer=5,
+    random_state=0,
+)
+model.fit(x_train, y_train)
+
+x_test = np.linspace(-1.0, 4.0, 200)[:, np.newaxis]
+mean, std = model.predict(x_test, return_std=True)
+
+lower = mean - 1.96 * std
+upper = mean + 1.96 * std</code></pre>
+
+          <p><code>lower</code> と <code>upper</code> は、予測分布が正規分布であることに基づく点ごとの約 95% 区間です。この区間は、曲線全体を同時に 95% の確率で覆う同時区間とは異なります。</p>
+
+          <h3>向いている場面と注意点</h3>
+          <ul>
+            <li><strong>向いている場面:</strong> データが少量から中規模で、非線形関係と予測の不確かさをともに知りたい場合。</li>
+            <li><strong>特に有用な用途:</strong> 実験計画、ベイズ最適化、空間補間、計算コストの高いシミュレーションの代理モデル。</li>
+            <li><strong>カーネル選択:</strong> 滑らかさ、周期性、変化率など、対象についての知識をカーネルへ反映する必要があります。</li>
+            <li><strong>外挿:</strong> 観測範囲の外では平均関数やカーネルの仮定へ戻るため、データだけから遠方の傾向を保証する手法ではありません。</li>
+            <li><strong>大規模データ:</strong> 標準的な厳密計算は重いため、誘導点などを使う疎近似が必要になる場合があります。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></li>
+          </ul>
+
+          <h3>まとめ</h3>
+          <p>ガウス過程回帰は、<strong>カーネルで関数の似かたを定め、観測後の関数の確率分布を計算する回帰手法</strong>です。予測曲線だけでなく、どこで予測に自信があり、どこで不確かかを示せる点が中心的な特徴です。実際に使うときは、予測平均の当てはまりとともに、カーネルの仮定、予測区間の妥当性、データ数に対する計算負荷を確認します。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://gaussianprocess.org/gpml/chapters/RW2.pdf">Carl Edward Rasmussen and Christopher K. I. Williams, Gaussian Processes for Machine Learning, Chapter 2: Regression</a></li>
+            <li id="ref-2"><a href="https://scikit-learn.org/stable/modules/gaussian_process.html">scikit-learn User Guide: Gaussian Processes</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
