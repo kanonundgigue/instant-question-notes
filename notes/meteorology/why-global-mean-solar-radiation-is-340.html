@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>地球に入射する太陽放射が340 W/m²になるのはなぜ？ | k-notes</title>
+    <meta name="description" content="太陽放射約1361 W/m²を地球全体で平均すると約340 W/m²になる理由を、円盤と球面の面積比から計算します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>地球に入射する太陽放射が340 W/m²になるのはなぜ？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-11-18">2026-11-18</time></p>
+          <p>カテゴリ: meteorology / 放射収支</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>地球に入射する太陽放射が340 W/m²になるのはなぜ？どうやって計算？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">1361 W/m²を地球全表面で平均すると約340 W/m²になる</h2>
+          <p>地球軌道で太陽光に垂直な面が受ける全太陽放射照度は約 \(1361\,\mathrm{W\,m^{-2} }\) です。地球が太陽光を受け止める面積は円盤の \(\pi R^2\) ですが、そのエネルギーを昼夜を含む地球全表面積 \(4\pi R^2\) で平均します。面積比が \(1/4\) なので、全球平均は約 \(340\,\mathrm{W\,m^{-2} }\) になります。NASAも、約1361 W/m²の全太陽放射照度が全球平均では340 W/m²になると説明しています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+        </section>
+
+        <section aria-labelledby="calculation-heading">
+          <h2 id="calculation-heading">円盤で受けたエネルギーを球面で割る</h2>
+          <p>地球の半径を \(R\)、太陽光に垂直な面が受ける放射照度を \(S_0\) とします。太陽は地球から十分遠いため、地球付近の光線をほぼ平行とみなせます。太陽から見た地球は半径 \(R\) の円盤なので、地球全体が受け取る太陽放射のパワー \(P_{\mathrm{in} }\) は次の式で表せます。</p>
+          <p>
+            \[
+              P_{\mathrm{in} }=S_0\pi R^2. \tag{1}
+            \]
+          </p>
+          <p>次に、このパワーを地球の全表面積 \(4\pi R^2\) で割ります。全球平均の入射太陽放射を \(\langle S\rangle\) とすると、半径を含む項が消えます。</p>
+          <p>
+            \[
+              \begin{aligned}
+                \langle S\rangle
+                &amp;=\frac{P_{\mathrm{in} } }{4\pi R^2} \\
+                &amp;=\frac{S_0\pi R^2}{4\pi R^2} \\
+                &amp;=\frac{S_0}{4}.
+              \end{aligned} \tag{2}
+            \]
+          </p>
+          <p>\(S_0=1361\,\mathrm{W\,m^{-2} }\) を代入すると、次の値になります。</p>
+          <p>
+            \[
+              \langle S\rangle
+              =\frac{1361}{4}
+              =340.25\,\mathrm{W\,m^{-2} }
+              \approx340\,\mathrm{W\,m^{-2} }. \tag{3}
+            \]
+          </p>
+          <p>NASAのTSIS-1による2019年の太陽活動極小期の値 \(1361.6\,\mathrm{W\,m^{-2} }\) を使えば、結果は \(340.4\,\mathrm{W\,m^{-2} }\) です。したがって340 W/m²は、測定値と丸め方に応じて小数部分が少し変わる代表値です。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+        </section>
+
+        <section aria-labelledby="factor-heading">
+          <h2 id="factor-heading">「4」の半分は昼夜、もう半分は入射角に由来する</h2>
+          <p>係数 \(1/4\) は、二つの平均操作に分けると理解しやすくなります。まず太陽光が当たるのは地球表面の半分なので、昼夜を平均すると係数 \(1/2\) が生じます。さらに昼側でも、太陽光が垂直に当たるのは太陽直下点だけです。斜めに当たる場所ほど同じ光が広い面積へ分散するため、昼側の入射角を平均すると、もう一つの係数 \(1/2\) が生じます。</p>
+          <p>
+            \[
+              \frac{1}{2}\times\frac{1}{2}=\frac{1}{4}. \tag{4}
+            \]
+          </p>
+          <p>したがって、太陽光に垂直な面では約1361 W/m²、昼側だけの平均では約680 W/m²、昼夜を含む全球平均では約340 W/m²となります。</p>
+        </section>
+
+        <section aria-labelledby="meaning-heading">
+          <h2 id="meaning-heading">340 W/m²は大気上端の平均入射量を表す</h2>
+          <p>340 W/m²は、大気上端で受ける太陽放射を地球全体・昼夜で平均した値です。雲・大気・地表による反射や、大気による吸収を差し引く前の量です。地表のある地点で観測する日射量とは一致しません。</p>
+          <p>また、実際の全太陽放射照度は完全な定数ではありません。太陽活動に伴って約0.1％変化し、地球と太陽の距離も公転に伴って変わります。NASAは2019年の太陽活動極小期の値を \(1361.6\pm0.3\,\mathrm{W\,m^{-2} }\) と示しています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup> 1361 W/m²という基準値の測定史と不確かさについては、Kopp・Lean（2011）がSORCE/TIMの測定に基づき詳しく検討しています。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>反射まで考える場合は、惑星アルベドを \(\alpha\) として、全球平均の吸収太陽放射を \(S_0(1-\alpha)/4\) と計算します。この段階で初めて、入射した約340 W/m²から宇宙へ反射される分を差し引きます。太陽定数そのものの求め方は、<a href="solar-constant-calculation.html">太陽定数の求め方の記事</a>で説明しています。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://earth.gsfc.nasa.gov/climate/projects/solar-irradiance/science">NASA Goddard Space Flight Center, Solar Irradiance Science</a>：全太陽放射照度約1361 W/m²、全球平均340 W/m²、太陽活動による変動。</li>
+            <li id="ref-2"><a href="https://doi.org/10.1029/2010GL045777">Kopp and Lean（2011）, A new, lower value of total solar irradiance: Evidence and climate significance</a>：SORCE/TIMによる全太陽放射照度の測定値と不確かさ。</li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
