@@ -27,6 +27,7 @@
         <h1>地球に入射する太陽放射が340 W/m²になるのはなぜ？</h1>
         <div class="article-meta">
           <p>作成日: <time datetime="2026-11-18">2026-11-18</time></p>
+          <p>更新日: <time datetime="2026-11-18">2026-11-18</time></p>
           <p>カテゴリ: meteorology / 放射収支</p>
         </div>
 
@@ -34,6 +35,16 @@
           <h2 id="question-heading">元の質問</h2>
           <p>地球に入射する太陽放射が340 W/m²になるのはなぜ？どうやって計算？</p>
         </section>
+
+        <nav aria-label="目次">
+          <ul>
+            <li><a href="#answer-heading">結論</a></li>
+            <li><a href="#calculation-heading">円盤と球面の面積比</a></li>
+            <li><a href="#factor-heading">昼夜と入射角による係数</a></li>
+            <li><a href="#meaning-heading">340 W/m²が表す量</a></li>
+            <li><a href="#references-heading">参照</a></li>
+          </ul>
+        </nav>
 
         <section aria-labelledby="answer-heading">
           <h2 id="answer-heading">1361 W/m²を地球全表面で平均すると約340 W/m²になる</h2>
@@ -73,10 +84,52 @@
 
         <section aria-labelledby="factor-heading">
           <h2 id="factor-heading">「4」の半分は昼夜、もう半分は入射角に由来する</h2>
-          <p>係数 \(1/4\) は、二つの平均操作に分けると理解しやすくなります。まず太陽光が当たるのは地球表面の半分なので、昼夜を平均すると係数 \(1/2\) が生じます。さらに昼側でも、太陽光が垂直に当たるのは太陽直下点だけです。斜めに当たる場所ほど同じ光が広い面積へ分散するため、昼側の入射角を平均すると、もう一つの係数 \(1/2\) が生じます。</p>
+          <p>係数 \(1/4\) は、二つの平均操作に分けると理解しやすくなります。まず太陽光が当たるのは地球表面の半分なので、昼夜を平均すると係数 \(1/2\) が生じます。さらに昼側でも入射角によって単位面積あたりの受光量が変わり、その平均からもう一つの係数 \(1/2\) が生じます。</p>
+
+          <h3>斜めの地面は太陽光に対して小さく見える</h3>
+          <p>太陽直下点からの中心角を \(\theta\) とします。この角度は、太陽光と地表面の法線がなす角でもあります。太陽直下点では \(\theta=0^\circ\) で、太陽光は地表面へ垂直に当たります。昼夜の境界では \(\theta=90^\circ\) となり、太陽光は地表面をかすめます。</p>
+          <p>面積 \(A\) の地表面を太陽光の進行方向から見ると、その投影面積は \(A\cos\theta\) です。したがって、その地表面が受け止めるパワー \(P(\theta)\) と、単位面積あたりの入射太陽放射 \(S(\theta)\) は次のようになります。</p>
           <p>
             \[
-              \frac{1}{2}\times\frac{1}{2}=\frac{1}{4}. \tag{4}
+              \begin{aligned}
+                P(\theta)&amp;=S_0 A\cos\theta,\\
+                S(\theta)&amp;=\frac{P(\theta)}{A}
+                =S_0\cos\theta.
+              \end{aligned} \tag{4}
+            \]
+          </p>
+          <p>同じ関係を、太陽光の束が地表を照らす面積から考えることもできます。太陽光に垂直な断面積が \(1\,\mathrm{m^2}\) の光の束は、垂直入射なら地表の \(1\,\mathrm{m^2}\) を照らします。入射角が \(60^\circ\) なら \(\cos60^\circ=0.5\) なので、同じ光の束が地表の \(1/0.5=2\,\mathrm{m^2}\) に広がります。全パワーは同じまま面積が2倍になるため、単位面積あたりの放射は半分です。</p>
+          <ul>
+            <li>\(\theta=0^\circ\)：\(S=S_0\)。約 \(1361\,\mathrm{W\,m^{-2} }\)</li>
+            <li>\(\theta=60^\circ\)：\(S=S_0/2\)。約 \(681\,\mathrm{W\,m^{-2} }\)</li>
+            <li>\(\theta=80^\circ\)：\(S\approx0.174S_0\)。約 \(236\,\mathrm{W\,m^{-2} }\)</li>
+            <li>\(\theta=90^\circ\)：\(S=0\)。昼夜の境界では地表をかすめる</li>
+          </ul>
+
+          <h3>昼側半球で平均すると \(S_0/2\) になる</h3>
+          <p>中心角が \(\theta\) から \(\theta+d\theta\) の範囲にある細い帯の面積は \(dA=2\pi R^2\sin\theta\,d\theta\) です。式 (4) の \(S_0\cos\theta\) をこの帯の面積で重み付けし、昼側半球の面積 \(2\pi R^2\) で割ると、昼側平均を計算できます。</p>
+          <p>
+            \[
+              \begin{aligned}
+                \langle S\rangle_{\mathrm{day} }
+                &amp;=\frac{1}{2\pi R^2}
+                \int_0^{\pi/2}
+                S_0\cos\theta\,
+                2\pi R^2\sin\theta\,d\theta\\
+                &amp;=S_0
+                \int_0^{\pi/2}
+                \cos\theta\sin\theta\,d\theta\\
+                &amp;=\frac{S_0}{2}.
+              \end{aligned} \tag{5}
+            \]
+          </p>
+          <p>昼側では、直下点付近の強い入射と周縁部の弱い入射が混在します。それらを面積に応じて平均した値が約 \(680\,\mathrm{W\,m^{-2} }\) です。夜側は入射がゼロなので、全球平均ではさらに半分になります。</p>
+          <p>
+            \[
+              \underbrace{\frac{1}{2} }_{\text{入射角の平均} }
+              \times
+              \underbrace{\frac{1}{2} }_{\text{昼夜の平均} }
+              =\frac{1}{4}. \tag{6}
             \]
           </p>
           <p>したがって、太陽光に垂直な面では約1361 W/m²、昼側だけの平均では約680 W/m²、昼夜を含む全球平均では約340 W/m²となります。</p>
