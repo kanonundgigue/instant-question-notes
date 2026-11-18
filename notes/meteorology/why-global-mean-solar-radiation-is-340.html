@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>地球に入射する太陽放射が340 W/m²になるのはなぜ？ | k-notes</title>
-    <meta name="description" content="NASA CERES資料に示された全球平均太陽放射S₀/4の関係を用い、約1361 W/m²から約340 W/m²を計算する。">
+    <meta name="description" content="地球の円盤断面積と球面積の比から除数4を導出し、約1361 W/m²から全球平均約340 W/m²を計算する。">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
@@ -53,14 +53,43 @@
         </section>
 
         <section aria-labelledby="calculation-heading">
-          <h2 id="calculation-heading">CERES資料に基づく計算</h2>
-          <p>NASA CERES資料が示す球形地球の平均太陽放射 \(S_0/4\) に、全太陽放射照度 \(S_0=1361\,\mathrm{W\,m^{-2} }\) を代入する。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <h2 id="calculation-heading">円盤断面積と球面積から除数4を求める</h2>
+          <p>Oliveira（2023）は、太陽―地球間距離が大きいため、地球へ入射する太陽放射を平行かつ一様な光束として近似し、その円盤断面内の総放射を地球の球面積で割ることによって全球平均を求めている。論文中の図4には、円盤断面積と球面積の比から \(\overline{S_0}=S_0/4\) を得る関係が明示されている。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <p>地球半径を \(R\) とする。太陽光線に垂直な地球の円盤断面積 \(A_{\mathrm{disc} }\) と、地球の全表面積 \(A_{\mathrm{sphere} }\) は、それぞれ式 (1) で与えられる。</p>
+          <p>
+            \[
+              \begin{aligned}
+                A_{\mathrm{disc} }&amp;=\pi R^2,\\
+                A_{\mathrm{sphere} }&amp;=4\pi R^2.
+              \end{aligned} \tag{1}
+            \]
+          </p>
+          <p>太陽光線に垂直な単位面積あたりの放射照度を \(S_0\) とすると、地球全体が受け取る総パワー \(P_{\mathrm{in} }\) は、\(S_0\) と円盤断面積の積である。</p>
+          <p>
+            \[
+              P_{\mathrm{in} }=S_0 A_{\mathrm{disc} }
+              =S_0\pi R^2. \tag{2}
+            \]
+          </p>
+          <p>この総パワーを地球の全表面積で平均すると、式 (3) のように半径 \(R\) と円周率 \(\pi\) が相殺され、除数4が得られる。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <p>
+            \[
+              \begin{aligned}
+                \langle S\rangle
+                &amp;=\frac{P_{\mathrm{in} } }{A_{\mathrm{sphere} } }\\
+                &amp;=\frac{S_0\pi R^2}{4\pi R^2}\\
+                &amp;=\frac{S_0}{4}.
+              \end{aligned} \tag{3}
+            \]
+          </p>
+          <p>したがって、除数4は、球面積 \(4\pi R^2\) が円盤断面積 \(\pi R^2\) の4倍であることに由来する。この関係は、NASA CERES資料が球形地球について示す \(S_0/4\) と一致する。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup><sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <p>全太陽放射照度 \(S_0=1361\,\mathrm{W\,m^{-2} }\) を式 (3) に代入する。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
           <p>
             \[
               \langle S\rangle
               =\frac{1361}{4}
               =340.25\,\mathrm{W\,m^{-2} }
-              \approx340\,\mathrm{W\,m^{-2} }. \tag{1}
+              \approx340\,\mathrm{W\,m^{-2} }. \tag{4}
             \]
           </p>
           <p>NASAのTSIS-1による2019年の太陽活動極小期の値 \(1361.6\,\mathrm{W\,m^{-2} }\) を用いた場合、全球平均値は \(340.4\,\mathrm{W\,m^{-2} }\) となる。したがって、340 W/m²は特定時点の厳密な定数ではなく、観測値を適切な有効数字で丸めた代表値である。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
@@ -70,13 +99,13 @@
         <section aria-labelledby="meaning-heading">
           <h2 id="meaning-heading">物理的意味と適用範囲</h2>
           <p>約340 W/m²は、大気上端へ入射する太陽放射を地球全表面について平均した量である。この値には、雲・大気・地表による反射および大気による吸収は含まれていない。したがって、特定地点・特定時刻の大気上端入射量や、地表面で観測される下向き短波放射とは一致しない。</p>
-          <p>さらに、\(S_0\) は厳密な時間不変量ではない。全太陽放射照度は太陽活動に伴って約0.1％変動し、地球軌道上における実際の放射照度は日地距離の変化にも依存する。NASAは2019年の太陽活動極小期における値を \(1361.6\pm0.3\,\mathrm{W\,m^{-2} }\) としている。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup> Kopp・Lean（2011）は、SORCE/TIMによる測定に基づき、全太陽放射照度の絶対値と測定不確かさを評価した。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+          <p>さらに、\(S_0\) は厳密な時間不変量ではない。全太陽放射照度は太陽活動に伴って約0.1％変動し、地球軌道上における実際の放射照度は日地距離の変化にも依存する。NASAは2019年の太陽活動極小期における値を \(1361.6\pm0.3\,\mathrm{W\,m^{-2} }\) としている。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup> Kopp・Lean（2011）は、SORCE/TIMによる測定に基づき、全太陽放射照度の絶対値と測定不確かさを評価した。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
           <p>地球による短波放射の吸収量を求める場合には、惑星アルベドを \(\alpha\) として、CERES資料が示す全球平均入射量 \(S_0/4\) に吸収率 \(1-\alpha\) を乗じる。\(S_0\) 自体の説明については、<a href="solar-constant-calculation.html">太陽定数の求め方の記事</a>を参照されたい。</p>
         </section>
 
         <section aria-labelledby="conclusion-heading">
           <h2 id="conclusion-heading">結論</h2>
-          <p>NASA CERES資料は、球形地球を仮定した全球平均太陽放射を \(S_0/4\) としている。この関係に約1361 W/m²を代入すると、約340 W/m²が得られる。この値は大気上端における全球平均入射量であり、地表日射量または地球系の吸収短波放射として解釈する場合には、大気過程やアルベドを別途考慮する必要がある。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>除数4は、地球の円盤断面積 \(\pi R^2\) と全表面積 \(4\pi R^2\) の比から得られる。この導出はOliveira（2023）に明示されており、NASA CERES資料が球形地球について示す \(S_0/4\) とも整合する。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup><sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup>この関係に約1361 W/m²を代入すると、約340 W/m²が得られる。この値は大気上端における全球平均入射量であり、地表日射量または地球系の吸収短波放射として解釈する場合には、大気過程やアルベドを別途考慮する必要がある。</p>
         </section>
 
         <section class="references" aria-labelledby="references-heading">
@@ -84,7 +113,8 @@
           <ol>
             <li id="ref-1"><a href="https://earth.gsfc.nasa.gov/climate/projects/solar-irradiance/science">NASA Goddard Space Flight Center, Solar Irradiance Science</a>：全太陽放射照度約1361 W/m²、全球平均約340 W/m²、および太陽活動による変動の数値。\(S_0/4\) の幾何学的導出は示していない。</li>
             <li id="ref-2"><a href="https://ceres.larc.nasa.gov/documents/DQ_summaries/CERES_SYN1deg_Ed4A_DQS.pdf">NASA CERES Science Team（2025）, CERES_SYN1deg_Ed4A Data Quality Summary</a>：球形地球を仮定した全球平均太陽放射 \(S_0/4\) と、扁平回転楕円体を考慮した補正。</li>
-            <li id="ref-3"><a href="https://doi.org/10.1029/2010GL045777">Kopp and Lean（2011）, A new, lower value of total solar irradiance: Evidence and climate significance</a>：SORCE/TIMによる全太陽放射照度の測定値と不確かさ。</li>
+            <li id="ref-3"><a href="https://doi.org/10.5194/gmd-16-2371-2023">Oliveira（2023）, DINSOL-v1.0: a numerical model for calculating the daily insolation</a>：平行な太陽放射が入射する円盤断面積を地球の球面積で割り、全球平均を \(S_0/4\) とする導出と図4。</li>
+            <li id="ref-4"><a href="https://doi.org/10.1029/2010GL045777">Kopp and Lean（2011）, A new, lower value of total solar irradiance: Evidence and climate significance</a>：SORCE/TIMによる全太陽放射照度の測定値と不確かさ。</li>
           </ol>
         </section>
       </article>
