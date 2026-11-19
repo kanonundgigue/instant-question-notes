@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Neural Network Zooとは？ | k-notes</title>
+    <meta name="description" content="Neural Network Zooの意味、図から読み取れること、代表的なネットワーク群、現在読むときの注意点を整理します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>Neural Network Zooとは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-11-19">2026-11-19</time></p>
+          <p>カテゴリ: statistics</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>Neural Network Zooとは？<br><a href="https://postd.cc/neural-network-zoo/">https://postd.cc/neural-network-zoo/</a></p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p><strong>Neural Network Zoo</strong>は、さまざまなニューラルネットワークの構造を動物園の展示のように並べ、相互の違いを見渡せるようにしたチートシートです。固有の学習法や製品を指す名称ではありません。質問にある記事は、Fjodor van Veenが2016年に公開した「The Neural Network Zoo」の日本語訳です。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup><sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>図はネットワーク構造の地図として読む</h3>
+          <p>Zooの図では、丸や四角が計算単位や状態を、線や矢印が情報の伝わる向きや接続関係を表します。図を横に並べることで、入力から出力へ一方向に進む構造、過去の状態を次の計算へ戻す構造、入力を圧縮して復元する構造、複数のネットワークを競わせる構造などを視覚的に比較できます。原著者は、個別の略語を暗記するよりも、ノード構造を描いて基本的な関係を捉えるためにこの一覧を作ったと説明しています。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>代表的な系統を目的と情報の流れで整理する</h3>
+          <ul>
+            <li><strong>順伝播型:</strong> パーセプトロンやFFNN。入力から出力へ一方向に情報を送る基本形。</li>
+            <li><strong>畳み込み型:</strong> CNNやその派生型。局所的なパターンを共有されたフィルタで捉え、画像などの空間構造を扱う。</li>
+            <li><strong>再帰型:</strong> RNN、LSTM、GRUなど。以前の状態を次の計算に使い、系列の文脈を保持する。</li>
+            <li><strong>符号化・生成型:</strong> AEやVAE。入力を潜在表現へ圧縮し、復元や新しいサンプルの生成に利用する。</li>
+            <li><strong>競合型:</strong> GAN。生成器と識別器を競わせて、学習データに似たサンプルを生成する。</li>
+            <li><strong>状態・エネルギー型:</strong> Hopfield networkやBoltzmann machineなど。安定状態や確率分布を使って記憶・生成を表す。</li>
+          </ul>
+          <p>この分類は、Zooの掲載項目を学習目的と情報の流れから読み直した整理です。名称が似ていても、構造、学習目標、用途のいずれが違うのかを分けて見ると理解しやすくなります。</p>
+
+          <h3>単純なノード図には学習法と用途が現れない</h3>
+          <p>Zooは構造の概観には有用ですが、図だけでモデルの働きは決まりません。原著は、AEとVAEが似たノード図に見えても、訓練過程と利用法は大きく異なると注意しています。また、略語には揺れがあり、RNNやAEが狭い構造名としても、派生型を含む総称としても使われる場合があります。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>各モデルを調べるときは、図に加えて、何を入力するか、どの損失を最小化するか、出力を何に使うか、学習時と推論時で処理がどう変わるかを確認します。この4点を押さえると、見た目が似たモデルも区別できます。</p>
+
+          <h3>2016年時点の地図として位置づける</h3>
+          <p>原著は2016年9月に公開され、完全な一覧を作ることは実質的に不可能だと明記しています。したがって、現在の代表的なニューラルネットワークを網羅する資料ではありません。たとえば、再帰や畳み込みを使わず注意機構を中心に系列を扱うTransformerは2017年に発表されました。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup> 高品質な画像生成で広く使われる拡散確率モデルの代表的研究も2020年です。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup></p>
+          <p>そのため、Zooは古典的アーキテクチャの系譜を知る入口として読み、現代の地図にはTransformer系、グラフニューラルネットワーク、拡散モデルなどを追加して考えるのが適切です。</p>
+
+          <h3>まとめ</h3>
+          <p>Neural Network Zooは、多数のネットワーク名を構造の違いから整理するための視覚的な索引です。図から情報の流れと接続関係をつかみ、個々のモデルでは学習目標と用途を別に確認します。リンク先は古典的モデルを俯瞰する資料として有用ですが、2016年以降の主要な発展を補って読む必要があります。</p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://www.asimovinstitute.org/neural-network-zoo/">Fjodor van Veen: The Neural Network Zoo</a></li>
+            <li id="ref-2"><a href="https://postd.cc/neural-network-zoo/">POSTD: ニューラルネットワークの動物園―ニューラルネットワーク・アーキテクチャのチートシート（前編）</a></li>
+            <li id="ref-3"><a href="https://arxiv.org/abs/1706.03762">Vaswani et al. (2017): Attention Is All You Need</a></li>
+            <li id="ref-4"><a href="https://arxiv.org/abs/2006.11239">Ho, Jain, and Abbeel (2020): Denoising Diffusion Probabilistic Models</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
