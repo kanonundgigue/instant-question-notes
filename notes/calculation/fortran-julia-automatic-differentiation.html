@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>FortranからJuliaに書き換えると「微分可能」になるとは？ | k-notes</title>
-    <meta name="description" content="気象モデルの感度計算を例に、JuliaのForwardDiffとPythonのJAXによる自動微分、Fortranを残す場合の方法を説明します。">
+    <meta name="description" content="気象モデルを例に、JuliaやPythonのJAXで自動微分する方法と、モデルに組み込んだニューラルネットの学習に役立つ理由を説明します。">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
@@ -43,6 +43,10 @@
           <p>Pythonなら、<code>jax.numpy</code>などJAXが扱える演算で予報誤差を返す関数を書き、<code>jax.grad</code>でモデルの係数に対する勾配を求められます。ForwardDiffは微分情報を入力から出力へ伝える順方向モードを使います。JAXの<code>grad</code>は出力から入力へさかのぼる逆方向モードを使うため、多数の係数に対して誤差指標が一つという場合に向いています。JAXは<code>jax.jvp</code>で順方向の計算にも対応します。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup><sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></p>
           <p>既存のFortranルーチンをJAXから外部関数として呼ぶ場合、JAXで勾配を計算するには、その呼び出しに微分規則を与える必要があります。たとえば、対応するFortranコードからTapenadeで随伴コードを生成し、JAXの逆方向の微分規則からそのコードを呼ぶ構成が考えられます。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup><sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
 
+          <h3 id="machine-learning">予報誤差からモデル内部のニューラルネットを学習する</h3>
+          <p>気象モデルの中にニューラルネットを組み込み、数時間先の予報誤差を小さくしたい場面で、自動微分が役に立ちます。たとえば、雲の影響を表すニューラルネットの出力が気温や水蒸気の時間変化に影響する場合、予報誤差から時間積分をさかのぼって、ネットワークの重みをどう調整すればよいか計算できます。NeuralGCMでは、微分可能な大気力学コアを使ってモデルを複数ステップ進め、予報と再解析のずれを小さくするように学習しています。<sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup></p>
+          <p>保存済みの予報を入力にして、別のニューラルネットで予報を補正する場合は、補正モデルの重みまで勾配が届けば学習できます。気象モデルを通る勾配が必要なのは、予報誤差を使って、その予報を作る過程に含まれる係数や重みを更新するときです。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup><sup class="citation"><a href="#ref-7" aria-label="参照 7">[7]</a></sup></p>
+
           <h3>しきい値の近くでは傾きの意味を確かめる</h3>
           <p>たとえば、ある値が負ならゼロに切り上げ、正ならそのまま通す処理は、ゼロの左と右で傾きが異なります。Juliaへ移してもゼロにおける微分は定義できません。ツールが実行した分岐の傾きを返す場合もあるので、しきい値の近くでは、その数値を入力の変化に対する感度として使えるかを確かめます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
         </section>
@@ -56,6 +60,7 @@
             <li id="ref-4"><a href="https://docs.jax.dev/en/latest/automatic-differentiation.html">JAX公式ドキュメント「Automatic differentiation」</a></li>
             <li id="ref-5"><a href="https://docs.jax.dev/en/latest/jacobian-vector-products.html">JAX公式ドキュメント「Forward- and reverse-mode autodiff in JAX」</a></li>
             <li id="ref-6"><a href="https://docs.jax.dev/en/latest/401/ffi.html">JAX公式ドキュメント「Foreign function interface (FFI)」</a></li>
+            <li id="ref-7"><a href="https://www.nature.com/articles/s41586-024-07744-y">Kochkov et al. (2024), Neural general circulation models for weather and climate</a></li>
           </ol>
         </section>
       </article>
