@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>FortranからJuliaに書き換えると「微分可能」になるとは？ | k-notes</title>
-    <meta name="description" content="FortranからJuliaへの移植で自動微分を適用しやすくなる理由を、気象モデルの感度計算を例に説明します。">
+    <meta name="description" content="気象モデルの感度計算を例に、JuliaのForwardDiffとPythonのJAXによる自動微分、Fortranを残す場合の方法を説明します。">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
@@ -18,6 +18,7 @@
         <h1>FortranからJuliaに書き換えると「微分可能」になるとは？</h1>
         <div class="article-meta">
           <p>作成日: <time datetime="2026-11-24">2026-11-24</time></p>
+          <p>更新日: <time datetime="2026-11-24">2026-11-24</time></p>
           <p>カテゴリ: 計算・単位換算 / 自動微分</p>
         </div>
 
@@ -38,6 +39,10 @@
           <p>JuliaのForwardDiffは、値と微分情報を一緒に持つ数値型を関数に渡します。途中の演算や作業用配列がその型を扱えるように実装すれば、演算を通じて微分情報が伝わります。Julia側に入口だけ作ってコンパイル済みのFortranを呼ぶ構成では、ForwardDiffは外部ルーチンの内部に微分情報を伝えられません。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
           <p>Fortranの実装を活かす方法もあります。たとえばInriaのTapenadeは、Fortranのソースから微分を計算するコードを生成します。移植するかどうかは、微分したい入力から出力までの計算を、選んだツールがどこまで扱えるかで判断できます。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
 
+          <h3 id="python-jax">PythonのJAXでも同じ感度を求められる</h3>
+          <p>Pythonなら、<code>jax.numpy</code>などJAXが扱える演算で予報誤差を返す関数を書き、<code>jax.grad</code>でモデルの係数に対する勾配を求められます。ForwardDiffは微分情報を入力から出力へ伝える順方向モードを使います。JAXの<code>grad</code>は出力から入力へさかのぼる逆方向モードを使うため、多数の係数に対して誤差指標が一つという場合に向いています。JAXは<code>jax.jvp</code>で順方向の計算にも対応します。<sup class="citation"><a href="#ref-4" aria-label="参照 4">[4]</a></sup><sup class="citation"><a href="#ref-5" aria-label="参照 5">[5]</a></sup></p>
+          <p>既存のFortranルーチンをJAXから外部関数として呼ぶ場合、JAXで勾配を計算するには、その呼び出しに微分規則を与える必要があります。たとえば、対応するFortranコードからTapenadeで随伴コードを生成し、JAXの逆方向の微分規則からそのコードを呼ぶ構成が考えられます。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup><sup class="citation"><a href="#ref-6" aria-label="参照 6">[6]</a></sup></p>
+
           <h3>しきい値の近くでは傾きの意味を確かめる</h3>
           <p>たとえば、ある値が負ならゼロに切り上げ、正ならそのまま通す処理は、ゼロの左と右で傾きが異なります。Juliaへ移してもゼロにおける微分は定義できません。ツールが実行した分岐の傾きを返す場合もあるので、しきい値の近くでは、その数値を入力の変化に対する感度として使えるかを確かめます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
         </section>
@@ -48,6 +53,9 @@
             <li id="ref-1"><a href="https://juliadiff.org/ForwardDiff.jl/stable/user/limitations/">ForwardDiff公式ドキュメント「Limitations of ForwardDiff」</a></li>
             <li id="ref-2"><a href="https://tapenade.gitlabpages.inria.fr/userdoc/build/html/tapenade/whatisad.html">Inria Tapenade公式ドキュメント「What is Automatic Differentiation?」</a></li>
             <li id="ref-3"><a href="https://www-sop.inria.fr/tropics/papers/TapenadeRef12.html">Hascoët and Pascual (2012), The Tapenade Automatic Differentiation tool</a></li>
+            <li id="ref-4"><a href="https://docs.jax.dev/en/latest/automatic-differentiation.html">JAX公式ドキュメント「Automatic differentiation」</a></li>
+            <li id="ref-5"><a href="https://docs.jax.dev/en/latest/jacobian-vector-products.html">JAX公式ドキュメント「Forward- and reverse-mode autodiff in JAX」</a></li>
+            <li id="ref-6"><a href="https://docs.jax.dev/en/latest/401/ffi.html">JAX公式ドキュメント「Foreign function interface (FFI)」</a></li>
           </ol>
         </section>
       </article>
