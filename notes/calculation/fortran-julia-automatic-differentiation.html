@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FortranからJuliaに書き換えると「微分可能」になるとは？ | k-notes</title>
+    <meta name="description" content="FortranからJuliaへの移植で自動微分を適用しやすくなる理由を、気象モデルの感度計算を例に説明します。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Serif+JP:wght@500&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/main.css">
+  </head>
+  <body>
+    <main class="page">
+      <article class="article">
+        <a class="back-link" href="../../index.html">一覧に戻る</a>
+
+        <h1>FortranからJuliaに書き換えると「微分可能」になるとは？</h1>
+        <div class="article-meta">
+          <p>作成日: <time datetime="2026-11-24">2026-11-24</time></p>
+          <p>カテゴリ: 計算・単位換算 / 自動微分</p>
+        </div>
+
+        <section class="question-box" aria-labelledby="question-heading">
+          <h2 id="question-heading">元の質問</h2>
+          <p>FortranからJuliaに書き換えると differentiable になるってどういうこと？</p>
+        </section>
+
+        <section aria-labelledby="answer-heading">
+          <h2 id="answer-heading">回答</h2>
+          <p>この文脈で「微分可能（differentiable）になる」は、多くの場合、<strong>入力に対する出力の微分を、自動微分ツールで計算できる実装にする</strong>という意味です。入力と出力の関係を保ったまま移植すれば、数学的に微分できる点は同じです。移植で変わるのは、ツールが計算の途中までたどって微分を求められるかどうかです。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+
+          <h3>気象モデルでは何を微分するのか</h3>
+          <p>たとえば、雲の生成に関わる係数を入力し、モデルを実行して、予報と観測のずれを表す指標を一つ返すとします。係数に対するこの指標の微分が正なら、その係数を少し増やすと、近い範囲ではずれが大きくなる方向に変化します。係数が複数あれば、それぞれに対する微分を集めた勾配を、ずれを小さくする調整に使えます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+          <p>自動微分は、足し算や掛け算など、計算を構成する個々の演算の微分を連鎖律でつなぎます。入力をわずかに変えて二つの出力の差から傾きを見積もる方法は有限差分です。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+
+          <h3>Juliaに移すと何が変わるのか</h3>
+          <p>JuliaのForwardDiffは、値と微分情報を一緒に持つ数値型を関数に渡します。途中の演算や作業用配列がその型を扱えるように実装すれば、演算を通じて微分情報が伝わります。Julia側に入口だけ作ってコンパイル済みのFortranを呼ぶ構成では、ForwardDiffは外部ルーチンの内部に微分情報を伝えられません。<sup class="citation"><a href="#ref-1" aria-label="参照 1">[1]</a></sup></p>
+          <p>Fortranの実装を活かす方法もあります。たとえばInriaのTapenadeは、Fortranのソースから微分を計算するコードを生成します。移植するかどうかは、微分したい入力から出力までの計算を、選んだツールがどこまで扱えるかで判断できます。<sup class="citation"><a href="#ref-3" aria-label="参照 3">[3]</a></sup></p>
+
+          <h3>しきい値の近くでは傾きの意味を確かめる</h3>
+          <p>たとえば、ある値が負ならゼロに切り上げ、正ならそのまま通す処理は、ゼロの左と右で傾きが異なります。Juliaへ移してもゼロにおける微分は定義できません。ツールが実行した分岐の傾きを返す場合もあるので、しきい値の近くでは、その数値を入力の変化に対する感度として使えるかを確かめます。<sup class="citation"><a href="#ref-2" aria-label="参照 2">[2]</a></sup></p>
+        </section>
+
+        <section class="references" aria-labelledby="references-heading">
+          <h2 id="references-heading">参照</h2>
+          <ol>
+            <li id="ref-1"><a href="https://juliadiff.org/ForwardDiff.jl/stable/user/limitations/">ForwardDiff公式ドキュメント「Limitations of ForwardDiff」</a></li>
+            <li id="ref-2"><a href="https://tapenade.gitlabpages.inria.fr/userdoc/build/html/tapenade/whatisad.html">Inria Tapenade公式ドキュメント「What is Automatic Differentiation?」</a></li>
+            <li id="ref-3"><a href="https://www-sop.inria.fr/tropics/papers/TapenadeRef12.html">Hascoët and Pascual (2012), The Tapenade Automatic Differentiation tool</a></li>
+          </ol>
+        </section>
+      </article>
+    </main>
+    <script src="../../scripts/code-copy.js" defer></script>
+  </body>
+</html>
